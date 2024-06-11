@@ -1,0 +1,41 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity >=0.8.25;
+
+import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+
+/**
+ * @title IRushERC20
+ * @notice An ERC20 token interface for rush.trading.
+ */
+interface IRushERC20 is IERC165 {
+    // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
+
+    /// @notice Returns the description of the token implementation.
+    function description() external pure returns (string memory);
+
+    /// @notice Returns the version of the token implementation.
+    function version() external pure returns (uint256);
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ----------------------------=|+ NON-CONSTANT FUNCTIONS +|=---------------------------- //
+
+    /**
+     * @notice Initializes the token contract.
+     * @param name The name of the token.
+     * @param symbol The symbol of the token.
+     * @param maxSupply The maximum supply of the token.
+     * @param recipient The recipient of the maximum supply.
+     * @param data Additional data for the token initialization.
+     */
+    function initialize(
+        string calldata name,
+        string calldata symbol,
+        uint256 maxSupply,
+        address recipient,
+        bytes calldata data
+    )
+        external;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+}
