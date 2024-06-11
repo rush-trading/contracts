@@ -9,7 +9,7 @@ import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
 import { IWETH } from "src/external/IWETH.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
 import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
-import { FeeCalculator } from "src/fee-calculator/FeeCalculator.sol";
+import { DefaultFeeCalculator as FeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 
 /**

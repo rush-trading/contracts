@@ -2,7 +2,8 @@
 pragma solidity >=0.8.25;
 
 import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
-import { LiquidityDeployer } from "src/liquidity-deployer/LiquidityDeployer.sol";
+import { DefaultLiquidityDeployer as LiquidityDeployer } from
+    "src/liquidity-deployer/strategies/DefaultLiquidityDeployer.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 
