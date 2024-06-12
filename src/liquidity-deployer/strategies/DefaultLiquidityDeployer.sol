@@ -139,8 +139,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
     // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
 
     /**
-     * @notice The percentage of pair liquidity to the deployed liquidity that triggers an early unwind.
-     * @dev Represented in 18 decimals (e.g., 1e18 = 100%).
+     * @notice The level of asset liquidity in pair at which early unwinding is allowed.
      */
     uint256 public immutable EARLY_UNWIND_THRESHOLD;
 
@@ -195,7 +194,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
     /**
      * Constructor
      * @param admin_ The address to grant the admin role.
-     * @param earlyUnwindThreshold_ The early unwind threshold.
+     * @param earlyUnwindThreshold_ The level of asset liquidity in pair at which early unwinding is allowed.
      * @param feeCalculator_ The address of the fee calculator contract.
      * @param liquidityPool_ The address of the liquidity pool contract.
      * @param maxDeploymentAmount_ The maximum amount that can be deployed as liquidity.
@@ -432,8 +431,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
         // Checks: Deadline must have passed or early unwind threshold must be met.
         (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
         uint256 wethReserve = IUniswapV2Pair(pair).token0() == WETH ? reserve0 : reserve1;
-        uint256 liquidityPercentage = (ud(wethReserve) / ud(deployment.amount)).intoUint256();
-        if (deployment.deadline < block.timestamp && liquidityPercentage < EARLY_UNWIND_THRESHOLD) {
+        if (deployment.deadline < block.timestamp && wethReserve < deployment.amount + EARLY_UNWIND_THRESHOLD) {
             revert LiquidityDeployer_UnwindNotReady({ pair: pair, deadline: deployment.deadline });
         }
 
