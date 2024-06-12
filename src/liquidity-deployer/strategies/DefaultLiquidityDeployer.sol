@@ -329,9 +329,31 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
             isUnwound: false
         });
 
-        // Interactions: Refund excess fee to the originator.
-        if (msg.value > fee) {
-            payable(originator).transfer(msg.value - fee);
+        // Interactions: Swap any excess ETH to tokens.
+        uint256 excessAmount = msg.value - fee;
+        if (excessAmount > 0) {
+            // TODO: Limit how much can be swapped.
+
+            // Interactions: Convert excess ETH to WETH.
+            IWETH(WETH).deposit{ value: excessAmount }();
+            // Interactions: Transfer excess WETH to the pair.
+            IWETH(WETH).transfer(pair, excessAmount);
+
+            bool isToken0WETH = IUniswapV2Pair(pair).token0() == WETH;
+            (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
+            (uint256 wethReserve, uint256 tokenReserve) = isToken0WETH ? (reserve0, reserve1) : (reserve1, reserve0);
+            uint256 amountInWithFee = excessAmount * 997;
+            uint256 numerator = amountInWithFee * tokenReserve;
+            uint256 denominator = (wethReserve * 1000) + amountInWithFee;
+            uint256 amountOut = numerator / denominator;
+
+            // Interactions: Swap excess WETH to tokens.
+            IUniswapV2Pair(pair).swap({
+                amount0Out: isToken0WETH ? amountOut : 0,
+                amount1Out: isToken0WETH ? 0 : amountOut,
+                to: originator,
+                data: ""
+            });
         }
         // Interactions: Dispatch asset from LiquidityPool to the pair.
         LiquidityPool(LIQUIDITY_POOL).dispatchAsset({ to: pair, amount: amount, data: abi.encode(reserveCut) });
