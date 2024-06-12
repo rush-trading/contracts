@@ -430,7 +430,8 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
         }
         // Checks: Deadline must have passed or early unwind threshold must be met.
         (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
-        uint256 wethReserve = IUniswapV2Pair(pair).token0() == WETH ? reserve0 : reserve1;
+        (uint256 wethReserve, uint256 tokenReserve) =
+            IUniswapV2Pair(pair).token0() == WETH ? (reserve0, reserve1) : (reserve1, reserve0);
         if (deployment.deadline < block.timestamp && wethReserve < deployment.amount + EARLY_UNWIND_THRESHOLD) {
             revert LiquidityDeployer_UnwindNotReady({ pair: pair, deadline: deployment.deadline });
         }
@@ -442,7 +443,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
         LiquidityPool(LIQUIDITY_POOL).returnAsset({
             from: address(this),
             amount: deployment.amount,
-            data: abi.encode(pair, deployment.token)
+            data: abi.encode(pair, deployment.token, wethReserve, tokenReserve)
         });
 
         // Emit an event.
@@ -513,33 +514,30 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
         }
 
         // TODO: double-check this calculation.
-        (address pair, address deploymentToken) = abi.decode(data, (address, address));
+        (address pair, address token, uint256 wethReserve, uint256 tokenReserve) =
+            abi.decode(data, (address, address, uint256, uint256));
         // TODO: use more intuitive local variable names.
         uint256 finalAmount = IERC20(WETH).balanceOf(pair);
         uint256 excessAmount = finalAmount - amount;
         // Calculate a reserve fee from the excess amount.
         uint256 reserveFee = (ud(excessAmount) * ud(RESERVE_FACTOR)).intoUint256();
-        // Calculate amount of LP tokens to redeem in order to unwind the deployed liquidity + reserve fee.
-        uint256 lpTokensToRedeem =
-        // Add 1 to avoid rounding errors. TODO: Check if this is necessary.
-         ((ud(amount + reserveFee) * ud(IERC20(pair).totalSupply())) / ud(finalAmount)).intoUint256() + 1;
-
-        // TODO: double-check the LP logic below.
-        // If the LP tokens to redeem are greater than the balance, cap the amount to the balance.
-        // This is in the case where no trading has occurred and so the WETH balance of pair is still the same.
+        // Get the LP token balance.
         uint256 lpTokenBalance = IUniswapV2Pair(pair).balanceOf(address(this));
-        if (lpTokensToRedeem > lpTokenBalance) {
-            lpTokensToRedeem = lpTokenBalance;
-        }
 
-        // Interactions: Transfer LP tokens to redeem to pair.
-        IUniswapV2Pair(pair).transfer(pair, lpTokensToRedeem);
-        // Interactions: Burn the LP tokens to redeem the deployed liquidity + reserve fee.
+        // Interactions: Transfer LP token balance to the pair.
+        IUniswapV2Pair(pair).transfer(pair, lpTokenBalance);
+        // Interactions: Burn the LP tokens to redeem the underlying assets.
         IUniswapV2Pair(pair).burn(address(this));
-        // Interactions: Transfer any excess LP tokens to 0 address.
-        IUniswapV2Pair(pair).transfer(address(0), lpTokenBalance);
-        // Interactions: Burn entire balance of deployed token.
-        IERC20(deploymentToken).transfer(address(0), IERC20(deploymentToken).balanceOf(address(this)));
+        uint256 wethToReturn = wethReserve - (amount + reserveFee);
+        uint256 tokenToReturn = (ud(tokenReserve) * (ud(wethToReturn) / ud(wethReserve))).intoUint256();
+        // Interactions: Transfer the WETH to return to the pair.
+        IERC20(WETH).transfer(pair, wethToReturn);
+        // Interactions: Transfer the deployed token to return to the pair.
+        IERC20(token).transfer(pair, tokenToReturn);
+        // Interactions: Mint LP tokens and send them to the 0 address to lock them.
+        IUniswapV2Pair(pair).mint(address(0));
+        // Interactions: Burn entire remaining balance of deployed token.
+        IERC20(token).transfer(address(0), IERC20(token).balanceOf(address(this)));
         // TODO: optimize approval logic.
         // Approve the LiquidityPool to spend reserve fee.
         IERC20(WETH).approve(LIQUIDITY_POOL, reserveFee);
