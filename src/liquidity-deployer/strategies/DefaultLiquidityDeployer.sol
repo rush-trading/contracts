@@ -306,17 +306,17 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
             revert LiquidityDeployer_MaxDuration(duration);
         }
         // Checks: `msg.value` must be at least the liquidity deployment fee.
-        (uint256 fee, uint256 reserveCut) = FeeCalculator(FEE_CALCULATOR).calculateFee(
+        (uint256 totalFee, uint256 reserveFee) = FeeCalculator(FEE_CALCULATOR).calculateFee(
             FeeCalculator.CalculateFeeParams({
                 duration: duration,
-                lastAvailableLiquidity: LiquidityPool(LIQUIDITY_POOL).totalAssets(),
-                lastDeployedLiquidity: LiquidityPool(LIQUIDITY_POOL).outstandingAssets(),
-                newDeployedLiquidity: amount,
-                reserveFactor: RESERVE_FACTOR
+                newLiquidity: amount,
+                outstandingLiquidity: LiquidityPool(LIQUIDITY_POOL).outstandingAssets(),
+                reserveFactor: RESERVE_FACTOR,
+                totalLiquidity: LiquidityPool(LIQUIDITY_POOL).totalAssets()
             })
         );
-        if (msg.value < fee) {
-            revert LiquidityDeployer_FeeMismatch({ expected: fee, received: msg.value });
+        if (msg.value < totalFee) {
+            revert LiquidityDeployer_FeeMismatch({ expected: totalFee, received: msg.value });
         }
 
         // Effects: Store the liquidity deployment.
@@ -330,7 +330,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
         });
 
         // Interactions: Swap any excess ETH to tokens.
-        uint256 excessAmount = msg.value - fee;
+        uint256 excessAmount = msg.value - totalFee;
         if (excessAmount > 0) {
             // TODO: Limit how much can be swapped.
 
@@ -356,7 +356,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
             });
         }
         // Interactions: Dispatch asset from LiquidityPool to the pair.
-        LiquidityPool(LIQUIDITY_POOL).dispatchAsset({ to: pair, amount: amount, data: abi.encode(reserveCut) });
+        LiquidityPool(LIQUIDITY_POOL).dispatchAsset({ to: pair, amount: amount, data: abi.encode(reserveFee) });
 
         // Emit an event.
         emit DeployLiquidity({ originator: originator, token: token, pair: pair, amount: amount, deadline: deadline });
@@ -485,7 +485,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
      * Actions:
      * 1. Mint LP tokens.
      * 2. Convert received fee from ETH to WETH.
-     * 3. Deposit the reserve cut and transfer share to the reserve.
+     * 3. Deposit the reserve fee and transfer share to the reserve.
      * 4. Transfer the remaining fee to the LiquidityPool.
      *
      * @param to The pair address to which the liquidity is deployed.
@@ -500,13 +500,13 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
         IUniswapV2Pair(to).mint(address(this));
         // Interactions: Convert received fee from ETH to WETH.
         IWETH(WETH).deposit{ value: address(this).balance }();
-        // Interactions: Deposit the reserve cut and transfer share to the reserve.
-        (uint256 reserveCut) = abi.decode(data, (uint256));
+        // Interactions: Deposit the reserve fee and transfer share to the reserve.
+        (uint256 reserveFee) = abi.decode(data, (uint256));
         // TODO: optimize approval logic.
-        // Interactions: Approve the LiquidityPool to spend reserve cut.
-        IERC20(WETH).approve(LIQUIDITY_POOL, reserveCut);
-        // Interactions: Deposit the reserve cut and transfer share to the reserve.
-        LiquidityPool(LIQUIDITY_POOL).deposit(reserveCut, RESERVE);
+        // Interactions: Approve the LiquidityPool to spend reserve fee.
+        IERC20(WETH).approve(LIQUIDITY_POOL, reserveFee);
+        // Interactions: Deposit the reserve fee and transfer share to the reserve.
+        LiquidityPool(LIQUIDITY_POOL).deposit(reserveFee, RESERVE);
         // Interactions: Transfer the remaining fee to the LiquidityPool.
         IERC20(WETH).transfer(LIQUIDITY_POOL, IERC20(WETH).balanceOf(address(this)));
     }

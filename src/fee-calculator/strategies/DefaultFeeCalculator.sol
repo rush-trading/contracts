@@ -11,31 +11,29 @@ contract DefaultFeeCalculator {
     // #region -----------------------------------=|+ STRUCTS +|=------------------------------------ //
 
     /**
-     * @dev The parameters to calculate the liquidity deployment fee.
-     * @param duration The duration of liquidity deployment.
-     * @param lastAvailableLiquidity The available liquidity before the new liquidity is deployed.
-     * @param lastDeployedLiquidity The liquidity deployed before the new liquidity is deployed.
-     * @param newDeployedLiquidity The new liquidity to be deployed.
-     * @param reserveFactor The reserve factor of the pool.
-     */
-    struct CalculateFeeParams {
-        uint256 duration;
-        uint256 lastAvailableLiquidity;
-        uint256 lastDeployedLiquidity;
-        uint256 newDeployedLiquidity;
-        uint256 reserveFactor;
-    }
-
-    /**
      * @dev The local variables to calculate the liquidity deployment fee.
-     * @param availablePlusDeployedLiquidity The available liquidity plus the liquidity deployed.
      * @param feeRate The fee rate to be applied.
      * @param utilizationRatio The utilization ratio of the pool.
      */
     struct CalculateFeeLocalVars {
-        uint256 availablePlusDeployedLiquidity;
         uint256 feeRate;
         uint256 utilizationRatio;
+    }
+
+    /**
+     * @dev The parameters to calculate the liquidity deployment fee.
+     * @param duration The duration of liquidity deployment.
+     * @param newLiquidity The liquidity to be deployed.
+     * @param outstandingLiquidity The liquidity already deployed.
+     * @param reserveFactor The reserve factor of the pool.
+     * @param totalLiquidity The total liquidity managed by the pool.
+     */
+    struct CalculateFeeParams {
+        uint256 duration;
+        uint256 newLiquidity;
+        uint256 outstandingLiquidity;
+        uint256 reserveFactor;
+        uint256 totalLiquidity;
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -100,28 +98,29 @@ contract DefaultFeeCalculator {
      * @notice Calculate the liquidity deployment fee based on the given conditions.
      * @dev The fee is calculated in the same token as the liquidity.
      * @param params The parameters to calculate the fee.
-     * @return fee The liquidity pool fee to be paid.
-     * @return reserveCut The reserve cut of the fee.
+     * @return totalFee The total fee to be paid.
+     * @return reserveFee The reserve portion of the total fee.
      */
-    function calculateFee(CalculateFeeParams calldata params) external view returns (uint256 fee, uint256 reserveCut) {
+    function calculateFee(CalculateFeeParams calldata params)
+        external
+        view
+        returns (uint256 totalFee, uint256 reserveFee)
+    {
         CalculateFeeLocalVars memory vars;
 
         vars.feeRate = BASE_FEE_RATE;
-
-        vars.availablePlusDeployedLiquidity = params.lastAvailableLiquidity + params.lastDeployedLiquidity;
-        vars.utilizationRatio = (
-            ud(params.lastDeployedLiquidity + params.newDeployedLiquidity) / ud(vars.availablePlusDeployedLiquidity)
-        ).intoUint256();
+        vars.utilizationRatio =
+            (ud(params.outstandingLiquidity + params.newLiquidity) / ud(params.totalLiquidity)).intoUint256();
 
         if (vars.utilizationRatio > OPTIMAL_UTILIZATION_RATIO) {
             // If U > U_optimal, formula is:
             //                                                      U - U_optimal
             // R_fee = BASE_FEE_RATE + RATE_SLOPE1 + RATE_SLOPE2 * ---------------
             //                                                      1 - U_optimal
-            uint256 excessFeeUtilizationRatio =
+            uint256 excessUtilizationRatio =
                 (ud(vars.utilizationRatio - OPTIMAL_UTILIZATION_RATIO) / ud(MAX_EXCESS_UTILIZATION_RATIO)).intoUint256();
 
-            vars.feeRate += RATE_SLOPE1 + (ud(RATE_SLOPE2) * ud(excessFeeUtilizationRatio)).intoUint256();
+            vars.feeRate += RATE_SLOPE1 + (ud(RATE_SLOPE2) * ud(excessUtilizationRatio)).intoUint256();
         } else {
             // Else, formula is:
             //                                             U
@@ -130,8 +129,8 @@ contract DefaultFeeCalculator {
             vars.feeRate += RATE_SLOPE1 * (ud(vars.utilizationRatio) / ud(OPTIMAL_UTILIZATION_RATIO)).intoUint256();
         }
 
-        fee = (ud(vars.feeRate * params.duration) * ud(params.newDeployedLiquidity)).intoUint256();
-        reserveCut = (ud(fee) * ud(params.reserveFactor)).intoUint256();
+        totalFee = (ud(vars.feeRate * params.duration) * ud(params.newLiquidity)).intoUint256();
+        reserveFee = (ud(totalFee) * ud(params.reserveFactor)).intoUint256();
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
