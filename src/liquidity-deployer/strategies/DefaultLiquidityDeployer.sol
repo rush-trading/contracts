@@ -126,6 +126,24 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
 
     // #region -----------------------------------=|+ STRUCTS +|=------------------------------------ //
 
+    struct DeployLiquidityLocalVars {
+        uint256 totalSupply;
+        uint256 pairBalance;
+        uint256 reserveFee;
+        uint256 totalFee;
+        uint256 deadline;
+        uint256 excessAmount;
+        bool isToken0WETH;
+        uint256 reserve0;
+        uint256 reserve1;
+        uint256 wethReserve;
+        uint256 tokenReserve;
+        uint256 amountInWithFee;
+        uint256 numerator;
+        uint256 denominator;
+        uint256 amountOut;
+    }
+
     struct LiquidityDeployment {
         address token;
         address originator;
@@ -270,23 +288,24 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
         onlyRole(LIQUIDITY_DEPLOYER_ROLE)
         whenNotPaused
     {
+        DeployLiquidityLocalVars memory vars;
         // Checks: Pair must not have received liquidity before.
         if (liquidityDeployments[pair].deadline != 0) {
             revert LiquidityDeployer_PairAlreadyReceivedLiquidity({ token: token, pair: pair });
         }
         // Checks: Total supply of the deployed token must be greater than 0.
-        uint256 totalSupply = IERC20(token).totalSupply();
-        if (totalSupply == 0) {
+        vars.totalSupply = IERC20(token).totalSupply();
+        if (vars.totalSupply == 0) {
             revert LiquidityDeployer_TotalSupplyZero({ token: token, pair: pair });
         }
         // Checks: Pair should contain entire supply of the deployed token.
-        uint256 pairBalance = IERC20(token).balanceOf(address(pair));
-        if (pairBalance != totalSupply) {
+        vars.pairBalance = IERC20(token).balanceOf(address(pair));
+        if (vars.pairBalance != vars.totalSupply) {
             revert LiquidityDeployer_PairSupplyDiscrepancy({
                 token: token,
                 pair: pair,
-                pairBalance: pairBalance,
-                totalSupply: totalSupply
+                pairBalance: vars.pairBalance,
+                totalSupply: vars.totalSupply
             });
         }
         // Checks: Amount to deploy must not be less than minimum limit.
@@ -306,7 +325,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
             revert LiquidityDeployer_MaxDuration(duration);
         }
         // Checks: `msg.value` must be at least the liquidity deployment fee.
-        (uint256 totalFee, uint256 reserveFee) = FeeCalculator(FEE_CALCULATOR).calculateFee(
+        (vars.totalFee, vars.reserveFee) = FeeCalculator(FEE_CALCULATOR).calculateFee(
             FeeCalculator.CalculateFeeParams({
                 duration: duration,
                 newLiquidity: amount,
@@ -315,51 +334,58 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
                 totalLiquidity: LiquidityPool(LIQUIDITY_POOL).totalAssets()
             })
         );
-        if (msg.value < totalFee) {
-            revert LiquidityDeployer_FeeMismatch({ expected: totalFee, received: msg.value });
+        if (msg.value < vars.totalFee) {
+            revert LiquidityDeployer_FeeMismatch({ expected: vars.totalFee, received: msg.value });
         }
 
         // Effects: Store the liquidity deployment.
-        uint256 deadline = block.timestamp + duration;
+        vars.deadline = block.timestamp + duration;
         liquidityDeployments[pair] = LiquidityDeployment({
             token: token,
             originator: originator,
             amount: amount,
-            deadline: deadline,
+            deadline: vars.deadline,
             isUnwound: false
         });
 
         // Interactions: Swap any excess ETH to tokens.
-        uint256 excessAmount = msg.value - totalFee;
-        if (excessAmount > 0) {
+        vars.excessAmount = msg.value - vars.totalFee;
+        if (vars.excessAmount > 0) {
             // TODO: Limit how much can be swapped.
 
             // Interactions: Convert excess ETH to WETH.
-            IWETH(WETH).deposit{ value: excessAmount }();
+            IWETH(WETH).deposit{ value: vars.excessAmount }();
             // Interactions: Transfer excess WETH to the pair.
-            IWETH(WETH).transfer(pair, excessAmount);
+            IWETH(WETH).transfer(pair, vars.excessAmount);
 
-            bool isToken0WETH = IUniswapV2Pair(pair).token0() == WETH;
-            (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
-            (uint256 wethReserve, uint256 tokenReserve) = isToken0WETH ? (reserve0, reserve1) : (reserve1, reserve0);
-            uint256 amountInWithFee = excessAmount * 997;
-            uint256 numerator = amountInWithFee * tokenReserve;
-            uint256 denominator = (wethReserve * 1000) + amountInWithFee;
-            uint256 amountOut = numerator / denominator;
+            vars.isToken0WETH = IUniswapV2Pair(pair).token0() == WETH;
+            (vars.reserve0, vars.reserve1,) = IUniswapV2Pair(pair).getReserves();
+            (vars.wethReserve, vars.tokenReserve) =
+                vars.isToken0WETH ? (vars.reserve0, vars.reserve1) : (vars.reserve1, vars.reserve0);
+            vars.amountInWithFee = vars.excessAmount * 997;
+            vars.numerator = vars.amountInWithFee * vars.tokenReserve;
+            vars.denominator = (vars.wethReserve * 1000) + vars.amountInWithFee;
+            vars.amountOut = vars.numerator / vars.denominator;
 
             // Interactions: Swap excess WETH to tokens.
             IUniswapV2Pair(pair).swap({
-                amount0Out: isToken0WETH ? amountOut : 0,
-                amount1Out: isToken0WETH ? 0 : amountOut,
+                amount0Out: vars.isToken0WETH ? vars.amountOut : 0,
+                amount1Out: vars.isToken0WETH ? 0 : vars.amountOut,
                 to: originator,
                 data: ""
             });
         }
         // Interactions: Dispatch asset from LiquidityPool to the pair.
-        LiquidityPool(LIQUIDITY_POOL).dispatchAsset({ to: pair, amount: amount, data: abi.encode(reserveFee) });
+        LiquidityPool(LIQUIDITY_POOL).dispatchAsset({ to: pair, amount: amount, data: abi.encode(vars.reserveFee) });
 
         // Emit an event.
-        emit DeployLiquidity({ originator: originator, token: token, pair: pair, amount: amount, deadline: deadline });
+        emit DeployLiquidity({
+            originator: originator,
+            token: token,
+            pair: pair,
+            amount: amount,
+            deadline: vars.deadline
+        });
     }
 
     /**
