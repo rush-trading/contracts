@@ -246,7 +246,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
      * - Amount to deploy must not be greater than maximum limit.
      * - Duration must not be less than minimum limit.
      * - Duration must not be greater than maximum limit.
-     * - `msg.value` must be equal to the liquidity deployment fee.
+     * - `msg.value` must be at least the liquidity deployment fee.
      *
      * Actions:
      * 1. Store the liquidity deployment.
@@ -254,7 +254,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
      *
      * @param originator The address that originated the request (i.e., the user).
      * @param pair The address of the Uniswap V2 pair that will receive liquidity.
-     * @param token The address of the token that will be deployed as liquidity.
+     * @param token The address of the token launched.
      * @param amount The amount of liquidity to deploy.
      * @param duration The duration for which the liquidity will be deployed.
      */

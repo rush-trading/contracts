@@ -101,24 +101,24 @@ contract RushLauncher {
 
     /**
      * @dev Constructor
-     * @param reserveAsset_ The address of the liquidity reserve token.
      * @param erc20Factory_ The address of the ERC20 factory contract.
-     * @param uniswapV2Factory_ The address of the Uniswap V2 factory contract.
      * @param liquidityDeployer_ The address of the liquidity deployer contract.
      * @param minSupply_ The minimum minted supply of the ERC20 token.
+     * @param reserveToken_ The address of the liquidity reserve token.
+     * @param uniswapV2Factory_ The address of the Uniswap V2 factory contract.
      */
     constructor(
-        address reserveAsset_,
         RushERC20Factory erc20Factory_,
-        address uniswapV2Factory_,
         address liquidityDeployer_,
-        uint256 minSupply_
+        uint256 minSupply_,
+        address reserveToken_,
+        address uniswapV2Factory_
     ) {
-        RESERVE_TOKEN = reserveAsset_;
         ERC20_FACTORY = erc20Factory_;
-        UNISWAP_V2_FACTORY = uniswapV2Factory_;
         LIQUIDITY_DEPLOYER = liquidityDeployer_;
         MIN_SUPPLY = minSupply_;
+        RESERVE_TOKEN = reserveToken_;
+        UNISWAP_V2_FACTORY = uniswapV2Factory_;
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
