@@ -4,12 +4,22 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Test } from "forge-std/src/Test.sol";
 import { Users } from "./utils/Types.sol";
 import { Utils } from "./utils/Utils.sol";
+import { Constants } from "./utils/Constants.sol";
+
+import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
-abstract contract Base_Test is Test, Utils {
+abstract contract Base_Test is Test, Utils, Constants {
     // #region ----------------------------------=|+ VARIABLES +|=----------------------------------- //
 
     Users internal users;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
+
+    // TODO: Use interfaces instead of concrete contracts.
+    DefaultFeeCalculator internal feeCalculator;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
