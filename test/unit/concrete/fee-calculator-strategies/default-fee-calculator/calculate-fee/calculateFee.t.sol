@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25 <0.9.0;
 
+import { ud } from "@prb/math/src/UD60x18.sol";
 import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
 
 import { DefaultFeeCalculator_Unit_Concrete_Test } from "../DefaultFeeCalculator.t.sol";
@@ -20,6 +21,9 @@ contract CalculateFee_Unit_Concrete_Test is DefaultFeeCalculator_Unit_Concrete_T
         uint256 outstandingLiquidity = 900_000e18; // 900K tokens
         uint256 totalLiquidity = 1_000_000e18; // 1M tokens
 
+        uint256 utilizationRatio = (ud(outstandingLiquidity + newLiquidity) / ud(totalLiquidity)).intoUint256();
+        assertGt(utilizationRatio, DEFAULT_OPTIMAL_UTILIZATION_RATIO, "utilizationRatio");
+
         (uint256 actualTotalFee, uint256 actualReserveFee) = feeCalculator.calculateFee(
             DefaultFeeCalculator.CalculateFeeParams({
                 duration: duration,
@@ -37,11 +41,14 @@ contract CalculateFee_Unit_Concrete_Test is DefaultFeeCalculator_Unit_Concrete_T
         assertEq(actualReserveFee, expectedReserveFee);
     }
 
-    function test_GivenUtilizationIsLessThanOptimalUtilization() external view {
+    function test_GivenUtilizationIsLessThanOrEqOptimalUtilization() external view {
         uint256 duration = 31_536_000; // 1 year
         uint256 newLiquidity = 5000e18; // 5K tokens
         uint256 outstandingLiquidity = 85_000e18; // 85K tokens
         uint256 totalLiquidity = 1_000_000e18; // 1M tokens
+
+        uint256 utilizationRatio = (ud(outstandingLiquidity + newLiquidity) / ud(totalLiquidity)).intoUint256();
+        assertLt(utilizationRatio, DEFAULT_OPTIMAL_UTILIZATION_RATIO, "utilizationRatio");
 
         (uint256 actualTotalFee, uint256 actualReserveFee) = feeCalculator.calculateFee(
             DefaultFeeCalculator.CalculateFeeParams({
