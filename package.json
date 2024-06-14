@@ -20,6 +20,7 @@
   "scripts": {
     "clean": "rm -rf cache out",
     "build": "forge build",
+    "gas:report": "forge test --gas-report --no-match-test \"test(Fuzz)?_RevertWhen_\"",
     "lint": "bun run lint:sol && bun run prettier:check",
     "lint:sol": "forge fmt --check && bun solhint {script,src,test}/**/*.sol",
     "prettier:check": "prettier --check \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
