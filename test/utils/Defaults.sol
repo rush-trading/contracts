@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25;
 
-import { RushERC20Mock } from "test/mocks/RushERC20Mock.sol";
+import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 
 /// @notice Contract with default values used throughout the tests.
 contract Defaults {
@@ -12,14 +12,17 @@ contract Defaults {
     uint256 public constant RATE_SLOPE1 = 0.01e18; // 1%
     uint256 public constant RATE_SLOPE2 = 0.75e18; // 75%
     uint256 public constant RESERVE_FACTOR = 0.1e18; // 10%
-    bytes32 public immutable KIND;
+    bytes32 public immutable TEMPLATE_KIND;
+    uint256 public immutable TEMPLATE_VERSION;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ---------------------------------=|+ CONSTRUCTOR +|=---------------------------------- //
 
     constructor() {
-        KIND = keccak256(abi.encodePacked(new RushERC20Mock().description()));
+        GoodRushERC20Mock tempContract = new GoodRushERC20Mock();
+        TEMPLATE_KIND = keccak256(abi.encodePacked(tempContract.description()));
+        TEMPLATE_VERSION = tempContract.version();
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

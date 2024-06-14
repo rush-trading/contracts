@@ -13,19 +13,36 @@ contract AddTemplate_Integration_Concrete_Test is RushERC20Factory_Integration_C
         vm.expectRevert(
             abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, DEFAULT_ADMIN_ROLE)
         );
-        rushERC20Factory.addTemplate({ implementation: address(rushERC20Mock) });
+        rushERC20Factory.addTemplate({ implementation: address(goodRushERC20Mock) });
     }
 
     modifier whenCallerHasAdminRole() {
+        // Make Admin the caller in this test.
+        changePrank({ msgSender: users.admin });
         _;
     }
 
     function test_RevertWhen_ImplementationDoesNotSupportRequiredInterface() external whenCallerHasAdminRole {
-        // it should revert
+        // Run the test.
+        vm.expectRevert(abi.encodeWithSelector(Errors.RushERC20Factory_InvalidInterfaceId.selector));
+        rushERC20Factory.addTemplate({ implementation: address(badRushERC20Mock) });
     }
 
     function test_WhenImplementationSupportsRequiredInterface() external whenCallerHasAdminRole {
-        // it should add template
-        // it should emit a {AddTemplate} event
+        // Expect the relevant event to be emitted.
+        vm.expectEmit({ emitter: address(rushERC20Factory) });
+        emit AddTemplate({
+            kind: defaults.TEMPLATE_KIND(),
+            version: defaults.TEMPLATE_VERSION(),
+            implementation: address(goodRushERC20Mock)
+        });
+
+        // Add the template.
+        rushERC20Factory.addTemplate({ implementation: address(goodRushERC20Mock) });
+
+        // Assert that the template was added.
+        address actualTemplate = rushERC20Factory.templates(defaults.TEMPLATE_KIND());
+        address expectedTemplate = address(goodRushERC20Mock);
+        vm.assertEq(actualTemplate, expectedTemplate, "template");
     }
 }

@@ -15,7 +15,8 @@ contract Constructor_RushERC20Factory_Integration_Concrete_Test is Base_Test {
         emit RoleGranted({ role: DEFAULT_ADMIN_ROLE, account: users.admin, sender: users.sender });
 
         // Construct the contract.
-        RushERC20Factory constructedRushERC20Factory = new RushERC20Factory({ admin_: users.admin });
+        RushERC20Factory constructedRushERC20Factory =
+            new RushERC20Factory({ admin_: users.admin, tokenDeployer_: users.tokenDeployer });
 
         // Assert that the admin has been initialized.
         bool actualHasRole = constructedRushERC20Factory.hasRole({ role: DEFAULT_ADMIN_ROLE, account: users.admin });

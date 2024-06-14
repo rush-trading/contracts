@@ -57,9 +57,11 @@ contract RushERC20Factory is AccessControlExtended {
      * @dev Constructor
      *
      * @param admin_ The address to grant the admin role.
+     * @param tokenDeployer_ The address to grant the token deployer role.
      */
-    constructor(address admin_) {
+    constructor(address admin_, address tokenDeployer_) {
         _grantRole({ role: DEFAULT_ADMIN_ROLE, account: admin_ });
+        _grantRole({ role: TOKEN_DEPLOYER_ROLE, account: tokenDeployer_ });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

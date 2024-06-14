@@ -10,7 +10,7 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
         changePrank({ msgSender: users.eve });
 
         // Run the test.
-        bytes32 kind = defaults.KIND();
+        bytes32 kind = defaults.TEMPLATE_KIND();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, DEFAULT_ADMIN_ROLE)
         );
@@ -18,15 +18,32 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
     }
 
     modifier whenCallerHasAdminRole() {
+        // Make Admin the caller in this test.
+        changePrank({ msgSender: users.admin });
         _;
     }
 
     function test_RevertWhen_KindIsNotRegistered() external whenCallerHasAdminRole {
-        // it should revert
+        // Run the test.
+        bytes32 kind = defaults.TEMPLATE_KIND();
+        vm.expectRevert(abi.encodeWithSelector(Errors.RushERC20Factory_NotTemplate.selector, defaults.TEMPLATE_KIND()));
+        rushERC20Factory.removeTemplate({ kind: kind });
     }
 
     function test_WhenKindIsRegistered() external whenCallerHasAdminRole {
-        // it should remove template
-        // it should emit a {RemoveTemplate} event
+        // Add the template.
+        rushERC20Factory.addTemplate({ implementation: address(goodRushERC20Mock) });
+
+        // Expect the relevant event to be emitted.
+        vm.expectEmit({ emitter: address(rushERC20Factory) });
+        emit RemoveTemplate({ kind: defaults.TEMPLATE_KIND(), version: defaults.TEMPLATE_VERSION() });
+
+        // Remove the template.
+        rushERC20Factory.removeTemplate({ kind: defaults.TEMPLATE_KIND() });
+
+        // Assert that the template was removed.
+        address actualTemplate = rushERC20Factory.templates(defaults.TEMPLATE_KIND());
+        address expectedTemplate = address(0);
+        vm.assertEq(actualTemplate, expectedTemplate, "template");
     }
 }
