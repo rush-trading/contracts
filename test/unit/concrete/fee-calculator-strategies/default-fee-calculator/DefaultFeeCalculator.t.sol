@@ -11,7 +11,6 @@ contract DefaultFeeCalculator_Unit_Concrete_Test is Base_Test {
         deploy();
     }
 
-    /// @dev Conditionally deploys {SablierV2Comptroller} normally or from a source precompiled with `--via-ir`.
     function deploy() internal {
         feeCalculator = new DefaultFeeCalculator({
             baseFeeRate: defaults.BASE_FEE_RATE(),

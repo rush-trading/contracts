@@ -9,6 +9,7 @@ import { Defaults } from "./utils/Defaults.sol";
 import { Events } from "./utils/Events.sol";
 
 import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
+import { RushERC20Factory } from "src/RushERC20Factory.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
 abstract contract Base_Test is Test, Utils, Constants, Events {
@@ -21,9 +22,9 @@ abstract contract Base_Test is Test, Utils, Constants, Events {
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
 
     Defaults internal defaults;
-
     // TODO: Use interfaces instead of concrete contracts.
     DefaultFeeCalculator internal feeCalculator;
+    RushERC20Factory internal rushERC20Factory;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
