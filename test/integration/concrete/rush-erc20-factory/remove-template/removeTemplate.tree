@@ -1,0 +1,9 @@
+removeTemplate.t.sol
+├── when caller does not have admin role
+│   └── it should revert
+└── when caller has admin role
+    ├── when kind is not registered
+    │   └── it should revert
+    └── when kind is registered
+        ├── it should remove template
+        └── it should emit a {RemoveTemplate} event

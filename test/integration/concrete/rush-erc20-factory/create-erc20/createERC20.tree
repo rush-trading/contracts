@@ -1,0 +1,9 @@
+createERC20.t.sol
+├── when caller does not have token deployer role
+│   └── it should revert
+└── when caller has token deployer role
+    ├── given implementation is not registered
+    │   └── it should revert
+    └── given implementation is registered
+        ├── it should create a new ERC20 token
+        └── it should emit a {CreateERC20} event

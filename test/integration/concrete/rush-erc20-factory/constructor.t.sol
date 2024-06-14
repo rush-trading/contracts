@@ -5,7 +5,7 @@ import { RushERC20Factory } from "src/RushERC20Factory.sol";
 
 import { Base_Test } from "test/Base.t.sol";
 
-contract Constructor_RushERC20Factory_Unit_Concrete_Test is Base_Test {
+contract Constructor_RushERC20Factory_Integration_Concrete_Test is Base_Test {
     function test_Constructor() external {
         // Expect the relevant event to be emitted.
         vm.expectEmit();

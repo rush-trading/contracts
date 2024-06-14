@@ -2,12 +2,13 @@
 pragma solidity >=0.8.25;
 
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 /**
  * @title IRushERC20
  * @notice An ERC20 token interface for rush.trading.
  */
-interface IRushERC20 is IERC165 {
+interface IRushERC20 is IERC165, IERC20Metadata {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /// @notice Returns the description of the token implementation.
