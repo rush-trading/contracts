@@ -9,6 +9,7 @@ import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
 import { IWETH } from "src/external/IWETH.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
 import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
+import { Errors } from "src/libraries/Errors.sol";
 import { DefaultFeeCalculator as FeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 
@@ -17,89 +18,6 @@ import { LiquidityPool } from "src/LiquidityPool.sol";
  * @notice A permissioned liquidity deployment contract.
  */
 contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCallback, IReturnAssetCallback {
-    // #region --------------------------------=|+ CUSTOM ERRORS +|=--------------------------------- //
-
-    /**
-     * @notice Emitted when the liquidity deployment has already been unwound.
-     * @param pair The address of the Uniswap V2 pair.
-     */
-    error LiquidityDeployer_AlreadyUnwound(address pair);
-
-    /**
-     * @notice Emitted when the received deployment fee does not match the expected fee.
-     * @param expected The expected fee.
-     * @param received The received fee.
-     */
-    error LiquidityDeployer_FeeMismatch(uint256 expected, uint256 received);
-
-    /**
-     * @notice Emitted when the callback sender is invalid.
-     * @param sender The address of the callback sender.
-     */
-    error LiquidityDeployer_InvalidCallbackSender(address sender);
-
-    /**
-     * @notice Emitted when a pair has already received liquidity.
-     * @param token The address of the deployed token of the pair.
-     * @param pair The address of the Uniswap V2 pair that has already received liquidity.
-     */
-    error LiquidityDeployer_PairAlreadyReceivedLiquidity(address token, address pair);
-
-    /**
-     * @notice Emitted when the pair has not received liquidity.
-     * @param pair The address of the Uniswap V2 pair.
-     */
-    error LiquidityDeployer_PairNotReceivedLiquidity(address pair);
-
-    /**
-     * @notice Emitted when the pool does not contain the entire supply of the other token.
-     * @param token The address of the other token.
-     * @param pair The address of the Uniswap V2 pair.
-     * @param pairBalance The balance of the deployed token in the pair.
-     * @param totalSupply The total supply of the deployed token.
-     */
-    error LiquidityDeployer_PairSupplyDiscrepancy(address token, address pair, uint256 pairBalance, uint256 totalSupply);
-
-    /**
-     * @notice Emitted when liquidity unwinding conditions are not met.
-     * @param pair The address of the Uniswap V2 pair.
-     * @param deadline The deadline timestamp.
-     */
-    error LiquidityDeployer_UnwindNotReady(address pair, uint256 deadline);
-
-    /**
-     * @notice Emitted when the duration is greater than the maximum limit.
-     * @param duration The duration attempted to set.
-     */
-    error LiquidityDeployer_MaxDuration(uint256 duration);
-
-    /**
-     * @notice Emitted when the amount to deploy is greater than the maximum limit.
-     * @param amount The amount attempted to deploy.
-     */
-    error LiquidityDeployer_MaxLiquidtyAmount(uint256 amount);
-
-    /**
-     * @notice Emitted when the duration is less than the minimum limit.
-     * @param duration The duration attempted to set.
-     */
-    error LiquidityDeployer_MinDuration(uint256 duration);
-
-    /**
-     * @notice Emitted when the amount to deploy is less than the minimum limit.
-     * @param amount The amount attempted to deploy.
-     */
-    error LiquidityDeployer_MinLiquidtyAmount(uint256 amount);
-
-    /**
-     * @notice Emitted when the total supply of the deployed token is zero.
-     * @param token The address of the deployed token.
-     * @param pair The address of the Uniswap V2 pair.
-     */
-    error LiquidityDeployer_TotalSupplyZero(address token, address pair);
-
-    // #endregion ----------------------------------------------------------------------------------- //
-
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
@@ -291,17 +209,17 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
         DeployLiquidityLocalVars memory vars;
         // Checks: Pair must not have received liquidity before.
         if (liquidityDeployments[pair].deadline != 0) {
-            revert LiquidityDeployer_PairAlreadyReceivedLiquidity({ token: token, pair: pair });
+            revert Errors.LiquidityDeployer_PairAlreadyReceivedLiquidity({ token: token, pair: pair });
         }
         // Checks: Total supply of the deployed token must be greater than 0.
         vars.totalSupply = IERC20(token).totalSupply();
         if (vars.totalSupply == 0) {
-            revert LiquidityDeployer_TotalSupplyZero({ token: token, pair: pair });
+            revert Errors.LiquidityDeployer_TotalSupplyZero({ token: token, pair: pair });
         }
         // Checks: Pair should contain entire supply of the deployed token.
         vars.pairBalance = IERC20(token).balanceOf(address(pair));
         if (vars.pairBalance != vars.totalSupply) {
-            revert LiquidityDeployer_PairSupplyDiscrepancy({
+            revert Errors.LiquidityDeployer_PairSupplyDiscrepancy({
                 token: token,
                 pair: pair,
                 pairBalance: vars.pairBalance,
@@ -310,19 +228,19 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
         }
         // Checks: Amount to deploy must not be less than minimum limit.
         if (amount < MIN_DEPLOYMENT_AMOUNT) {
-            revert LiquidityDeployer_MinLiquidtyAmount(amount);
+            revert Errors.LiquidityDeployer_MinLiquidtyAmount(amount);
         }
         // Checks: Amount to deploy must not be greater than maximum limit.
         if (amount > MAX_DEPLOYMENT_AMOUNT) {
-            revert LiquidityDeployer_MaxLiquidtyAmount(amount);
+            revert Errors.LiquidityDeployer_MaxLiquidtyAmount(amount);
         }
         // Checks: Duration must not be less than minimum limit.
         if (duration < MIN_DURATION) {
-            revert LiquidityDeployer_MinDuration(duration);
+            revert Errors.LiquidityDeployer_MinDuration(duration);
         }
         // Checks: Duration must not be greater than maximum limit.
         if (duration > MAX_DURATION) {
-            revert LiquidityDeployer_MaxDuration(duration);
+            revert Errors.LiquidityDeployer_MaxDuration(duration);
         }
         // Checks: `msg.value` must be at least the liquidity deployment fee.
         (vars.totalFee, vars.reserveFee) = FeeCalculator(FEE_CALCULATOR).calculateFee(
@@ -335,7 +253,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
             })
         );
         if (msg.value < vars.totalFee) {
-            revert LiquidityDeployer_FeeMismatch({ expected: vars.totalFee, received: msg.value });
+            revert Errors.LiquidityDeployer_FeeMismatch({ expected: vars.totalFee, received: msg.value });
         }
 
         // Effects: Store the liquidity deployment.
@@ -425,11 +343,11 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
             LiquidityDeployment storage deployment = liquidityDeployments[pair];
             // Checks: Pair must have received liquidity before.
             if (deployment.deadline == 0) {
-                revert LiquidityDeployer_PairNotReceivedLiquidity({ pair: pair });
+                revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ pair: pair });
             }
             // Checks: Pair must not have been unwound before.
             if (deployment.isUnwound) {
-                revert LiquidityDeployer_AlreadyUnwound({ pair: pair });
+                revert Errors.LiquidityDeployer_AlreadyUnwound({ pair: pair });
             }
 
             // Effects: Set deployment as unwound.
@@ -470,18 +388,18 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
         LiquidityDeployment storage deployment = liquidityDeployments[pair];
         // Checks: Pair must have received liquidity before.
         if (deployment.deadline == 0) {
-            revert LiquidityDeployer_PairNotReceivedLiquidity({ pair: pair });
+            revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ pair: pair });
         }
         // Checks: Pair must not have been unwound before.
         if (deployment.isUnwound) {
-            revert LiquidityDeployer_AlreadyUnwound({ pair: pair });
+            revert Errors.LiquidityDeployer_AlreadyUnwound({ pair: pair });
         }
         // Checks: Deadline must have passed or early unwind threshold must be met.
         (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
         (uint256 wethReserve, uint256 tokenReserve) =
             IUniswapV2Pair(pair).token0() == WETH ? (reserve0, reserve1) : (reserve1, reserve0);
         if (deployment.deadline < block.timestamp && wethReserve < deployment.amount + EARLY_UNWIND_THRESHOLD) {
-            revert LiquidityDeployer_UnwindNotReady({ pair: pair, deadline: deployment.deadline });
+            revert Errors.LiquidityDeployer_UnwindNotReady({ pair: pair, deadline: deployment.deadline });
         }
 
         // Effects: Set deployment as unwound.
@@ -520,7 +438,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
     function onDispatchAsset(address to, uint256, bytes calldata data) external override {
         // Checks: `msg.sender` must be the LiquidityPool.
         if (msg.sender != LIQUIDITY_POOL) {
-            revert LiquidityDeployer_InvalidCallbackSender({ sender: msg.sender });
+            revert Errors.LiquidityDeployer_InvalidCallbackSender({ sender: msg.sender });
         }
         // Interactions: Mint LP tokens.
         IUniswapV2Pair(to).mint(address(this));
@@ -558,7 +476,7 @@ contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCall
     function onReturnAsset(address, uint256 amount, bytes calldata data) external override {
         // Checks: `msg.sender` must be the LiquidityPool.
         if (msg.sender != LIQUIDITY_POOL) {
-            revert LiquidityDeployer_InvalidCallbackSender({ sender: msg.sender });
+            revert Errors.LiquidityDeployer_InvalidCallbackSender({ sender: msg.sender });
         }
 
         // TODO: double-check this calculation.

@@ -6,22 +6,13 @@ import { DefaultLiquidityDeployer as LiquidityDeployer } from
     "src/liquidity-deployer/strategies/DefaultLiquidityDeployer.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
+import { Errors } from "src/libraries/Errors.sol";
 
 /**
  * @title RushLauncher
  * @notice A permission-less contract for launching ERC20 token markets.
  */
 contract RushLauncher {
-    // #region --------------------------------=|+ CUSTOM ERRORS +|=--------------------------------- //
-
-    /**
-     * @notice Emitted when the maximum supply of the token is too low.
-     * @param maxSupply The maximum supply of the token.
-     */
-    error RushLauncher_LowMaxSupply(uint256 maxSupply);
-
-    // #endregion ----------------------------------------------------------------------------------- //
-
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
@@ -132,7 +123,7 @@ contract RushLauncher {
     function launch(LaunchParams calldata params) external payable {
         // Checks: Maximum supply must be greater than the minimum limit.
         if (params.maxSupply < MIN_SUPPLY) {
-            revert RushLauncher_LowMaxSupply(params.maxSupply);
+            revert Errors.RushLauncher_LowMaxSupply(params.maxSupply);
         }
 
         // Compute the kind of the token template.

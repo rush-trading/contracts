@@ -6,22 +6,13 @@ import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol"
 import { ERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
 import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
+import { Errors } from "src/libraries/Errors.sol";
 
 /**
  * @title LiquidityPool
  * @notice A permissioned ERC4626-based liquidity pool contract.
  */
 contract LiquidityPool is ERC4626, AccessControl {
-    // #region --------------------------------=|+ CUSTOM ERRORS +|=--------------------------------- //
-
-    /// @notice Emitted when a zero address is provided.
-    error LiquidityPool_ZeroAddress();
-
-    /// @notice Emitted when a zero amount is provided.
-    error LiquidityPool_ZeroAmount();
-
-    // #endregion ----------------------------------------------------------------------------------- //
-
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
@@ -107,11 +98,11 @@ contract LiquidityPool is ERC4626, AccessControl {
     function dispatchAsset(address to, uint256 amount, bytes calldata data) public onlyRole(ASSET_MANAGER_ROLE) {
         // Checks: `to` must not be the zero address.
         if (to == address(0)) {
-            revert LiquidityPool_ZeroAddress();
+            revert Errors.LiquidityPool_ZeroAddress();
         }
         // Checks: `amount` must be greater than zero.
         if (amount == 0) {
-            revert LiquidityPool_ZeroAmount();
+            revert Errors.LiquidityPool_ZeroAmount();
         }
 
         // Effects: Increase the total amount of outstanding assets.
@@ -146,11 +137,11 @@ contract LiquidityPool is ERC4626, AccessControl {
     function returnAsset(address from, uint256 amount, bytes calldata data) public onlyRole(ASSET_MANAGER_ROLE) {
         // Checks: `from` must not be the zero address.
         if (from == address(0)) {
-            revert LiquidityPool_ZeroAddress();
+            revert Errors.LiquidityPool_ZeroAddress();
         }
         // Checks: `amount` must be greater than zero.
         if (amount == 0) {
-            revert LiquidityPool_ZeroAmount();
+            revert Errors.LiquidityPool_ZeroAmount();
         }
 
         // Effects: Decrease the total amount of outstanding assets.

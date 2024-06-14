@@ -6,6 +6,7 @@ import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { CloneTemplate } from "src/libraries/CloneTemplate.sol";
+import { Errors } from "src/libraries/Errors.sol";
 
 /**
  * @title RushERC20Factory
@@ -14,19 +15,6 @@ import { CloneTemplate } from "src/libraries/CloneTemplate.sol";
 contract RushERC20Factory is AccessControlExtended {
     using Address for address;
     using CloneTemplate for CloneTemplate.Data;
-
-    // #region --------------------------------=|+ CUSTOM ERRORS +|=--------------------------------- //
-
-    /// @dev Emitted when the implementation does not support the required interface.
-    error RushERC20Factory_InvalidInterfaceId();
-
-    /**
-     * @dev Emitted when the template does not exist.
-     * @param kind The kind of token template.
-     */
-    error RushERC20Factory_NotTemplate(bytes32 kind);
-
-    // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
@@ -94,7 +82,7 @@ contract RushERC20Factory is AccessControlExtended {
     function addTemplate(address implementation) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Checks: Implementation must support the required interface.
         if (!IERC165(implementation).supportsInterface(type(IRushERC20).interfaceId)) {
-            revert RushERC20Factory_InvalidInterfaceId();
+            revert Errors.RushERC20Factory_InvalidInterfaceId();
         }
 
         // Effects: Add token template to the factory.
@@ -151,7 +139,7 @@ contract RushERC20Factory is AccessControlExtended {
         // Checks: The given kind must be registered in the factory.
         address implementation = templates[kind].implementation;
         if (implementation == address(0)) {
-            revert RushERC20Factory_NotTemplate(kind);
+            revert Errors.RushERC20Factory_NotTemplate(kind);
         }
 
         // Effects: Remove token template from the factory.
