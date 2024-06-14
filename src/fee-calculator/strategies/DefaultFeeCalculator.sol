@@ -126,7 +126,8 @@ contract DefaultFeeCalculator {
             //                                             U
             // R_fee = BASE_FEE_RATE + RATE_SLOPE1 *  -----------
             //                                         U_optimal
-            vars.feeRate += RATE_SLOPE1 * (ud(vars.utilizationRatio) / ud(OPTIMAL_UTILIZATION_RATIO)).intoUint256();
+            vars.feeRate +=
+                (ud(RATE_SLOPE1) * (ud(vars.utilizationRatio) / ud(OPTIMAL_UTILIZATION_RATIO))).intoUint256();
         }
 
         totalFee = (ud(vars.feeRate * params.duration) * ud(params.newLiquidity)).intoUint256();
