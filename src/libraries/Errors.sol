@@ -4,6 +4,13 @@ pragma solidity >=0.8.25;
 /// @title Errors
 /// @notice Library containing all custom errors the protocol may revert with.
 library Errors {
+    // #region -----------------------------------=|+ GENERICS +|=----------------------------------- //
+
+    /// @notice Emitted when the account is missing a role.
+    error AccessControlUnauthorizedAccount(address account, bytes32 neededRole);
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region --------------------------------=|+ LIQUIDITY-POOL +|=-------------------------------- //
 
     /// @notice Emitted when a zero address is provided.

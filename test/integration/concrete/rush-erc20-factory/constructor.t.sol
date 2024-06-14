@@ -7,9 +7,12 @@ import { Base_Test } from "test/Base.t.sol";
 
 contract Constructor_RushERC20Factory_Integration_Concrete_Test is Base_Test {
     function test_Constructor() external {
+        // Make Sender the caller in this test.
+        changePrank({ msgSender: users.sender });
+
         // Expect the relevant event to be emitted.
         vm.expectEmit();
-        emit RoleGranted({ role: DEFAULT_ADMIN_ROLE, account: users.admin, sender: address(this) });
+        emit RoleGranted({ role: DEFAULT_ADMIN_ROLE, account: users.admin, sender: users.sender });
 
         // Construct the contract.
         RushERC20Factory constructedRushERC20Factory = new RushERC20Factory({ admin_: users.admin });

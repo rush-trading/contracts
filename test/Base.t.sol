@@ -35,7 +35,9 @@ abstract contract Base_Test is Test, Utils, Constants, Events {
         users = Users({
             admin: createUser("Admin"),
             assetManager: createUser("AssetManager"),
+            eve: createUser("Eve"),
             liquidityDeployer: createUser("LiquidityDeployer"),
+            sender: createUser("Sender"),
             tokenDeployer: createUser("TokenDeployer")
         });
 

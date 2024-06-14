@@ -6,8 +6,12 @@ struct Users {
     address payable admin;
     // Asset manager.
     address payable assetManager;
+    // Malicious user.
+    address payable eve;
     // Liquidity deployer.
     address payable liquidityDeployer;
+    // Default message sender.
+    address payable sender;
     // Token deployer.
     address payable tokenDeployer;
 }
