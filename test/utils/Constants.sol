@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.25;
 
 abstract contract Constants {
     uint256 internal constant DEFAULT_BASE_FEE_RATE = 1e18; // 100%
