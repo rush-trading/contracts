@@ -22,14 +22,14 @@ contract CalculateFee_Unit_Concrete_Test is DefaultFeeCalculator_Unit_Concrete_T
         uint256 totalLiquidity = 1_000_000e18; // 1M tokens
 
         uint256 utilizationRatio = (ud(outstandingLiquidity + newLiquidity) / ud(totalLiquidity)).intoUint256();
-        assertGt(utilizationRatio, DEFAULT_OPTIMAL_UTILIZATION_RATIO, "utilizationRatio");
+        assertGt(utilizationRatio, defaults.OPTIMAL_UTILIZATION_RATIO(), "utilizationRatio");
 
         (uint256 actualTotalFee, uint256 actualReserveFee) = feeCalculator.calculateFee(
             DefaultFeeCalculator.CalculateFeeParams({
                 duration: duration,
                 newLiquidity: newLiquidity,
                 outstandingLiquidity: outstandingLiquidity,
-                reserveFactor: DEFAULT_RESERVE_FACTOR,
+                reserveFactor: defaults.RESERVE_FACTOR(),
                 totalLiquidity: totalLiquidity
             })
         );
@@ -48,14 +48,14 @@ contract CalculateFee_Unit_Concrete_Test is DefaultFeeCalculator_Unit_Concrete_T
         uint256 totalLiquidity = 1_000_000e18; // 1M tokens
 
         uint256 utilizationRatio = (ud(outstandingLiquidity + newLiquidity) / ud(totalLiquidity)).intoUint256();
-        assertLt(utilizationRatio, DEFAULT_OPTIMAL_UTILIZATION_RATIO, "utilizationRatio");
+        assertLt(utilizationRatio, defaults.OPTIMAL_UTILIZATION_RATIO(), "utilizationRatio");
 
         (uint256 actualTotalFee, uint256 actualReserveFee) = feeCalculator.calculateFee(
             DefaultFeeCalculator.CalculateFeeParams({
                 duration: duration,
                 newLiquidity: newLiquidity,
                 outstandingLiquidity: outstandingLiquidity,
-                reserveFactor: DEFAULT_RESERVE_FACTOR,
+                reserveFactor: defaults.RESERVE_FACTOR(),
                 totalLiquidity: totalLiquidity
             })
         );

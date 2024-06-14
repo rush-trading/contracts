@@ -5,11 +5,13 @@ import { Test } from "forge-std/src/Test.sol";
 import { Users } from "./utils/Types.sol";
 import { Utils } from "./utils/Utils.sol";
 import { Constants } from "./utils/Constants.sol";
+import { Defaults } from "./utils/Defaults.sol";
+import { Events } from "./utils/Events.sol";
 
 import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
-abstract contract Base_Test is Test, Utils, Constants {
+abstract contract Base_Test is Test, Utils, Constants, Events {
     // #region ----------------------------------=|+ VARIABLES +|=----------------------------------- //
 
     Users internal users;
@@ -17,6 +19,8 @@ abstract contract Base_Test is Test, Utils, Constants {
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
+
+    Defaults internal defaults;
 
     // TODO: Use interfaces instead of concrete contracts.
     DefaultFeeCalculator internal feeCalculator;
@@ -33,6 +37,9 @@ abstract contract Base_Test is Test, Utils, Constants {
             liquidityDeployer: createUser("LiquidityDeployer"),
             tokenDeployer: createUser("TokenDeployer")
         });
+
+        // Deploy the defaults contract.
+        defaults = new Defaults();
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

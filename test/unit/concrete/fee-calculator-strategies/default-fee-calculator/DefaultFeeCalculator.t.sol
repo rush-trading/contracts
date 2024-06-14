@@ -14,10 +14,10 @@ contract DefaultFeeCalculator_Unit_Concrete_Test is Base_Test {
     /// @dev Conditionally deploys {SablierV2Comptroller} normally or from a source precompiled with `--via-ir`.
     function deploy() internal {
         feeCalculator = new DefaultFeeCalculator({
-            baseFeeRate: DEFAULT_BASE_FEE_RATE,
-            optimalUtilizationRatio: DEFAULT_OPTIMAL_UTILIZATION_RATIO,
-            rateSlope1: DEFAULT_RATE_SLOPE1,
-            rateSlope2: DEFAULT_RATE_SLOPE2
+            baseFeeRate: defaults.BASE_FEE_RATE(),
+            optimalUtilizationRatio: defaults.OPTIMAL_UTILIZATION_RATIO(),
+            rateSlope1: defaults.RATE_SLOPE1(),
+            rateSlope2: defaults.RATE_SLOPE2()
         });
         vm.label({ account: address(feeCalculator), newLabel: "FeeCalculator" });
     }
