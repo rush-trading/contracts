@@ -9,7 +9,9 @@ import { Defaults } from "./utils/Defaults.sol";
 import { Events } from "./utils/Events.sol";
 
 import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
+import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
+import { WETHMock } from "test/mocks/WethMock.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
 abstract contract Base_Test is Test, Utils, Constants, Events {
@@ -24,13 +26,18 @@ abstract contract Base_Test is Test, Utils, Constants, Events {
     Defaults internal defaults;
     // TODO: Use interfaces instead of concrete contracts.
     DefaultFeeCalculator internal feeCalculator;
+    LiquidityPool internal liquidityPool;
     RushERC20Factory internal rushERC20Factory;
+    WETHMock internal weth;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region --------------------------------=|+ SET-UP FUNCTION +|=------------------------------- //
 
     function setUp() public virtual {
+        // Deploy the base test contracts.
+        weth = new WETHMock();
+
         // Create users for testing.
         users = Users({
             admin: createUser("Admin"),

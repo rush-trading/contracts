@@ -22,5 +22,10 @@ contract Constructor_RushERC20Factory_Integration_Concrete_Test is Base_Test {
         bool actualHasRole = constructedRushERC20Factory.hasRole({ role: DEFAULT_ADMIN_ROLE, account: users.admin });
         bool expectedHasRole = true;
         assertEq(actualHasRole, expectedHasRole, "DEFAULT_ADMIN_ROLE");
+
+        // Assert that the token deployer has been initialized.
+        actualHasRole = constructedRushERC20Factory.hasRole({ role: TOKEN_DEPLOYER_ROLE, account: users.tokenDeployer });
+        expectedHasRole = true;
+        assertEq(actualHasRole, expectedHasRole, "TOKEN_DEPLOYER_ROLE");
     }
 }
