@@ -52,12 +52,10 @@ contract LiquidityPool is ERC4626, AccessControl {
     /**
      * Constructor
      * @param admin_ The address to grant the admin role.
-     * @param assetManager_ The address to grant the asset manager role.
      * @param weth_ The address of the WETH token.
      */
     constructor(
         address admin_,
-        address assetManager_,
         address weth_
     )
         ERC4626(ERC20(weth_))
@@ -65,7 +63,6 @@ contract LiquidityPool is ERC4626, AccessControl {
         ERC20("Wrapped Ether Vault", "vWETH")
     {
         _grantRole({ role: DEFAULT_ADMIN_ROLE, account: admin_ });
-        _grantRole({ role: ASSET_MANAGER_ROLE, account: assetManager_ });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

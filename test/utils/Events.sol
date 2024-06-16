@@ -18,4 +18,12 @@ abstract contract Events {
     event RemoveTemplate(bytes32 indexed kind, uint256 indexed version);
 
     // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region --------------------------------=|+ LIQUIDITY-POOL +|=-------------------------------- //
+
+    event DispatchAsset(address indexed originator, address indexed to, uint256 amount);
+
+    event ReturnAsset(address indexed originator, address indexed from, uint256 amount);
+
+    // #endregion ----------------------------------------------------------------------------------- //
 }

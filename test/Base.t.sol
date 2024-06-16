@@ -9,7 +9,9 @@ import { Defaults } from "./utils/Defaults.sol";
 import { Events } from "./utils/Events.sol";
 
 import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
+import { DispatchAssetCaller } from "test/mocks/DispatchAssetCaller.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
+import { ReturnAssetCaller } from "test/mocks/ReturnAssetCaller.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { WETHMock } from "test/mocks/WethMock.sol";
 
@@ -25,8 +27,10 @@ abstract contract Base_Test is Test, Utils, Constants, Events {
 
     Defaults internal defaults;
     // TODO: Use interfaces instead of concrete contracts.
+    DispatchAssetCaller internal dispatchAssetCaller;
     DefaultFeeCalculator internal feeCalculator;
     LiquidityPool internal liquidityPool;
+    ReturnAssetCaller internal returnAssetCaller;
     RushERC20Factory internal rushERC20Factory;
     WETHMock internal weth;
 
@@ -36,14 +40,16 @@ abstract contract Base_Test is Test, Utils, Constants, Events {
 
     function setUp() public virtual {
         // Deploy the base test contracts.
+        dispatchAssetCaller = new DispatchAssetCaller();
+        returnAssetCaller = new ReturnAssetCaller();
         weth = new WETHMock();
 
         // Create users for testing.
         users = Users({
             admin: createUser("Admin"),
-            assetManager: createUser("AssetManager"),
             eve: createUser("Eve"),
             liquidityDeployer: createUser("LiquidityDeployer"),
+            recipient: createUser("Recipient"),
             sender: createUser("Sender"),
             tokenDeployer: createUser("TokenDeployer")
         });
@@ -60,6 +66,7 @@ abstract contract Base_Test is Test, Utils, Constants, Events {
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
+        deal({ token: address(weth), to: user, give: 100 ether });
         return user;
     }
 

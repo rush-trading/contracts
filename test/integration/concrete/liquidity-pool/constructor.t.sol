@@ -15,17 +15,11 @@ contract Constructor_LiquidityPool_Integration_Concrete_Test is Base_Test {
         emit RoleGranted({ role: DEFAULT_ADMIN_ROLE, account: users.admin, sender: users.sender });
 
         // Construct the contract.
-        LiquidityPool constructedLiquidityPool =
-            new LiquidityPool({ admin_: users.admin, assetManager_: users.assetManager, weth_: address(weth) });
+        LiquidityPool constructedLiquidityPool = new LiquidityPool({ admin_: users.admin, weth_: address(weth) });
 
         // Assert that the admin has been initialized.
         bool actualHasRole = constructedLiquidityPool.hasRole({ role: DEFAULT_ADMIN_ROLE, account: users.admin });
         bool expectedHasRole = true;
         assertEq(actualHasRole, expectedHasRole, "DEFAULT_ADMIN_ROLE");
-
-        // Assert that the asset manager has been initialized.
-        actualHasRole = constructedLiquidityPool.hasRole({ role: ASSET_MANAGER_ROLE, account: users.assetManager });
-        expectedHasRole = true;
-        assertEq(actualHasRole, expectedHasRole, "ASSET_MANAGER_ROLE");
     }
 }
