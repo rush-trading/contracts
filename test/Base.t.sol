@@ -64,12 +64,38 @@ abstract contract Base_Test is Test, Utils, Constants, Events {
 
     // #region -----------------------------------=|+ HELPERS +|=------------------------------------ //
 
+    /// @dev Approves the core contracts to spend assets from the users.
+    function approveCore() internal {
+        (, address caller,) = vm.readCallers();
+        changePrank({ msgSender: users.sender });
+        weth.approve({ spender: address(liquidityPool), value: type(uint256).max });
+        changePrank({ msgSender: caller });
+    }
+
     /// @dev Generates a user, labels its address, and funds it with test assets.
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
         deal({ token: address(weth), to: user, give: 100 ether });
         return user;
+    }
+
+    /// @dev Deploys the core contracts.
+    function deployCore() internal {
+        rushERC20Factory = new RushERC20Factory({ admin_: users.admin });
+        vm.label({ account: address(rushERC20Factory), newLabel: "RushERC20Factory" });
+        liquidityPool = new LiquidityPool({ admin_: users.admin, weth_: address(weth) });
+        vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
+    }
+
+    /// @dev Grants the necessary roles of the core contracts.
+    function grantRolesCore() internal {
+        (, address caller,) = vm.readCallers();
+        changePrank({ msgSender: users.admin });
+        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(dispatchAssetCaller) });
+        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(returnAssetCaller) });
+        rushERC20Factory.grantRole({ role: TOKEN_DEPLOYER_ROLE, account: address(users.tokenDeployer) });
+        changePrank({ msgSender: caller });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
