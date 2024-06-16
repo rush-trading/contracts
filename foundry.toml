@@ -7,7 +7,7 @@
   evm_version = "shanghai"
   fuzz = { runs = 1_000 }
   gas_reports = ["*"]
-  gas_reports_ignore = ["Defaults"]
+  gas_reports_ignore = ["Defaults", "GoodRushERC20Mock", "WETHMock"]
   optimizer = true
   optimizer_runs = 10_000
   out = "out"
