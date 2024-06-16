@@ -15,17 +15,11 @@ contract Constructor_RushERC20Factory_Integration_Concrete_Test is Base_Test {
         emit RoleGranted({ role: DEFAULT_ADMIN_ROLE, account: users.admin, sender: users.sender });
 
         // Construct the contract.
-        RushERC20Factory constructedRushERC20Factory =
-            new RushERC20Factory({ admin_: users.admin, tokenDeployer_: users.tokenDeployer });
+        RushERC20Factory constructedRushERC20Factory = new RushERC20Factory({ admin_: users.admin });
 
         // Assert that the admin has been initialized.
         bool actualHasRole = constructedRushERC20Factory.hasRole({ role: DEFAULT_ADMIN_ROLE, account: users.admin });
         bool expectedHasRole = true;
         assertEq(actualHasRole, expectedHasRole, "DEFAULT_ADMIN_ROLE");
-
-        // Assert that the token deployer has been initialized.
-        actualHasRole = constructedRushERC20Factory.hasRole({ role: TOKEN_DEPLOYER_ROLE, account: users.tokenDeployer });
-        expectedHasRole = true;
-        assertEq(actualHasRole, expectedHasRole, "TOKEN_DEPLOYER_ROLE");
     }
 }

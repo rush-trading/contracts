@@ -34,7 +34,7 @@ contract CreateERC20_Integration_Concrete_Test is RushERC20Factory_Integration_C
 
     function test_GivenImplementationIsRegistered() external whenCallerHasTokenDeployerRole {
         // Add the template.
-        _addTemplate({ implementation: address(goodRushERC20Mock) });
+        addTemplateToFactory({ implementation: address(goodRushERC20Mock) });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({
@@ -58,19 +58,5 @@ contract CreateERC20_Integration_Concrete_Test is RushERC20Factory_Integration_C
         assertEq(
             IERC165(token).supportsInterface({ interfaceId: type(IRushERC20).interfaceId }), true, "supportsInterface"
         );
-    }
-
-    function _addTemplate(address implementation) internal {
-        // Cache the caller.
-        (, address caller,) = vm.readCallers();
-
-        // Make Admin the caller.
-        changePrank({ msgSender: users.admin });
-
-        // Add the template.
-        rushERC20Factory.addTemplate({ implementation: implementation });
-
-        // Restore caller.
-        changePrank({ msgSender: caller });
     }
 }

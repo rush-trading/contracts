@@ -11,6 +11,7 @@ contract DefaultFeeCalculator_Unit_Concrete_Test is Base_Test {
         deploy();
     }
 
+    /// @dev Deploys the contract.
     function deploy() internal {
         feeCalculator = new DefaultFeeCalculator({
             baseFeeRate: defaults.BASE_FEE_RATE(),

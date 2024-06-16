@@ -14,14 +14,32 @@ contract RushERC20Factory_Integration_Concrete_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
         deploy();
+        grantRoles();
     }
 
+    /// @dev Adds a template to the factory.
+    function addTemplateToFactory(address implementation) internal {
+        (, address caller,) = vm.readCallers();
+        changePrank({ msgSender: users.admin });
+        rushERC20Factory.addTemplate({ implementation: implementation });
+        changePrank({ msgSender: caller });
+    }
+
+    /// @dev Deploys the contracts.
     function deploy() internal {
-        rushERC20Factory = new RushERC20Factory({ admin_: users.admin, tokenDeployer_: users.tokenDeployer });
+        rushERC20Factory = new RushERC20Factory({ admin_: users.admin });
         goodRushERC20Mock = new GoodRushERC20Mock();
         badRushERC20Mock = new BadRushERC20Mock();
         vm.label({ account: address(rushERC20Factory), newLabel: "RushERC20Factory" });
         vm.label({ account: address(goodRushERC20Mock), newLabel: "GoodRushERC20Mock" });
         vm.label({ account: address(badRushERC20Mock), newLabel: "BadRushERC20Mock" });
+    }
+
+    /// @dev Grants factory roles.
+    function grantRoles() internal {
+        (, address caller,) = vm.readCallers();
+        changePrank({ msgSender: users.admin });
+        rushERC20Factory.grantRole({ role: TOKEN_DEPLOYER_ROLE, account: address(users.tokenDeployer) });
+        changePrank({ msgSender: caller });
     }
 }

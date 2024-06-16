@@ -32,7 +32,7 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
 
     function test_WhenKindIsRegistered() external whenCallerHasAdminRole {
         // Add the template.
-        rushERC20Factory.addTemplate({ implementation: address(goodRushERC20Mock) });
+        addTemplateToFactory({ implementation: address(goodRushERC20Mock) });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(rushERC20Factory) });

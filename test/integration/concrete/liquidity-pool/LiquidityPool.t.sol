@@ -9,66 +9,46 @@ contract LiquidityPool_Integration_Concrete_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
         deploy();
-
-        // Cache the caller.
-        (, address caller,) = vm.readCallers();
-        // Make Admin the caller in this test.
-        changePrank({ msgSender: users.admin });
-        // Grant the asset manager role to the DispatchAssetCaller.
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(dispatchAssetCaller) });
-        // Grant the asset manager role to the ReturnAssetCaller.
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(returnAssetCaller) });
-        // Restore caller.
-        changePrank({ msgSender: caller });
-
+        grantRoles();
         approveLiquidityPool();
     }
 
     /// @dev Approves liquidity pool to spend assets from the Sender.
     function approveLiquidityPool() internal {
-        // Cache the caller.
         (, address caller,) = vm.readCallers();
-
-        // Make Sender the caller in this test.
         changePrank({ msgSender: users.sender });
-
-        // Approve the pool to spend WETH.
         weth.approve({ spender: address(liquidityPool), value: type(uint256).max });
-
-        // Restore caller.
         changePrank({ msgSender: caller });
     }
 
+    /// @dev Deploys the contract.
     function deploy() internal {
         liquidityPool = new LiquidityPool({ admin_: users.admin, weth_: address(weth) });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
     }
 
+    /// @dev Deposits assets from the Sender to the liquidity pool.
     function depositToLiquidityPool(uint256 amount) internal {
-        // Cache the caller.
         (, address caller,) = vm.readCallers();
-
-        // Make Sender the caller in this test.
         changePrank({ msgSender: users.sender });
-
-        // Add deposits to the pool.
         liquidityPool.deposit({ assets: amount, receiver: users.sender });
-
-        // Restore caller.
         changePrank({ msgSender: caller });
     }
 
+    /// @dev Dispatches assets from the liquidity pool to the Recipient.
     function dispatchFromLiquidityPool(uint256 amount) internal {
-        // Cache the caller.
         (, address caller,) = vm.readCallers();
-
-        // Make DispatchAssetCaller the caller in this test.
         changePrank({ msgSender: address(dispatchAssetCaller) });
-
-        // Dispatch the asset.
         liquidityPool.dispatchAsset({ to: users.recipient, amount: amount, data: "" });
+        changePrank({ msgSender: caller });
+    }
 
-        // Restore caller.
+    /// @dev grants liquidity pool roles.
+    function grantRoles() internal {
+        (, address caller,) = vm.readCallers();
+        changePrank({ msgSender: users.admin });
+        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(dispatchAssetCaller) });
+        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(returnAssetCaller) });
         changePrank({ msgSender: caller });
     }
 }
