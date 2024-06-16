@@ -11,8 +11,9 @@ import { Events } from "./utils/Events.sol";
 import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
 import { DispatchAssetCaller } from "test/mocks/DispatchAssetCaller.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
-import { ReturnAssetCaller } from "test/mocks/ReturnAssetCaller.sol";
+import { RushERC20Abstract } from "src/abstracts/RushERC20Abstract.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
+import { ReturnAssetCaller } from "test/mocks/ReturnAssetCaller.sol";
 import { WETHMock } from "test/mocks/WethMock.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
@@ -31,6 +32,7 @@ abstract contract Base_Test is Test, Utils, Constants, Events {
     DefaultFeeCalculator internal feeCalculator;
     LiquidityPool internal liquidityPool;
     ReturnAssetCaller internal returnAssetCaller;
+    RushERC20Abstract internal rushERC20;
     RushERC20Factory internal rushERC20Factory;
     WETHMock internal weth;
 

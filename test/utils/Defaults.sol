@@ -16,6 +16,7 @@ contract Defaults {
     uint256 public constant RESERVE_FACTOR = 0.1e18; // 10%
     bytes32 public immutable TEMPLATE_KIND;
     uint256 public immutable TEMPLATE_VERSION;
+    bytes4 public constant UNKNOWN_INTERFACE_ID = 0xdeadbeef;
 
     // #endregion ----------------------------------------------------------------------------------- //
 

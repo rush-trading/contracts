@@ -1,0 +1,7 @@
+supportsInterface.t.sol
+├── when interface id is for IERC165
+│   └── it should return true
+├── when interface id is for IRushERC20
+│   └── it should return true
+└── when interface id is unknown
+    └── it should return false

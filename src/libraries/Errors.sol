@@ -9,6 +9,9 @@ library Errors {
     /// @notice Thrown when the account is missing a role.
     error AccessControlUnauthorizedAccount(address account, bytes32 neededRole);
 
+    /// @notice Thrown when the contract is already initialized.
+    error InvalidInitialization();
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------=|+ LIQUIDITY-DEPLOYER +|=------------------------------ //
