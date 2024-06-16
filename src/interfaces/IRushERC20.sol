@@ -9,6 +9,14 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
  * @notice An ERC20 token interface for rush.trading.
  */
 interface IRushERC20 is IERC165, IERC20Metadata {
+    // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
+
+    event Initialize(
+        string indexed name, string indexed symbol, uint256 maxSupply, address indexed recipient, bytes data
+    );
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /// @notice Returns the description of the token implementation.

@@ -9,6 +9,14 @@ abstract contract Events {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region ----------------------------------=|+ RUSH-ERC20 +|=---------------------------------- //
+
+    event Initialize(
+        string indexed name, string indexed symbol, uint256 maxSupply, address indexed recipient, bytes data
+    );
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ------------------------------=|+ RUSH-ERC20-FACTORY +|=------------------------------ //
 
     event AddTemplate(bytes32 indexed kind, uint256 indexed version, address implementation);

@@ -16,6 +16,9 @@ contract Defaults {
     uint256 public constant RESERVE_FACTOR = 0.1e18; // 10%
     bytes32 public immutable TEMPLATE_KIND;
     uint256 public immutable TEMPLATE_VERSION;
+    string public constant TOKEN_NAME = "GoodRush";
+    string public constant TOKEN_SYMBOL = "GR";
+    uint256 public constant TOKEN_MAX_SUPPLY = 100_000_000_000e18; // 100 billion
     bytes4 public constant UNKNOWN_INTERFACE_ID = 0xdeadbeef;
 
     // #endregion ----------------------------------------------------------------------------------- //
