@@ -1,0 +1,6 @@
+initialize.t.sol
+├── given already initialized
+│   └── it should revert
+└── given not initialized
+    ├── it should initialize with correct values
+    └── it should mint max supply to recipient
