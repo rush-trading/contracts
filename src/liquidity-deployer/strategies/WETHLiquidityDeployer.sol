@@ -10,7 +10,7 @@ import { IWETH } from "src/external/IWETH.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
 import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { DefaultFeeCalculator as FeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
+import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 
 /**

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25 <0.9.0;
 
-import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
+import { FeeCalculator } from "src/FeeCalculator.sol";
 
 import { Base_Test } from "test/Base.t.sol";
 
-contract Constructor_DefaultFeeCalculator_Unit_Concrete_Test is Base_Test {
+contract Constructor_FeeCalculator_Unit_Concrete_Test is Base_Test {
     function test_Constructor() external {
         // Construct the contract.
-        DefaultFeeCalculator constructedFeeCalculator = new DefaultFeeCalculator({
+        FeeCalculator constructedFeeCalculator = new FeeCalculator({
             baseFeeRate: defaults.BASE_FEE_RATE(),
             optimalUtilizationRatio: defaults.OPTIMAL_UTILIZATION_RATIO(),
             rateSlope1: defaults.RATE_SLOPE1(),

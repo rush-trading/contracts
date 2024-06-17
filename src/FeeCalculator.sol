@@ -4,10 +4,10 @@ pragma solidity >=0.8.25;
 import { ud } from "@prb/math/src/UD60x18.sol";
 
 /**
- * @title DefaultFeeCalculator
+ * @title FeeCalculator
  * @notice Calculates liquidity deployment fees.
  */
-contract DefaultFeeCalculator {
+contract FeeCalculator {
     // #region -----------------------------------=|+ STRUCTS +|=------------------------------------ //
 
     /**

@@ -2,13 +2,13 @@
 pragma solidity >=0.8.25 <0.9.0;
 
 import { ud } from "@prb/math/src/UD60x18.sol";
-import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
+import { FeeCalculator } from "src/FeeCalculator.sol";
 
-import { DefaultFeeCalculator_Unit_Shared_Test } from "test/unit/shared/DefaultFeeCalculator.t.sol";
+import { FeeCalculator_Unit_Shared_Test } from "test/unit/shared/FeeCalculator.t.sol";
 
-contract CalculateFee_Unit_Fuzz_Test is DefaultFeeCalculator_Unit_Shared_Test {
+contract CalculateFee_Unit_Fuzz_Test is FeeCalculator_Unit_Shared_Test {
     function setUp() public virtual override {
-        DefaultFeeCalculator_Unit_Shared_Test.setUp();
+        FeeCalculator_Unit_Shared_Test.setUp();
     }
 
     function test_GivenUtilizationIsGreaterThanOptimalUtilization(
@@ -33,7 +33,7 @@ contract CalculateFee_Unit_Fuzz_Test is DefaultFeeCalculator_Unit_Shared_Test {
 
         // Fetch the fees from the fee calculator.
         (uint256 totalFee, uint256 reserveFee) = feeCalculator.calculateFee(
-            DefaultFeeCalculator.CalculateFeeParams({
+            FeeCalculator.CalculateFeeParams({
                 duration: duration,
                 newLiquidity: newLiquidity,
                 outstandingLiquidity: outstandingLiquidity,
@@ -86,7 +86,7 @@ contract CalculateFee_Unit_Fuzz_Test is DefaultFeeCalculator_Unit_Shared_Test {
 
         // Fetch the fees from the fee calculator.
         (uint256 totalFee, uint256 reserveFee) = feeCalculator.calculateFee(
-            DefaultFeeCalculator.CalculateFeeParams({
+            FeeCalculator.CalculateFeeParams({
                 duration: duration,
                 newLiquidity: newLiquidity,
                 outstandingLiquidity: outstandingLiquidity,

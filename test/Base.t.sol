@@ -9,9 +9,9 @@ import { Constants } from "./utils/Constants.sol";
 import { Defaults } from "./utils/Defaults.sol";
 import { Events } from "./utils/Events.sol";
 
-import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { DispatchAssetCaller } from "test/mocks/DispatchAssetCaller.sol";
+import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { ReturnAssetCaller } from "test/mocks/ReturnAssetCaller.sol";
@@ -30,7 +30,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     Defaults internal defaults;
     // TODO: Use interfaces instead of concrete contracts.
     DispatchAssetCaller internal dispatchAssetCaller;
-    DefaultFeeCalculator internal feeCalculator;
+    FeeCalculator internal feeCalculator;
     LiquidityPool internal liquidityPool;
     ReturnAssetCaller internal returnAssetCaller;
     IRushERC20 internal rushERC20;
