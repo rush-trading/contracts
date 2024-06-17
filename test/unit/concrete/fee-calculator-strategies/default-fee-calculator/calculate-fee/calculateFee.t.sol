@@ -4,16 +4,12 @@ pragma solidity >=0.8.25 <0.9.0;
 import { ud } from "@prb/math/src/UD60x18.sol";
 import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCalculator.sol";
 
-import { DefaultFeeCalculator_Unit_Concrete_Test } from "../DefaultFeeCalculator.t.sol";
+import { DefaultFeeCalculator_Unit_Shared_Test } from "test/unit/shared/DefaultFeeCalculator.t.sol";
 
-contract CalculateFee_Unit_Concrete_Test is DefaultFeeCalculator_Unit_Concrete_Test {
-    // #region -------------------------------=|+ SET-UP FUNCTION +|=-------------------------------- //
-
+contract CalculateFee_Unit_Concrete_Test is DefaultFeeCalculator_Unit_Shared_Test {
     function setUp() public virtual override {
-        DefaultFeeCalculator_Unit_Concrete_Test.setUp();
+        DefaultFeeCalculator_Unit_Shared_Test.setUp();
     }
-
-    // #endregion ----------------------------------------------------------------------------------- //
 
     function test_GivenUtilizationIsGreaterThanOptimalUtilization() external view {
         uint256 duration = 31_536_000; // 1 year

@@ -5,7 +5,7 @@ import { DefaultFeeCalculator } from "src/fee-calculator/strategies/DefaultFeeCa
 
 import { Base_Test } from "test/Base.t.sol";
 
-contract DefaultFeeCalculator_Unit_Concrete_Test is Base_Test {
+contract DefaultFeeCalculator_Unit_Shared_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
         deploy();

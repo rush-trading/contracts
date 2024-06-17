@@ -4,6 +4,7 @@ pragma solidity >=0.8.25 <0.9.0;
 import { Test } from "forge-std/src/Test.sol";
 import { Users } from "./utils/Types.sol";
 import { Utils } from "./utils/Utils.sol";
+import { Calculations } from "./utils/Calculations.sol";
 import { Constants } from "./utils/Constants.sol";
 import { Defaults } from "./utils/Defaults.sol";
 import { Events } from "./utils/Events.sol";
@@ -17,7 +18,7 @@ import { ReturnAssetCaller } from "test/mocks/ReturnAssetCaller.sol";
 import { WETHMock } from "test/mocks/WethMock.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
-abstract contract Base_Test is Test, Utils, Constants, Events {
+abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     // #region ----------------------------------=|+ VARIABLES +|=----------------------------------- //
 
     Users internal users;
