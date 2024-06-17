@@ -2,7 +2,7 @@
 pragma solidity >=0.8.25;
 
 import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
-import { WETHLiquidityDeployer as LiquidityDeployer } from "src/liquidity-deployer/strategies/WETHLiquidityDeployer.sol";
+import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -140,7 +140,7 @@ contract RushLauncher {
             data: params.data
         });
         // Interactions: Create a new pair and deploy liquidity.
-        LiquidityDeployer(LIQUIDITY_DEPLOYER).deployLiquidity{ value: msg.value }({
+        ILiquidityDeployer(LIQUIDITY_DEPLOYER).deployLiquidity{ value: msg.value }({
             originator: msg.sender,
             pair: pair,
             token: token,
