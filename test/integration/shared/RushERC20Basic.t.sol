@@ -6,7 +6,7 @@ import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 
 import { Integration_Test } from "test/integration/Integration.t.sol";
 
-contract RushERC20Basic_Integration_Concrete_Test is Integration_Test {
+contract RushERC20Basic_Integration_Shared_Test is Integration_Test {
     function setUp() public virtual override {
         Integration_Test.setUp();
         deploy();

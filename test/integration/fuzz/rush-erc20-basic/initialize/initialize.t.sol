@@ -1,29 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25 <0.9.0;
 
-import { Errors } from "src/libraries/Errors.sol";
 import { RushERC20Basic_Integration_Shared_Test } from "test/integration/shared/RushERC20Basic.t.sol";
 
-contract Initialize_Integration_Concrete_Test is RushERC20Basic_Integration_Shared_Test {
-    function test_RevertGiven_AlreadyInitialized() external {
-        // Initialize the contract.
-        string memory name = defaults.TOKEN_NAME();
-        string memory symbol = defaults.TOKEN_SYMBOL();
-        uint256 maxSupply = defaults.TOKEN_MAX_SUPPLY();
-        rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: users.recipient, data: "" });
+contract Initialize_Integration_Fuzz_Test is RushERC20Basic_Integration_Shared_Test {
+    function test_GivenNotInitialized(
+        string calldata name,
+        string calldata symbol,
+        uint256 maxSupply,
+        address recipient
+    )
+        external
+    {
+        // The recipient must not be the zero address.
+        vm.assume(recipient != address(0));
 
-        // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.InvalidInitialization.selector));
-        rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: users.recipient, data: "" });
-    }
-
-    function test_GivenNotInitialized() external {
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(rushERC20) });
-        string memory name = defaults.TOKEN_NAME();
-        string memory symbol = defaults.TOKEN_SYMBOL();
-        uint256 maxSupply = defaults.TOKEN_MAX_SUPPLY();
-        address recipient = users.recipient;
         emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: "" });
 
         // Initialize the contract.
