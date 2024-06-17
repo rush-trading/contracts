@@ -14,10 +14,10 @@ import { DefaultFeeCalculator as FeeCalculator } from "src/fee-calculator/strate
 import { LiquidityPool } from "src/LiquidityPool.sol";
 
 /**
- * @title DefaultLiquidityDeployer
- * @notice A permissioned liquidity deployment contract.
+ * @title WETHLiquidityDeployer
+ * @notice A permissioned contract for deploying WETH-backed liquidity to Uniswap V2 pairs.
  */
-contract DefaultLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCallback, IReturnAssetCallback {
+contract WETHLiquidityDeployer is AccessControl, Pausable, IDispatchAssetCallback, IReturnAssetCallback {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**

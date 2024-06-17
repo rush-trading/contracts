@@ -2,8 +2,7 @@
 pragma solidity >=0.8.25;
 
 import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
-import { DefaultLiquidityDeployer as LiquidityDeployer } from
-    "src/liquidity-deployer/strategies/DefaultLiquidityDeployer.sol";
+import { WETHLiquidityDeployer as LiquidityDeployer } from "src/liquidity-deployer/strategies/WETHLiquidityDeployer.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -62,6 +61,11 @@ contract RushLauncher {
     // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
 
     /**
+     * @notice The address of the base asset for liquidity.
+     */
+    address public immutable BASE_ASSET;
+
+    /**
      * @notice The address of the ERC20 factory.
      */
     RushERC20Factory public immutable ERC20_FACTORY;
@@ -77,11 +81,6 @@ contract RushLauncher {
     uint256 public immutable MIN_SUPPLY;
 
     /**
-     * @notice The address of the liquidity reserve token.
-     */
-    address public immutable RESERVE_TOKEN;
-
-    /**
      * @notice The address of the Uniswap V2 factory.
      */
     address public immutable UNISWAP_V2_FACTORY;
@@ -92,23 +91,23 @@ contract RushLauncher {
 
     /**
      * @dev Constructor
+     * @param baseAsset_ The address of the base asset for liquidity.
      * @param erc20Factory_ The address of the ERC20 factory contract.
      * @param liquidityDeployer_ The address of the liquidity deployer contract.
      * @param minSupply_ The minimum minted supply of the ERC20 token.
-     * @param reserveToken_ The address of the liquidity reserve token.
      * @param uniswapV2Factory_ The address of the Uniswap V2 factory contract.
      */
     constructor(
+        address baseAsset_,
         RushERC20Factory erc20Factory_,
         address liquidityDeployer_,
         uint256 minSupply_,
-        address reserveToken_,
         address uniswapV2Factory_
     ) {
+        BASE_ASSET = baseAsset_;
         ERC20_FACTORY = erc20Factory_;
         LIQUIDITY_DEPLOYER = liquidityDeployer_;
         MIN_SUPPLY = minSupply_;
-        RESERVE_TOKEN = reserveToken_;
         UNISWAP_V2_FACTORY = uniswapV2Factory_;
     }
 
@@ -131,7 +130,7 @@ contract RushLauncher {
         // Interactions: Create a new ERC20 token.
         address token = ERC20_FACTORY.createERC20({ originator: msg.sender, kind: kind });
         // Interactions: Create the Uniswap V2 pair.
-        address pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).createPair({ tokenA: token, tokenB: RESERVE_TOKEN });
+        address pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).createPair({ tokenA: token, tokenB: BASE_ASSET });
         // Interactions: Initialize the ERC20 token.
         IRushERC20(token).initialize({
             name: params.name,

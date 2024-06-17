@@ -85,7 +85,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     function deployCore() internal {
         rushERC20Factory = new RushERC20Factory({ admin_: users.admin });
         vm.label({ account: address(rushERC20Factory), newLabel: "RushERC20Factory" });
-        liquidityPool = new LiquidityPool({ admin_: users.admin, weth_: address(weth) });
+        liquidityPool = new LiquidityPool({ admin_: users.admin, asset_: address(weth) });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
     }
 
