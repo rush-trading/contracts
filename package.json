@@ -27,6 +27,6 @@
     "prettier:write": "prettier --write \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
     "test": "forge test",
     "test:coverage": "forge coverage",
-    "test:coverage:report": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage"
+    "test:coverage:report": "forge coverage --report lcov && lcov --ignore-errors inconsistent --remove ./lcov.info -o ./lcov.info 'test/' && genhtml lcov.info --branch-coverage --output-dir coverage --ignore-errors inconsistent"
   }
 }
