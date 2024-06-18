@@ -3,9 +3,9 @@ pragma solidity >=0.8.25 <0.9.0;
 
 import { LiquidityDeployerWETH } from "src/LiquidityDeployerWETH.sol";
 
-import { Base_Test } from "test/Base.t.sol";
+import { Integration_Test } from "test/integration/Integration.t.sol";
 
-contract Constructor_LiquidityDeployerWETH_Integration_Concrete_Test is Base_Test {
+contract Constructor_LiquidityDeployerWETH_Integration_Concrete_Test is Integration_Test {
     function test_Constructor() external {
         // Make Sender the caller in this test.
         changePrank({ msgSender: users.sender });
@@ -13,9 +13,6 @@ contract Constructor_LiquidityDeployerWETH_Integration_Concrete_Test is Base_Tes
         // Expect the relevant event to be emitted.
         vm.expectEmit();
         emit RoleGranted({ role: DEFAULT_ADMIN_ROLE, account: users.admin, sender: users.sender });
-
-        // Deploy the contracts.
-        deployCore();
 
         // Construct the contract.
         LiquidityDeployerWETH constructedLiquidityDeployerWETH = new LiquidityDeployerWETH({
