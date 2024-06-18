@@ -53,6 +53,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
             eve: createUser("Eve"),
             liquidityDeployer: createUser("LiquidityDeployer"),
             recipient: createUser("Recipient"),
+            reserve: createUser("Reserve"),
             sender: createUser("Sender"),
             tokenDeployer: createUser("TokenDeployer")
         });
@@ -87,6 +88,13 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
         vm.label({ account: address(rushERC20Factory), newLabel: "RushERC20Factory" });
         liquidityPool = new LiquidityPool({ admin_: users.admin, asset_: address(weth) });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
+        feeCalculator = new FeeCalculator({
+            baseFeeRate: defaults.BASE_FEE_RATE(),
+            optimalUtilizationRatio: defaults.OPTIMAL_UTILIZATION_RATIO(),
+            rateSlope1: defaults.RATE_SLOPE1(),
+            rateSlope2: defaults.RATE_SLOPE2()
+        });
+        vm.label({ account: address(feeCalculator), newLabel: "FeeCalculator" });
     }
 
     /// @dev Grants the necessary roles of the core contracts.

@@ -10,6 +10,8 @@ struct Users {
     address payable liquidityDeployer;
     // Default liquidity recipient.
     address payable recipient;
+    // Reserve to receive fees.
+    address payable reserve;
     // Default message sender.
     address payable sender;
     // Token deployer.
