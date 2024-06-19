@@ -30,4 +30,9 @@ contract GoodRushERC20Mock is RushERC20Abstract, ERC20Upgradeable {
     function version() public pure override returns (uint256) {
         return 42;
     }
+
+    /// @dev Mints tokens to the specified account.
+    function mint(address account, uint256 amount) public {
+        _mint(account, amount);
+    }
 }

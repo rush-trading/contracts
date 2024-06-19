@@ -12,6 +12,7 @@ import { Events } from "./utils/Events.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { DispatchAssetCaller } from "test/mocks/DispatchAssetCaller.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
+import { LiquidityDeployerWETH } from "src/LiquidityDeployerWETH.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { ReturnAssetCaller } from "test/mocks/ReturnAssetCaller.sol";
@@ -31,6 +32,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     // TODO: Use interfaces instead of concrete contracts.
     DispatchAssetCaller internal dispatchAssetCaller;
     FeeCalculator internal feeCalculator;
+    LiquidityDeployerWETH internal liquidityDeployerWETH;
     LiquidityPool internal liquidityPool;
     ReturnAssetCaller internal returnAssetCaller;
     IRushERC20 internal rushERC20;
@@ -95,6 +97,19 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
             rateSlope2: defaults.RATE_SLOPE2()
         });
         vm.label({ account: address(feeCalculator), newLabel: "FeeCalculator" });
+        liquidityDeployerWETH = new LiquidityDeployerWETH({
+            admin_: users.admin,
+            earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
+            feeCalculator_: address(feeCalculator),
+            liquidityPool_: address(liquidityPool),
+            maxDeploymentAmount_: defaults.MAX_LIQUIDITY_AMOUNT(),
+            maxDuration_: defaults.MAX_LIQUIDITY_DURATION(),
+            minDeploymentAmount_: defaults.MIN_LIQUIDITY_AMOUNT(),
+            minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
+            reserve_: users.reserve,
+            reserveFactor_: defaults.RESERVE_FACTOR()
+        });
+        vm.label({ account: address(liquidityDeployerWETH), newLabel: "LiquidityDeployerWETH" });
     }
 
     /// @dev Grants the necessary roles of the core contracts.
@@ -103,7 +118,9 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
         changePrank({ msgSender: users.admin });
         liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(dispatchAssetCaller) });
         liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(returnAssetCaller) });
+        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityDeployerWETH) });
         rushERC20Factory.grantRole({ role: TOKEN_DEPLOYER_ROLE, account: address(users.tokenDeployer) });
+        liquidityDeployerWETH.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(users.liquidityDeployer) });
         changePrank({ msgSender: caller });
     }
 

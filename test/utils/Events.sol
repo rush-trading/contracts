@@ -27,6 +27,14 @@ abstract contract Events {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region ------------------------------=|+ LIQUIDITY-DEPLOYER +|=------------------------------ //
+
+    event DeployLiquidity(
+        address indexed originator, address indexed token, address indexed pair, uint256 amount, uint256 deadline
+    );
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region --------------------------------=|+ LIQUIDITY-POOL +|=-------------------------------- //
 
     event DispatchAsset(address indexed originator, address indexed to, uint256 amount);

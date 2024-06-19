@@ -9,6 +9,12 @@ library Errors {
     /// @notice Thrown when the account is missing a role.
     error AccessControlUnauthorizedAccount(address account, bytes32 neededRole);
 
+    /// @notice Thrown when the contract is paused.
+    error EnforcedPause();
+
+    /// @notice Thrown when the contract is not paused.
+    error ExpectedPause();
+
     /// @notice Thrown when the contract is already initialized.
     error InvalidInitialization();
 

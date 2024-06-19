@@ -189,6 +189,13 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
             isUnwound: false
         });
 
+        // Interactions: Dispatch asset from LiquidityPool to the pair.
+        LiquidityPool(LIQUIDITY_POOL).dispatchAsset({
+            to: pair,
+            amount: amount,
+            data: abi.encode(vars.totalFee, vars.reserveFee)
+        });
+
         // Interactions: Swap any excess ETH to tokens.
         vars.excessAmount = msg.value - vars.totalFee;
         if (vars.excessAmount > 0) {
@@ -210,14 +217,12 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
 
             // Interactions: Swap excess WETH to tokens.
             IUniswapV2Pair(pair).swap({
-                amount0Out: vars.isToken0WETH ? vars.amountOut : 0,
-                amount1Out: vars.isToken0WETH ? 0 : vars.amountOut,
+                amount0Out: vars.isToken0WETH ? 0 : vars.amountOut,
+                amount1Out: vars.isToken0WETH ? vars.amountOut : 0,
                 to: originator,
                 data: ""
             });
         }
-        // Interactions: Dispatch asset from LiquidityPool to the pair.
-        LiquidityPool(LIQUIDITY_POOL).dispatchAsset({ to: pair, amount: amount, data: abi.encode(vars.reserveFee) });
 
         // Emit an event.
         emit DeployLiquidity({
@@ -330,12 +335,13 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
         if (msg.sender != LIQUIDITY_POOL) {
             revert Errors.LiquidityDeployer_InvalidCallbackSender({ sender: msg.sender });
         }
+
+        (uint256 totalFee, uint256 reserveFee) = abi.decode(data, (uint256, uint256));
         // Interactions: Mint LP tokens.
         IUniswapV2Pair(to).mint(address(this));
         // Interactions: Convert received fee from ETH to WETH.
-        IWETH(WETH).deposit{ value: address(this).balance }();
+        IWETH(WETH).deposit{ value: totalFee }();
         // Interactions: Deposit the reserve fee and transfer share to the reserve.
-        (uint256 reserveFee) = abi.decode(data, (uint256));
         // TODO: optimize approval logic.
         // Interactions: Approve the LiquidityPool to spend reserve fee.
         IERC20(WETH).approve(LIQUIDITY_POOL, reserveFee);
