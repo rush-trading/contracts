@@ -258,20 +258,12 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
                 revert Errors.LiquidityDeployer_PairAlreadyUnwound({ pair: pair });
             }
 
-            // Effects: Set deployment as unwound.
-            deployment.isUnwound = true;
+            (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
+            (uint256 wethReserve, uint256 tokenReserve) =
+                IUniswapV2Pair(pair).token0() == WETH ? (reserve0, reserve1) : (reserve1, reserve0);
 
-            // Interactions: Return asset to the LiquidityPool.
-            // TODO: check if we want to update fee mechanism for this emergency unwind.
-            LiquidityPool(LIQUIDITY_POOL).returnAsset({
-                from: address(this),
-                amount: deployment.amount,
-                // TODO: fix this data.
-                data: abi.encode(pair, deployment.token)
-            });
-
-            // Emit an event.
-            emit UnwindLiquidity({ pair: pair, originator: deployment.originator, amount: deployment.amount });
+            // Unwind the liquidity deployment.
+            _unwindLiquidity({ pair: pair, wethReserve: wethReserve, tokenReserve: tokenReserve });
         }
     }
 
@@ -299,18 +291,8 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
             revert Errors.LiquidityDeployer_UnwindNotReady({ pair: pair, deadline: deployment.deadline });
         }
 
-        // Effects: Set deployment as unwound.
-        deployment.isUnwound = true;
-
-        // Interactions: Return asset to the LiquidityPool.
-        LiquidityPool(LIQUIDITY_POOL).returnAsset({
-            from: address(this),
-            amount: deployment.amount,
-            data: abi.encode(pair, deployment.token, wethReserve, tokenReserve)
-        });
-
-        // Emit an event.
-        emit UnwindLiquidity({ pair: pair, originator: deployment.originator, amount: deployment.amount });
+        // Unwind the liquidity deployment.
+        _unwindLiquidity({ pair: pair, wethReserve: wethReserve, tokenReserve: tokenReserve });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -403,6 +385,28 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
         IERC20(WETH).transfer(RESERVE, IERC20(WETH).balanceOf(address(this)) - amount);
         // Interactions: Approve the LiquidityPool to transfer the returned WETH.
         IERC20(WETH).approve(LIQUIDITY_POOL, amount);
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -----------------------=|+ INTERNAL NON-CONSTANT FUNCTIONS +|=------------------------ //
+
+    /// @dev Unwinds the liquidity deployment.
+    function _unwindLiquidity(address pair, uint256 wethReserve, uint256 tokenReserve) internal {
+        LiquidityDeployment storage deployment = liquidityDeployments[pair];
+
+        // Effects: Set deployment as unwound.
+        deployment.isUnwound = true;
+
+        // Interactions: Return asset to the LiquidityPool.
+        LiquidityPool(LIQUIDITY_POOL).returnAsset({
+            from: address(this),
+            amount: deployment.amount,
+            data: abi.encode(pair, deployment.token, wethReserve, tokenReserve)
+        });
+
+        // Emit an event.
+        emit UnwindLiquidity({ pair: pair, originator: deployment.originator, amount: deployment.amount });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
