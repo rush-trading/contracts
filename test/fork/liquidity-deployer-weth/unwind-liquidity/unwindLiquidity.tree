@@ -7,6 +7,12 @@ unwindLiquidity.t.sol
     └── given pair has not been unwound
         ├── given deadline has not passed and early unwind threshold is not reached
         │   └── it should revert
-        └── given deadline has passed or early unwind threshold is reached
+        ├── given deadline has not passed but early unwind threshold is reached
+        │   ├── it should unwind the liquidity
+        │   └── it should emit a {UnwindLiquidity} event
+        ├── given deadline has passed but early unwind threshold is not reached
+        │   ├── it should unwind the liquidity
+        │   └── it should emit a {UnwindLiquidity} event
+        └── given deadline has passed and early unwind threshold is reached
             ├── it should unwind the liquidity
             └── it should emit a {UnwindLiquidity} event

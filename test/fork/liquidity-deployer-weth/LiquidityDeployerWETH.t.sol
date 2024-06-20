@@ -49,11 +49,10 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
     }
 
     /// @dev Unwinds the liquidity from the pair.
-    function unwindLiquidityFromPair(address pair_) internal {
+    function unwindLiquidityFromPair(address pair_, uint256 timestamp_) internal {
         (, address caller,) = vm.readCallers();
         changePrank({ msgSender: address(users.liquidityDeployer) });
-        (,,, uint256 deadline,) = liquidityDeployerWETH.liquidityDeployments(pair_);
-        vm.warp(deadline);
+        vm.warp(timestamp_);
         liquidityDeployerWETH.unwindLiquidity({ pair: pair_ });
         changePrank({ msgSender: caller });
     }

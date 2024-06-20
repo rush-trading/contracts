@@ -33,6 +33,8 @@ abstract contract Events {
         address indexed originator, address indexed token, address indexed pair, uint256 amount, uint256 deadline
     );
 
+    event UnwindLiquidity(address indexed pair, address indexed originator, uint256 amount);
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region --------------------------------=|+ LIQUIDITY-POOL +|=-------------------------------- //

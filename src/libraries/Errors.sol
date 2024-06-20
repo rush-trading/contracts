@@ -23,10 +23,10 @@ library Errors {
     // #region ------------------------------=|+ LIQUIDITY-DEPLOYER +|=------------------------------ //
 
     /**
-     * @notice Thrown when the liquidity deployment has already been unwound.
+     * @notice Thrown when the pair has already been unwound.
      * @param pair The address of the Uniswap V2 pair.
      */
-    error LiquidityDeployer_AlreadyUnwound(address pair);
+    error LiquidityDeployer_PairAlreadyUnwound(address pair);
 
     /**
      * @notice Thrown when the received deployment fee does not match the expected fee.

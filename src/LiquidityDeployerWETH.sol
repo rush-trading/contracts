@@ -193,7 +193,7 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
         LiquidityPool(LIQUIDITY_POOL).dispatchAsset({
             to: pair,
             amount: amount,
-            data: abi.encode(vars.totalFee, vars.reserveFee)
+            data: abi.encode(vars.totalFee, vars.reserveFee, pair)
         });
 
         // Interactions: Swap any excess ETH to tokens.
@@ -255,7 +255,7 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
             }
             // Checks: Pair must not have been unwound before.
             if (deployment.isUnwound) {
-                revert Errors.LiquidityDeployer_AlreadyUnwound({ pair: pair });
+                revert Errors.LiquidityDeployer_PairAlreadyUnwound({ pair: pair });
             }
 
             // Effects: Set deployment as unwound.
@@ -266,6 +266,7 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
             LiquidityPool(LIQUIDITY_POOL).returnAsset({
                 from: address(this),
                 amount: deployment.amount,
+                // TODO: fix this data.
                 data: abi.encode(pair, deployment.token)
             });
 
@@ -287,13 +288,14 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
         }
         // Checks: Pair must not have been unwound before.
         if (deployment.isUnwound) {
-            revert Errors.LiquidityDeployer_AlreadyUnwound({ pair: pair });
+            revert Errors.LiquidityDeployer_PairAlreadyUnwound({ pair: pair });
         }
         // Checks: Deadline must have passed or early unwind threshold must be met.
         (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
         (uint256 wethReserve, uint256 tokenReserve) =
             IUniswapV2Pair(pair).token0() == WETH ? (reserve0, reserve1) : (reserve1, reserve0);
         if (block.timestamp < deployment.deadline && wethReserve < deployment.amount + EARLY_UNWIND_THRESHOLD) {
+            // TODO: potentially include target amount to unwind in the error message.
             revert Errors.LiquidityDeployer_UnwindNotReady({ pair: pair, deadline: deployment.deadline });
         }
 
@@ -336,19 +338,15 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
             revert Errors.LiquidityDeployer_InvalidCallbackSender({ sender: msg.sender });
         }
 
-        (uint256 totalFee, uint256 reserveFee) = abi.decode(data, (uint256, uint256));
-        // Interactions: Mint LP tokens.
-        IUniswapV2Pair(to).mint(address(this));
+        (uint256 totalFee, uint256 reserveFee, address pair) = abi.decode(data, (uint256, uint256, address));
         // Interactions: Convert received fee from ETH to WETH.
         IWETH(WETH).deposit{ value: totalFee }();
-        // Interactions: Deposit the reserve fee and transfer share to the reserve.
-        // TODO: optimize approval logic.
-        // Interactions: Approve the LiquidityPool to spend reserve fee.
-        IERC20(WETH).approve(LIQUIDITY_POOL, reserveFee);
-        // Interactions: Deposit the reserve fee and transfer share to the reserve.
-        LiquidityPool(LIQUIDITY_POOL).deposit(reserveFee, RESERVE);
+        // Interactions: Transfer reserve fee to the pair to maintain `unwindLiquidity` invariant.
+        IERC20(WETH).transfer(pair, reserveFee);
         // Interactions: Transfer the remaining fee to the LiquidityPool.
-        IERC20(WETH).transfer(LIQUIDITY_POOL, IERC20(WETH).balanceOf(address(this)));
+        IERC20(WETH).transfer(LIQUIDITY_POOL, totalFee - reserveFee);
+        // Interactions: Mint LP tokens.
+        IUniswapV2Pair(to).mint(address(this));
     }
 
     /**
@@ -380,6 +378,7 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
             abi.decode(data, (address, address, uint256, uint256));
         // TODO: use more intuitive local variable names.
         uint256 finalAmount = IERC20(WETH).balanceOf(pair);
+        // TODO: include `reserveFee` of `deployLiquidity` in the calculation.
         uint256 excessAmount = finalAmount - amount;
         // Calculate a reserve fee from the excess amount.
         uint256 reserveFee = (ud(excessAmount) * ud(RESERVE_FACTOR)).intoUint256();
@@ -396,15 +395,12 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
         IERC20(WETH).transfer(pair, wethToReturn);
         // Interactions: Transfer the deployed token to return to the pair.
         IERC20(token).transfer(pair, tokenToReturn);
-        // Interactions: Mint LP tokens and send them to the 0 address to lock them.
-        IUniswapV2Pair(pair).mint(address(0));
+        // Interactions: Mint LP tokens and send them to the 1 address to lock them.
+        IUniswapV2Pair(pair).mint(address(1));
         // Interactions: Burn entire remaining balance of deployed token.
-        IERC20(token).transfer(address(0), IERC20(token).balanceOf(address(this)));
-        // TODO: optimize approval logic.
-        // Approve the LiquidityPool to spend reserve fee.
-        IERC20(WETH).approve(LIQUIDITY_POOL, reserveFee);
-        // Interactions: Deposit the reserve fee and transfer share to the reserve.
-        LiquidityPool(LIQUIDITY_POOL).deposit(reserveFee, RESERVE);
+        IERC20(token).transfer(address(1), IERC20(token).balanceOf(address(this)));
+        // Interactions: Transfer the reserve fee to the reserve.
+        IERC20(WETH).transfer(RESERVE, IERC20(WETH).balanceOf(address(this)) - amount);
         // Interactions: Approve the LiquidityPool to transfer the returned WETH.
         IERC20(WETH).approve(LIQUIDITY_POOL, amount);
     }

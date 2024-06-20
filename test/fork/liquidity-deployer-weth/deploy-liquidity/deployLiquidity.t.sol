@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25 <0.9.0;
 
+import { ud } from "@prb/math/src/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 import { LiquidityDeployerWETH_Fork_Test } from "../LiquidityDeployerWETH.t.sol";
@@ -319,26 +320,29 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         uint256 tokenBalanceOfSenderAfter = GoodRushERC20Mock(token).balanceOf({ account: users.sender });
 
         // Assert that the liquidity was deployed.
-        uint256 expectedLiquidtyAmount = amount;
+        uint256 reserveFee = (ud(defaults.FEE_AMOUNT()) * ud(defaults.RESERVE_FACTOR())).intoUint256();
+        uint256 expectedLiquidtyAmount = amount + reserveFee;
         assertEq(wethBalanceAfter - wethBalanceBefore, expectedLiquidtyAmount, "balanceOf");
 
-        (
-            address actualToken,
-            address actualOriginator,
-            uint256 actualAmount,
-            uint256 actualDeadline,
-            bool actualIsUnwound
-        ) = liquidityDeployerWETH.liquidityDeployments(pair);
-        address expectedToken = token;
-        address expectedOriginator = users.sender;
-        uint256 expectedAmount = amount;
-        uint256 expectedDeadline = block.timestamp + duration;
-        bool expectedIsUnwound = false;
-        assertEq(actualToken, expectedToken, "token");
-        assertEq(actualOriginator, expectedOriginator, "originator");
-        assertEq(actualAmount, expectedAmount, "amount");
-        assertEq(actualDeadline, expectedDeadline, "deadline");
-        assertEq(actualIsUnwound, expectedIsUnwound, "isUnwound");
+        {
+            (
+                address actualToken,
+                address actualOriginator,
+                uint256 actualAmount,
+                uint256 actualDeadline,
+                bool actualIsUnwound
+            ) = liquidityDeployerWETH.liquidityDeployments(pair);
+            address expectedToken = token;
+            address expectedOriginator = users.sender;
+            uint256 expectedAmount = amount;
+            uint256 expectedDeadline = block.timestamp + duration;
+            bool expectedIsUnwound = false;
+            assertEq(actualToken, expectedToken, "token");
+            assertEq(actualOriginator, expectedOriginator, "originator");
+            assertEq(actualAmount, expectedAmount, "amount");
+            assertEq(actualDeadline, expectedDeadline, "deadline");
+            assertEq(actualIsUnwound, expectedIsUnwound, "isUnwound");
+        }
 
         // Assert that the original caller received no token amount.
         uint256 expectedTokenAmount = 0;
@@ -387,31 +391,34 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         uint256 tokenBalanceOfSenderAfter = GoodRushERC20Mock(token).balanceOf({ account: users.sender });
 
         // Assert that the liquidity was deployed.
-        uint256 expectedLiquidtyAmount = amount + defaults.FEE_EXCESS_AMOUNT();
+        uint256 reserveFee = (ud(defaults.FEE_AMOUNT()) * ud(defaults.RESERVE_FACTOR())).intoUint256();
+        uint256 expectedLiquidtyAmount = amount + defaults.FEE_EXCESS_AMOUNT() + reserveFee;
         assertEq(wethBalanceAfter - wethBalanceBefore, expectedLiquidtyAmount, "balanceOf");
 
-        (
-            address actualToken,
-            address actualOriginator,
-            uint256 actualAmount,
-            uint256 actualDeadline,
-            bool actualIsUnwound
-        ) = liquidityDeployerWETH.liquidityDeployments(pair);
-        address expectedToken = token;
-        address expectedOriginator = users.sender;
-        uint256 expectedAmount = amount;
-        uint256 expectedDeadline = block.timestamp + duration;
-        bool expectedIsUnwound = false;
-        assertEq(actualToken, expectedToken, "token");
-        assertEq(actualOriginator, expectedOriginator, "originator");
-        assertEq(actualAmount, expectedAmount, "amount");
-        assertEq(actualDeadline, expectedDeadline, "deadline");
-        assertEq(actualIsUnwound, expectedIsUnwound, "isUnwound");
+        {
+            (
+                address actualToken,
+                address actualOriginator,
+                uint256 actualAmount,
+                uint256 actualDeadline,
+                bool actualIsUnwound
+            ) = liquidityDeployerWETH.liquidityDeployments(pair);
+            address expectedToken = token;
+            address expectedOriginator = users.sender;
+            uint256 expectedAmount = amount;
+            uint256 expectedDeadline = block.timestamp + duration;
+            bool expectedIsUnwound = false;
+            assertEq(actualToken, expectedToken, "token");
+            assertEq(actualOriginator, expectedOriginator, "originator");
+            assertEq(actualAmount, expectedAmount, "amount");
+            assertEq(actualDeadline, expectedDeadline, "deadline");
+            assertEq(actualIsUnwound, expectedIsUnwound, "isUnwound");
+        }
 
         // Assert that the original caller received a token amount equivalent to the excess msg value.
         uint256 expectedTokenAmount = calculateExactAmountOut({
             amountIn: defaults.FEE_EXCESS_AMOUNT(),
-            reserveIn: defaults.DISPATCH_AMOUNT(),
+            reserveIn: defaults.DISPATCH_AMOUNT() + reserveFee,
             reserveOut: defaults.TOKEN_MAX_SUPPLY()
         });
         assertEq(tokenBalanceOfSenderAfter - tokenBalanceOfSenderBefore, expectedTokenAmount, "balanceOf");
