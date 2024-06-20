@@ -56,26 +56,20 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         external
         whenCallerHasLiquidityDeployerRole
         whenContractIsNotPaused
-        givenPairHasNotReceivedLiquidity
-        givenTotalSupplyOfDeployedTokenIsNotZero
-        givenPairContainsEntireSupplyOfDeployedToken
-        givenAmountToDeployIsGreaterThanOrEqualToMinimumAmount
-        givenAmountToDeployIsLessThanOrEqualToMaximumAmount
-        givenDurationOfDeploymentIsGreaterThanOrEqualToMinimumDuration
-        givenDurationOfDeploymentIsLessThanOrEqualToMaximumDuration
-        givenPassedMsgValueIsGreaterThanOrEqualToDeploymentFee
     {
         uint256 amount = defaults.DISPATCH_AMOUNT();
         uint256 duration = defaults.LIQUIDITY_DURATION();
         uint256 feeAmount = defaults.FEE_AMOUNT();
 
         // Deploy the liquidity.
-        liquidityDeployerWETH.deployLiquidity{ value: feeAmount }({
-            originator: users.sender,
-            pair: pair,
-            token: token,
-            amount: amount,
-            duration: duration
+        deployLiquidityToPair({
+            originator_: users.sender,
+            pair_: pair,
+            token_: token,
+            tokenAmount_: defaults.TOKEN_MAX_SUPPLY(),
+            wethAmount_: amount,
+            duration_: duration,
+            feeAmount_: feeAmount
         });
 
         // Run the test.

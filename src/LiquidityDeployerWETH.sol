@@ -293,7 +293,7 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
         (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
         (uint256 wethReserve, uint256 tokenReserve) =
             IUniswapV2Pair(pair).token0() == WETH ? (reserve0, reserve1) : (reserve1, reserve0);
-        if (deployment.deadline < block.timestamp && wethReserve < deployment.amount + EARLY_UNWIND_THRESHOLD) {
+        if (block.timestamp < deployment.deadline && wethReserve < deployment.amount + EARLY_UNWIND_THRESHOLD) {
             revert Errors.LiquidityDeployer_UnwindNotReady({ pair: pair, deadline: deployment.deadline });
         }
 
