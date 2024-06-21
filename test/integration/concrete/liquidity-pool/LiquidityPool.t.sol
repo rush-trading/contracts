@@ -10,14 +10,6 @@ contract LiquidityPool_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
     }
 
-    /// @dev Deposits assets from the Sender to the liquidity pool.
-    function depositToLiquidityPool(uint256 amount) internal {
-        (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.sender });
-        liquidityPool.deposit({ assets: amount, receiver: users.sender });
-        changePrank({ msgSender: caller });
-    }
-
     /// @dev Dispatches assets from the liquidity pool to the Recipient.
     function dispatchFromLiquidityPool(uint256 amount) internal {
         (, address caller,) = vm.readCallers();

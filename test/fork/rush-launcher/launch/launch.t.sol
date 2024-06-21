@@ -2,30 +2,21 @@
 pragma solidity >=0.8.25 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Fork_Test } from "test/fork/Fork.t.sol";
+import { RushLauncher_Test } from "../RushLauncher.t.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
 
 // TODO: refactor to use Defaults rather than hardcoding values.
-contract Launch_Fork_Test is Fork_Test {
+contract Launch_Fork_Test is RushLauncher_Test {
     function setUp() public virtual override {
-        Fork_Test.setUp();
+        RushLauncher_Test.setUp();
 
         // Deposit liquidity to the pool.
         depositToLiquidityPool({ amount: defaults.DEPOSIT_AMOUNT() });
 
         // Add template to the factory.
         addTemplateToFactory({ implementation: address(new RushERC20Basic()) });
-    }
-
-    /// @dev Adds a template to the factory.
-    // TODO: this is copied from Integration. Refactor to use a common function.
-    function addTemplateToFactory(address implementation) internal {
-        (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.admin });
-        rushERC20Factory.addTemplate({ implementation: implementation });
-        changePrank({ msgSender: caller });
     }
 
     function test_RevertWhen_TokenMaxSupplyIsLessThanMinimumLimit() external {

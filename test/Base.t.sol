@@ -15,7 +15,6 @@ import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityDeployerWETH } from "src/LiquidityDeployerWETH.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
-import { RushLauncher } from "src/RushLauncher.sol";
 import { ReturnAssetCaller } from "test/mocks/ReturnAssetCaller.sol";
 import { WETHMock } from "test/mocks/WethMock.sol";
 
@@ -38,7 +37,6 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     ReturnAssetCaller internal returnAssetCaller;
     IRushERC20 internal rushERC20;
     RushERC20Factory internal rushERC20Factory;
-    RushLauncher internal rushLauncher;
     WETHMock internal weth;
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -70,6 +68,14 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
 
     // #region -----------------------------------=|+ HELPERS +|=------------------------------------ //
 
+    /// @dev Adds a template to the factory.
+    function addTemplateToFactory(address implementation) internal {
+        (, address caller,) = vm.readCallers();
+        changePrank({ msgSender: users.admin });
+        rushERC20Factory.addTemplate({ implementation: implementation });
+        changePrank({ msgSender: caller });
+    }
+
     /// @dev Approves the core contracts to spend assets from the users.
     function approveCore() internal {
         (, address caller,) = vm.readCallers();
@@ -78,12 +84,34 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
         changePrank({ msgSender: caller });
     }
 
+    /// @dev Creates a RushERC20 token.
+    function createRushERC20(address implementation) internal returns (address) {
+        (, address caller,) = vm.readCallers();
+        changePrank({ msgSender: users.admin });
+        rushERC20Factory.addTemplate({ implementation: implementation });
+        changePrank({ msgSender: users.tokenDeployer });
+        address erc20 = rushERC20Factory.createERC20({
+            originator: users.sender,
+            kind: keccak256(abi.encodePacked(IRushERC20(implementation).description()))
+        });
+        changePrank({ msgSender: caller });
+        return erc20;
+    }
+
     /// @dev Generates a user, labels its address, and funds it with test assets.
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
         deal({ token: address(weth), to: user, give: 100 ether });
         return user;
+    }
+
+    /// @dev Deposits assets from the Sender to the liquidity pool.
+    function depositToLiquidityPool(uint256 amount) internal {
+        (, address caller,) = vm.readCallers();
+        changePrank({ msgSender: users.sender });
+        liquidityPool.deposit({ assets: amount, receiver: users.sender });
+        changePrank({ msgSender: caller });
     }
 
     /// @dev Deploys the core contracts.
@@ -112,15 +140,6 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
             reserveFactor_: defaults.RESERVE_FACTOR()
         });
         vm.label({ account: address(liquidityDeployerWETH), newLabel: "LiquidityDeployerWETH" });
-        rushLauncher = new RushLauncher({
-            baseAsset_: address(weth),
-            erc20Factory_: rushERC20Factory,
-            liquidityDeployer_: address(liquidityDeployerWETH),
-            minSupply_: defaults.TOKEN_MIN_SUPPLY(),
-            // TODO: Store the UniswapV2Factory address as constant somewhere.
-            uniswapV2Factory_: 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6
-        });
-        vm.label({ account: address(rushLauncher), newLabel: "RushLauncher" });
     }
 
     /// @dev Grants the necessary roles of the core contracts.
@@ -131,9 +150,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
         liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(returnAssetCaller) });
         liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityDeployerWETH) });
         rushERC20Factory.grantRole({ role: TOKEN_DEPLOYER_ROLE, account: address(users.tokenDeployer) });
-        rushERC20Factory.grantRole({ role: TOKEN_DEPLOYER_ROLE, account: address(rushLauncher) });
         liquidityDeployerWETH.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(users.liquidityDeployer) });
-        liquidityDeployerWETH.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(rushLauncher) });
         changePrank({ msgSender: caller });
     }
 

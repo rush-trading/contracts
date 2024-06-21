@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25 <0.9.0;
 
-import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
-import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 import { Base_Test } from "../Base.t.sol";
 
 /// @notice Common logic needed by all fork tests.
@@ -30,30 +28,6 @@ abstract contract Fork_Test is Base_Test {
 
         // Approve the contracts.
         approveCore();
-    }
-
-    // #endregion ----------------------------------------------------------------------------------- //
-
-    // #region -----------------------------------=|+ HELPERS +|=------------------------------------ //
-
-    /// @dev Creates a RushERC20 token.
-    function createRushERC20() internal returns (address) {
-        (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.admin });
-        address implementation = address(new GoodRushERC20Mock());
-        rushERC20Factory.addTemplate({ implementation: implementation });
-        changePrank({ msgSender: users.tokenDeployer });
-        address erc20 = rushERC20Factory.createERC20({ originator: users.sender, kind: defaults.TEMPLATE_KIND() });
-        changePrank({ msgSender: caller });
-        return erc20;
-    }
-
-    /// @dev Deposits assets from the Sender to the liquidity pool.
-    function depositToLiquidityPool(uint256 amount) internal {
-        (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.sender });
-        liquidityPool.deposit({ assets: amount, receiver: users.sender });
-        changePrank({ msgSender: caller });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

@@ -14,8 +14,9 @@ contract RushERC20Basic_Integration_Shared_Test is Integration_Test {
 
     /// @dev Deploys the contract.
     function deploy() internal {
-        addTemplateToFactory({ implementation: address(new RushERC20Basic()) });
-        rushERC20 = IRushERC20(createERC20FromFactory({ kind: keccak256("RushERC20Basic") }));
+        address implementation = address(new RushERC20Basic());
+        addTemplateToFactory({ implementation: implementation });
+        rushERC20 = IRushERC20(createRushERC20({ implementation: implementation }));
         vm.label({ account: address(rushERC20), newLabel: "RushERC20Basic" });
     }
 }
