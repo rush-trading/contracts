@@ -6,7 +6,7 @@ import { RushERC20Basic_Integration_Shared_Test } from "test/integration/shared/
 contract Version_Integration_Concrete_Test is RushERC20Basic_Integration_Shared_Test {
     function test_ShouldReturnCorrectVersion() external view {
         uint256 actualVersion = rushERC20.version();
-        uint256 expectedVersion = 0;
+        uint256 expectedVersion = 1;
         vm.assertEq(actualVersion, expectedVersion, "version");
     }
 }

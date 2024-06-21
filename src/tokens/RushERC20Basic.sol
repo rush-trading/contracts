@@ -18,7 +18,7 @@ contract RushERC20Basic is ERC20Upgradeable, RushERC20Abstract {
 
     /// @inheritdoc IRushERC20
     function version() public pure override returns (uint256) {
-        return 0;
+        return 1;
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
