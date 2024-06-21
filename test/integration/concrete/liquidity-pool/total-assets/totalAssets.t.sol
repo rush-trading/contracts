@@ -24,7 +24,7 @@ contract TotalAssets_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.DISPATCH_AMOUNT(), data: "" });
 
         uint256 actualTotalAssets = liquidityPool.totalAssets();
-        uint256 expectedTotalAssets = defaults.DISPATCH_AMOUNT() + weth.balanceOf(address(liquidityPool));
+        uint256 expectedTotalAssets = defaults.DISPATCH_AMOUNT() + wethMock.balanceOf(address(liquidityPool));
         assertEq(actualTotalAssets, expectedTotalAssets, "totalAssets");
     }
 

@@ -10,12 +10,10 @@ import { Defaults } from "./utils/Defaults.sol";
 import { Events } from "./utils/Events.sol";
 
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
-import { DispatchAssetCaller } from "test/mocks/DispatchAssetCaller.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityDeployerWETH } from "src/LiquidityDeployerWETH.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
-import { ReturnAssetCaller } from "test/mocks/ReturnAssetCaller.sol";
 import { WETHMock } from "test/mocks/WethMock.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
@@ -30,14 +28,12 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
 
     Defaults internal defaults;
     // TODO: Use interfaces instead of concrete contracts.
-    DispatchAssetCaller internal dispatchAssetCaller;
     FeeCalculator internal feeCalculator;
     LiquidityDeployerWETH internal liquidityDeployerWETH;
     LiquidityPool internal liquidityPool;
-    ReturnAssetCaller internal returnAssetCaller;
     IRushERC20 internal rushERC20;
     RushERC20Factory internal rushERC20Factory;
-    WETHMock internal weth;
+    WETHMock internal wethMock;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -45,9 +41,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
 
     function setUp() public virtual {
         // Deploy the base test contracts.
-        dispatchAssetCaller = new DispatchAssetCaller();
-        returnAssetCaller = new ReturnAssetCaller();
-        weth = new WETHMock();
+        wethMock = new WETHMock();
 
         // Create users for testing.
         users = Users({
@@ -80,7 +74,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     function approveCore() internal {
         (, address caller,) = vm.readCallers();
         changePrank({ msgSender: users.sender });
-        weth.approve({ spender: address(liquidityPool), value: type(uint256).max });
+        wethMock.approve({ spender: address(liquidityPool), value: type(uint256).max });
         changePrank({ msgSender: caller });
     }
 
@@ -102,7 +96,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
-        deal({ token: address(weth), to: user, give: 100 ether });
+        deal({ token: address(wethMock), to: user, give: 100 ether });
         return user;
     }
 
@@ -118,7 +112,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     function deployCore() internal {
         rushERC20Factory = new RushERC20Factory({ admin_: users.admin });
         vm.label({ account: address(rushERC20Factory), newLabel: "RushERC20Factory" });
-        liquidityPool = new LiquidityPool({ admin_: users.admin, asset_: address(weth) });
+        liquidityPool = new LiquidityPool({ admin_: users.admin, asset_: address(wethMock) });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
         feeCalculator = new FeeCalculator({
             baseFeeRate: defaults.BASE_FEE_RATE(),
@@ -146,8 +140,6 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     function grantRolesCore() internal {
         (, address caller,) = vm.readCallers();
         changePrank({ msgSender: users.admin });
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(dispatchAssetCaller) });
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(returnAssetCaller) });
         liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityDeployerWETH) });
         rushERC20Factory.grantRole({ role: TOKEN_DEPLOYER_ROLE, account: address(users.tokenDeployer) });
         liquidityDeployerWETH.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(users.liquidityDeployer) });

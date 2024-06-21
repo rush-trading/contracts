@@ -51,9 +51,9 @@ contract DispatchAsset_Integration_Concrete_Test is LiquidityPool_Integration_Co
         });
 
         // Dispatch the asset.
-        uint256 beforeBalance = weth.balanceOf(users.recipient);
+        uint256 beforeBalance = wethMock.balanceOf(users.recipient);
         liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT(), data: "" });
-        uint256 afterBalance = weth.balanceOf(users.recipient);
+        uint256 afterBalance = wethMock.balanceOf(users.recipient);
 
         // Assert that the asset has been dispatched.
         uint256 actualAssetReceived = afterBalance - beforeBalance;

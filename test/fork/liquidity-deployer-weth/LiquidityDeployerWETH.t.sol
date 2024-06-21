@@ -19,7 +19,7 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
     function deploy() internal {
         token = createRushERC20({ implementation: address(new GoodRushERC20Mock()) });
         vm.label({ account: token, newLabel: "RushERC20" });
-        pair = uniswapV2Factory.createPair({ tokenA: token, tokenB: address(weth) });
+        pair = uniswapV2Factory.createPair({ tokenA: token, tokenB: address(wethMock) });
         vm.label({ account: pair, newLabel: "UniswapV2Pair" });
     }
 

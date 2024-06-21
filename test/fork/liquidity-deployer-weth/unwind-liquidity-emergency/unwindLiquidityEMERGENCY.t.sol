@@ -98,9 +98,9 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployerWETH_Fork_Test 
         // Unwind the liquidity.
         address[] memory pairs = new address[](1);
         pairs[0] = pair;
-        uint256 liquidityPoolWETHBalanceBefore = IERC20(weth).balanceOf(address(liquidityPool));
+        uint256 liquidityPoolWETHBalanceBefore = wethMock.balanceOf(address(liquidityPool));
         liquidityDeployerWETH.unwindLiquidityEMERGENCY({ pairs: pairs });
-        uint256 liquidityPoolWETHBalanceAfter = IERC20(weth).balanceOf(address(liquidityPool));
+        uint256 liquidityPoolWETHBalanceAfter = wethMock.balanceOf(address(liquidityPool));
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.DISPATCH_AMOUNT();

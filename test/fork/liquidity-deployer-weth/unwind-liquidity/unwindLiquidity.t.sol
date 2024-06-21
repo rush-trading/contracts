@@ -64,7 +64,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
     {
         // Set WETH reserve to be at the early unwind threshold.
         deal({
-            token: address(weth),
+            token: address(wethMock),
             to: pair,
             give: defaults.DISPATCH_AMOUNT() + liquidityDeployerWETH.EARLY_UNWIND_THRESHOLD()
         });
@@ -75,9 +75,9 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         emit UnwindLiquidity({ pair: pair, originator: users.sender, amount: defaults.DISPATCH_AMOUNT() });
 
         // Unwind the liquidity.
-        uint256 liquidityPoolWETHBalanceBefore = IERC20(weth).balanceOf(address(liquidityPool));
+        uint256 liquidityPoolWETHBalanceBefore = wethMock.balanceOf(address(liquidityPool));
         liquidityDeployerWETH.unwindLiquidity({ pair: pair });
-        uint256 liquidityPoolWETHBalanceAfter = IERC20(weth).balanceOf(address(liquidityPool));
+        uint256 liquidityPoolWETHBalanceAfter = wethMock.balanceOf(address(liquidityPool));
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.DISPATCH_AMOUNT();
@@ -105,9 +105,9 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         emit UnwindLiquidity({ pair: pair, originator: users.sender, amount: defaults.DISPATCH_AMOUNT() });
 
         // Unwind the liquidity.
-        uint256 liquidityPoolWETHBalanceBefore = IERC20(weth).balanceOf(address(liquidityPool));
+        uint256 liquidityPoolWETHBalanceBefore = wethMock.balanceOf(address(liquidityPool));
         liquidityDeployerWETH.unwindLiquidity({ pair: pair });
-        uint256 liquidityPoolWETHBalanceAfter = IERC20(weth).balanceOf(address(liquidityPool));
+        uint256 liquidityPoolWETHBalanceAfter = wethMock.balanceOf(address(liquidityPool));
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.DISPATCH_AMOUNT();
@@ -129,7 +129,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
 
         // Set WETH reserve to be at the early unwind threshold.
         deal({
-            token: address(weth),
+            token: address(wethMock),
             to: pair,
             give: defaults.DISPATCH_AMOUNT() + liquidityDeployerWETH.EARLY_UNWIND_THRESHOLD()
         });
@@ -140,9 +140,9 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         emit UnwindLiquidity({ pair: pair, originator: users.sender, amount: defaults.DISPATCH_AMOUNT() });
 
         // Unwind the liquidity.
-        uint256 liquidityPoolWETHBalanceBefore = IERC20(weth).balanceOf(address(liquidityPool));
+        uint256 liquidityPoolWETHBalanceBefore = wethMock.balanceOf(address(liquidityPool));
         liquidityDeployerWETH.unwindLiquidity({ pair: pair });
-        uint256 liquidityPoolWETHBalanceAfter = IERC20(weth).balanceOf(address(liquidityPool));
+        uint256 liquidityPoolWETHBalanceAfter = wethMock.balanceOf(address(liquidityPool));
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.DISPATCH_AMOUNT();
