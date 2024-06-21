@@ -27,6 +27,19 @@ abstract contract Events {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region --------------------------------=|+ RUSH-LAUNCHER +|=--------------------------------- //
+
+    event Launch(
+        address indexed token,
+        bytes32 indexed kind,
+        address indexed pair,
+        uint256 maxSupply,
+        uint256 liquidityAmount,
+        uint256 liquidityDuration
+    );
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ------------------------------=|+ LIQUIDITY-DEPLOYER +|=------------------------------ //
 
     event DeployLiquidity(

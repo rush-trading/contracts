@@ -31,7 +31,8 @@ contract Defaults {
     uint256 public immutable TEMPLATE_VERSION;
     string public constant TOKEN_NAME = "GoodRush";
     string public constant TOKEN_SYMBOL = "GR";
-    uint256 public constant TOKEN_MAX_SUPPLY = 100_000_000_000e18; // 100 billion
+    uint256 public constant TOKEN_MAX_SUPPLY = 100_000_000_000e18; // 100B tokens
+    uint256 public constant TOKEN_MIN_SUPPLY = 100_000e18; // 100k tokens
     bytes4 public constant UNKNOWN_INTERFACE_ID = 0xdeadbeef;
 
     // #endregion ----------------------------------------------------------------------------------- //

@@ -1,0 +1,6 @@
+launch.t.sol
+├── when token max supply is less than minimum limit
+│   └── it should revert
+└── when token max supply is greater or equal to minimum limit
+    ├── it should launch token with pair and liquidity
+    └── it should emit a {Launch} event
