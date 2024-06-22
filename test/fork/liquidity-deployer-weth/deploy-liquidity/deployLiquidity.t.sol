@@ -321,8 +321,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
 
         // Assert that the liquidity was deployed.
         uint256 reserveFee = (ud(defaults.FEE_AMOUNT()) * ud(defaults.RESERVE_FACTOR())).intoUint256();
-        uint256 expectedLiquidtyAmount = amount + reserveFee;
-        assertEq(wethBalanceAfter - wethBalanceBefore, expectedLiquidtyAmount, "balanceOf");
+        uint256 expectedBalanceDiff = amount + reserveFee;
+        assertEq(wethBalanceAfter - wethBalanceBefore, expectedBalanceDiff, "balanceOf");
 
         {
             (
@@ -392,8 +392,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
 
         // Assert that the liquidity was deployed.
         uint256 reserveFee = (ud(defaults.FEE_AMOUNT()) * ud(defaults.RESERVE_FACTOR())).intoUint256();
-        uint256 expectedLiquidtyAmount = amount + defaults.FEE_EXCESS_AMOUNT() + reserveFee;
-        assertEq(wethBalanceAfter - wethBalanceBefore, expectedLiquidtyAmount, "balanceOf");
+        uint256 expectedBalanceDiff = amount + defaults.FEE_EXCESS_AMOUNT() + reserveFee;
+        assertEq(wethBalanceAfter - wethBalanceBefore, expectedBalanceDiff, "balanceOf");
 
         {
             (
