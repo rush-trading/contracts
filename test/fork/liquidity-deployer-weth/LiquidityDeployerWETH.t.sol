@@ -59,6 +59,14 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
         changePrank({ msgSender: caller });
     }
 
+    /// @dev Pauses the contract.
+    function pauseContract() internal {
+        (, address caller,) = vm.readCallers();
+        changePrank({ msgSender: address(users.admin) });
+        liquidityDeployerWETH.pause();
+        changePrank({ msgSender: caller });
+    }
+
     /// @dev Unwinds the liquidity from the pair.
     function unwindLiquidityFromPair(address pair_, uint256 timestamp_) internal {
         (, address caller,) = vm.readCallers();

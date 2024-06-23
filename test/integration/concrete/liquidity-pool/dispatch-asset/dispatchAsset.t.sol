@@ -10,10 +10,11 @@ contract DispatchAsset_Integration_Concrete_Test is LiquidityPool_Integration_Co
         changePrank({ msgSender: users.eve });
 
         // Run the test.
+        uint256 amount = defaults.DISPATCH_AMOUNT();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, ASSET_MANAGER_ROLE)
         );
-        liquidityPool.dispatchAsset({ to: users.recipient, amount: 1, data: "" });
+        liquidityPool.dispatchAsset({ to: users.recipient, amount: amount, data: "" });
     }
 
     modifier whenCallerHasAssetManagerRole() {
@@ -24,8 +25,9 @@ contract DispatchAsset_Integration_Concrete_Test is LiquidityPool_Integration_Co
 
     function test_RevertWhen_AssetRecipientIsZeroAddress() external whenCallerHasAssetManagerRole {
         // Run the test.
+        uint256 amount = defaults.DISPATCH_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityPool_ZeroAddress.selector));
-        liquidityPool.dispatchAsset({ to: address(0), amount: 1, data: "" });
+        liquidityPool.dispatchAsset({ to: address(0), amount: amount, data: "" });
     }
 
     modifier whenAssetRecipientIsNotZeroAddress() {
@@ -34,8 +36,9 @@ contract DispatchAsset_Integration_Concrete_Test is LiquidityPool_Integration_Co
 
     function test_RevertWhen_AmountIsZero() external whenCallerHasAssetManagerRole whenAssetRecipientIsNotZeroAddress {
         // Run the test.
+        uint256 amount = 0;
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityPool_ZeroAmount.selector));
-        liquidityPool.dispatchAsset({ to: users.recipient, amount: 0, data: "" });
+        liquidityPool.dispatchAsset({ to: users.recipient, amount: amount, data: "" });
     }
 
     function test_WhenAmountIsNotZero() external whenCallerHasAssetManagerRole whenAssetRecipientIsNotZeroAddress {

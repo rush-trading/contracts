@@ -10,10 +10,11 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         changePrank({ msgSender: users.eve });
 
         // Run the test.
+        uint256 amount = defaults.DISPATCH_AMOUNT();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, ASSET_MANAGER_ROLE)
         );
-        liquidityPool.returnAsset({ from: users.recipient, amount: 1, data: "" });
+        liquidityPool.returnAsset({ from: users.recipient, amount: amount, data: "" });
     }
 
     modifier whenCallerHasAssetManagerRole() {
@@ -24,8 +25,9 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
 
     function test_RevertWhen_AssetSenderIsZeroAddress() external whenCallerHasAssetManagerRole {
         // Run the test.
+        uint256 amount = defaults.DISPATCH_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityPool_ZeroAddress.selector));
-        liquidityPool.returnAsset({ from: address(0), amount: 1, data: "" });
+        liquidityPool.returnAsset({ from: address(0), amount: amount, data: "" });
     }
 
     modifier whenAssetSenderIsNotZeroAddress() {
@@ -34,8 +36,9 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
 
     function test_RevertWhen_AmountIsZero() external whenCallerHasAssetManagerRole whenAssetSenderIsNotZeroAddress {
         // Run the test.
+        uint256 amount = 0;
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityPool_ZeroAmount.selector));
-        liquidityPool.returnAsset({ from: users.sender, amount: 0, data: "" });
+        liquidityPool.returnAsset({ from: users.sender, amount: amount, data: "" });
     }
 
     function test_WhenAmountIsNotZero() external whenCallerHasAssetManagerRole whenAssetSenderIsNotZeroAddress {
@@ -43,24 +46,21 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         depositToLiquidityPool(defaults.DEPOSIT_AMOUNT());
 
         // Dispatch the asset.
-        dispatchFromLiquidityPool(defaults.DISPATCH_AMOUNT());
+        uint256 amount = defaults.DISPATCH_AMOUNT();
+        dispatchFromLiquidityPool(amount);
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(liquidityPool) });
-        emit ReturnAsset({
-            originator: address(returnAssetCaller),
-            from: users.sender,
-            amount: defaults.DISPATCH_AMOUNT()
-        });
+        emit ReturnAsset({ originator: address(returnAssetCaller), from: users.sender, amount: amount });
 
         // Dispatch the asset.
         uint256 beforeBalance = wethMock.balanceOf(users.sender);
-        liquidityPool.returnAsset({ from: users.sender, amount: defaults.DISPATCH_AMOUNT(), data: "" });
+        liquidityPool.returnAsset({ from: users.sender, amount: amount, data: "" });
         uint256 afterBalance = wethMock.balanceOf(users.sender);
 
         // Assert that the asset has been dispatched.
         uint256 actualAssetSent = beforeBalance - afterBalance;
-        uint256 expectedAssetSent = defaults.DISPATCH_AMOUNT();
+        uint256 expectedAssetSent = amount;
         assertEq(actualAssetSent, expectedAssetSent, "balanceOf");
     }
 }
