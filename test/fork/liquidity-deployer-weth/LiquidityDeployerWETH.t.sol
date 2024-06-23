@@ -1,19 +1,29 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25 <0.9.0;
 
+import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
 import { Fork_Test } from "test/fork/Fork.t.sol";
 import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 
 contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
+    // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
+
     address internal pair;
     address internal token;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region --------------------------------=|+ SET-UP FUNCTION +|=------------------------------- //
 
     function setUp() public virtual override {
         Fork_Test.setUp();
         deploy();
-
         depositToLiquidityPool({ amount: defaults.DEPOSIT_AMOUNT() });
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -----------------------------------=|+ HELPERS +|=------------------------------------ //
 
     /// @dev Deploys the contracts.
     function deploy() internal {
@@ -45,6 +55,7 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
             amount: wethAmount_,
             duration: duration_
         });
+        IUniswapV2Pair(pair_).sync();
         changePrank({ msgSender: caller });
     }
 
@@ -56,4 +67,6 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
         liquidityDeployerWETH.unwindLiquidity({ pair: pair_ });
         changePrank({ msgSender: caller });
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
 }

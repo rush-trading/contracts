@@ -16,27 +16,26 @@ contract LiquidityPool_Integration_Concrete_Test is Integration_Test {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region --------------------------------=|+ SET-UP FUNCTION +|=------------------------------- //
+
     function setUp() public virtual override {
         Integration_Test.setUp();
         deploy();
         grantRoles();
     }
 
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -----------------------------------=|+ HELPERS +|=------------------------------------ //
+
     /// @dev Deploys the contract.
     function deploy() internal {
         (, address caller,) = vm.readCallers();
         changePrank({ msgSender: users.admin });
         dispatchAssetCaller = new DispatchAssetCaller();
+        vm.label({ account: address(dispatchAssetCaller), newLabel: "DispatchAssetCaller" });
         returnAssetCaller = new ReturnAssetCaller();
-        changePrank({ msgSender: caller });
-    }
-
-    /// @dev Grants roles.
-    function grantRoles() internal {
-        (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.admin });
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(dispatchAssetCaller) });
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(returnAssetCaller) });
+        vm.label({ account: address(returnAssetCaller), newLabel: "ReturnAssetCaller" });
         changePrank({ msgSender: caller });
     }
 
@@ -47,4 +46,15 @@ contract LiquidityPool_Integration_Concrete_Test is Integration_Test {
         liquidityPool.dispatchAsset({ to: users.recipient, amount: amount, data: "" });
         changePrank({ msgSender: caller });
     }
+    /// @dev Grants roles.
+
+    function grantRoles() internal {
+        (, address caller,) = vm.readCallers();
+        changePrank({ msgSender: users.admin });
+        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(dispatchAssetCaller) });
+        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(returnAssetCaller) });
+        changePrank({ msgSender: caller });
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
 }

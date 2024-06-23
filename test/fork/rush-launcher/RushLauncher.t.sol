@@ -12,11 +12,17 @@ contract RushLauncher_Test is Fork_Test {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region --------------------------------=|+ SET-UP FUNCTION +|=------------------------------- //
+
     function setUp() public virtual override {
         Fork_Test.setUp();
         deploy();
         grantRoles();
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -----------------------------------=|+ HELPERS +|=------------------------------------ //
 
     /// @dev Deploys the contract.
     function deploy() internal {
@@ -38,4 +44,6 @@ contract RushLauncher_Test is Fork_Test {
         liquidityDeployerWETH.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(rushLauncher) });
         changePrank({ msgSender: caller });
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
 }

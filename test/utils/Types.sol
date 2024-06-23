@@ -8,7 +8,7 @@ struct Users {
     address payable eve;
     // Liquidity deployer.
     address payable liquidityDeployer;
-    // Default liquidity recipient.
+    // Liquidity recipient.
     address payable recipient;
     // Reserve to receive fees.
     address payable reserve;

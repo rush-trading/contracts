@@ -6,10 +6,16 @@ import { FeeCalculator } from "src/FeeCalculator.sol";
 import { Base_Test } from "test/Base.t.sol";
 
 contract FeeCalculator_Unit_Shared_Test is Base_Test {
+    // #region --------------------------------=|+ SET-UP FUNCTION +|=------------------------------- //
+
     function setUp() public virtual override {
         Base_Test.setUp();
         deploy();
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -----------------------------------=|+ HELPERS +|=------------------------------------ //
 
     /// @dev Deploys the contract.
     function deploy() internal {
@@ -21,4 +27,6 @@ contract FeeCalculator_Unit_Shared_Test is Base_Test {
         });
         vm.label({ account: address(feeCalculator), newLabel: "FeeCalculator" });
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
 }

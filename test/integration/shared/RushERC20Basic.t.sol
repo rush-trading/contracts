@@ -7,10 +7,16 @@ import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { Integration_Test } from "test/integration/Integration.t.sol";
 
 contract RushERC20Basic_Integration_Shared_Test is Integration_Test {
+    // #region --------------------------------=|+ SET-UP FUNCTION +|=------------------------------- //
+
     function setUp() public virtual override {
         Integration_Test.setUp();
         deploy();
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -----------------------------------=|+ HELPERS +|=------------------------------------ //
 
     /// @dev Deploys the contract.
     function deploy() internal {
@@ -19,4 +25,6 @@ contract RushERC20Basic_Integration_Shared_Test is Integration_Test {
         rushERC20 = IRushERC20(createRushERC20({ implementation: implementation }));
         vm.label({ account: address(rushERC20), newLabel: "RushERC20Basic" });
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
 }

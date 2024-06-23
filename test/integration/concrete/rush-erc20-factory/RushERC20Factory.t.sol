@@ -7,13 +7,23 @@ import { BadRushERC20Mock } from "test/mocks/BadRushERC20Mock.sol";
 import { Integration_Test } from "test/integration/Integration.t.sol";
 
 contract RushERC20Factory_Integration_Concrete_Test is Integration_Test {
+    // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
+
     GoodRushERC20Mock internal goodRushERC20Mock;
     BadRushERC20Mock internal badRushERC20Mock;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region --------------------------------=|+ SET-UP FUNCTION +|=------------------------------- //
 
     function setUp() public virtual override {
         Integration_Test.setUp();
         deploy();
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -----------------------------------=|+ HELPERS +|=------------------------------------ //
 
     /// @dev Deploys the contracts.
     function deploy() internal {
@@ -22,4 +32,6 @@ contract RushERC20Factory_Integration_Concrete_Test is Integration_Test {
         vm.label({ account: address(goodRushERC20Mock), newLabel: "GoodRushERC20Mock" });
         vm.label({ account: address(badRushERC20Mock), newLabel: "BadRushERC20Mock" });
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
 }
