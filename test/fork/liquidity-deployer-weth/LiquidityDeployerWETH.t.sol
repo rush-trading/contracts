@@ -18,7 +18,7 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
     function setUp() public virtual override {
         Fork_Test.setUp();
         deploy();
-        depositToLiquidityPool({ amount: defaults.DEPOSIT_AMOUNT() });
+        deposit({ amount: defaults.DEPOSIT_AMOUNT() });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -34,7 +34,7 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
     }
 
     /// @dev Deploys liquidity to the pair.
-    function deployLiquidityToPair(
+    function deployLiquidity(
         address originator_,
         address pair_,
         address token_,
@@ -60,7 +60,7 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
     }
 
     /// @dev Pauses the contract.
-    function pauseContract() internal {
+    function pause() internal {
         (, address caller,) = vm.readCallers();
         changePrank({ msgSender: address(users.admin) });
         liquidityDeployerWETH.pause();
@@ -68,10 +68,9 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
     }
 
     /// @dev Unwinds the liquidity from the pair.
-    function unwindLiquidityFromPair(address pair_, uint256 timestamp_) internal {
+    function unwindLiquidity(address pair_) internal {
         (, address caller,) = vm.readCallers();
         changePrank({ msgSender: address(users.liquidityDeployer) });
-        vm.warp(timestamp_);
         liquidityDeployerWETH.unwindLiquidity({ pair: pair_ });
         changePrank({ msgSender: caller });
     }

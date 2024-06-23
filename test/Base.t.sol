@@ -62,8 +62,8 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
 
     // #region -----------------------------------=|+ HELPERS +|=------------------------------------ //
 
-    /// @dev Adds a template to the factory.
-    function addTemplateToFactory(address implementation) internal {
+    /// @dev Adds a template to the RushERC20Factory.
+    function addTemplate(address implementation) internal {
         (, address caller,) = vm.readCallers();
         changePrank({ msgSender: users.admin });
         rushERC20Factory.addTemplate({ implementation: implementation });
@@ -100,14 +100,6 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
         return user;
     }
 
-    /// @dev Deposits assets from the Sender to the liquidity pool.
-    function depositToLiquidityPool(uint256 amount) internal {
-        (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.sender });
-        liquidityPool.deposit({ assets: amount, receiver: users.sender });
-        changePrank({ msgSender: caller });
-    }
-
     /// @dev Deploys the core contracts.
     function deployCore() internal {
         rushERC20Factory = new RushERC20Factory({ admin_: users.admin });
@@ -134,6 +126,14 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
             reserveFactor_: defaults.RESERVE_FACTOR()
         });
         vm.label({ account: address(liquidityDeployerWETH), newLabel: "LiquidityDeployerWETH" });
+    }
+
+    /// @dev Deposits assets from the Sender to the liquidity pool.
+    function deposit(uint256 amount) internal {
+        (, address caller,) = vm.readCallers();
+        changePrank({ msgSender: users.sender });
+        liquidityPool.deposit({ assets: amount, receiver: users.sender });
+        changePrank({ msgSender: caller });
     }
 
     /// @dev Grants the necessary roles of the core contracts.

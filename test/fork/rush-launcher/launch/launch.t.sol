@@ -13,10 +13,10 @@ contract Launch_Fork_Test is RushLauncher_Test {
         RushLauncher_Test.setUp();
 
         // Deposit liquidity to the pool.
-        depositToLiquidityPool({ amount: defaults.DEPOSIT_AMOUNT() });
+        deposit({ amount: defaults.DEPOSIT_AMOUNT() });
 
         // Add template to the factory.
-        addTemplateToFactory({ implementation: address(new RushERC20Basic()) });
+        addTemplate({ implementation: address(new RushERC20Basic()) });
     }
 
     function test_RevertWhen_TokenMaxSupplyIsLessThanMinimumLimit() external {

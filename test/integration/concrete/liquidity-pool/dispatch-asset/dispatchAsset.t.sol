@@ -43,7 +43,7 @@ contract DispatchAsset_Integration_Concrete_Test is LiquidityPool_Integration_Co
 
     function test_WhenAmountIsNotZero() external whenCallerHasAssetManagerRole whenAssetRecipientIsNotZeroAddress {
         // Add deposits to the pool.
-        depositToLiquidityPool(defaults.DEPOSIT_AMOUNT());
+        deposit(defaults.DEPOSIT_AMOUNT());
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(liquidityPool) });

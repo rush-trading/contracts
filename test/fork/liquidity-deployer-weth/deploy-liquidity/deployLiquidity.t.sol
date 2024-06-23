@@ -34,7 +34,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
 
     function test_RevertWhen_ContractIsPaused() external whenCallerHasLiquidityDeployerRole {
         // Pause the contract.
-        pauseContract();
+        pause();
 
         // Run the test.
         uint256 amount = defaults.DISPATCH_AMOUNT();
@@ -63,7 +63,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         uint256 msgValue = defaults.FEE_AMOUNT();
 
         // Deploy the liquidity.
-        deployLiquidityToPair({
+        deployLiquidity({
             originator_: users.sender,
             pair_: pair,
             token_: token,

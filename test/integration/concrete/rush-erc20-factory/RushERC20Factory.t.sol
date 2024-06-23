@@ -28,8 +28,8 @@ contract RushERC20Factory_Integration_Concrete_Test is Integration_Test {
     /// @dev Deploys the contracts.
     function deploy() internal {
         goodRushERC20Mock = new GoodRushERC20Mock();
-        badRushERC20Mock = new BadRushERC20Mock();
         vm.label({ account: address(goodRushERC20Mock), newLabel: "GoodRushERC20Mock" });
+        badRushERC20Mock = new BadRushERC20Mock();
         vm.label({ account: address(badRushERC20Mock), newLabel: "BadRushERC20Mock" });
     }
 

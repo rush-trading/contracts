@@ -5,8 +5,32 @@ import { LiquidityDeployerWETH } from "src/LiquidityDeployerWETH.sol";
 
 import { Integration_Test } from "test/integration/Integration.t.sol";
 
+struct Vars {
+    bool actualHasRole;
+    bool expectedHasRole;
+    uint256 actualEarlyUnwindThreshold;
+    uint256 expectedEarlyUnwindThreshold;
+    address actualFeeCalculator;
+    address expectedFeeCalculator;
+    address actualLiquidityPool;
+    address expectedLiquidityPool;
+    uint256 actualMaxDeploymentAmount;
+    uint256 expectedMaxDeploymentAmount;
+    uint256 actualMaxDuration;
+    uint256 expectedMaxDuration;
+    uint256 actualMinDeploymentAmount;
+    uint256 expectedMinDeploymentAmount;
+    uint256 actualMinDuration;
+    uint256 expectedMinDuration;
+    address actualReserve;
+    address expectedReserve;
+    uint256 actualReserveFactor;
+    uint256 expectedReserveFactor;
+}
+
 contract Constructor_LiquidityDeployerWETH_Integration_Concrete_Test is Integration_Test {
     function test_Constructor() external {
+        Vars memory vars;
         // Make Sender the caller in this test.
         changePrank({ msgSender: users.sender });
 
@@ -29,53 +53,51 @@ contract Constructor_LiquidityDeployerWETH_Integration_Concrete_Test is Integrat
         });
 
         // Assert that the admin has been initialized.
-        bool actualHasRole =
+        vars.actualHasRole =
             constructedLiquidityDeployerWETH.hasRole({ role: DEFAULT_ADMIN_ROLE, account: users.admin });
-        bool expectedHasRole = true;
-        assertEq(actualHasRole, expectedHasRole, "DEFAULT_ADMIN_ROLE");
+        vars.expectedHasRole = true;
+        assertEq(vars.actualHasRole, vars.expectedHasRole, "DEFAULT_ADMIN_ROLE");
 
         // Assert that the values were set correctly.
-        {
-            uint256 actualEarlyUnwindThreshold = constructedLiquidityDeployerWETH.EARLY_UNWIND_THRESHOLD();
-            uint256 expectedEarlyUnwindThreshold = defaults.EARLY_UNWIND_THRESHOLD();
-            assertEq(actualEarlyUnwindThreshold, expectedEarlyUnwindThreshold, "EARLY_UNWIND_THRESHOLD");
 
-            address actualFeeCalculator = constructedLiquidityDeployerWETH.FEE_CALCULATOR();
-            address expectedFeeCalculator = address(feeCalculator);
-            assertEq(actualFeeCalculator, expectedFeeCalculator, "FEE_CALCULATOR");
+        vars.actualEarlyUnwindThreshold = constructedLiquidityDeployerWETH.EARLY_UNWIND_THRESHOLD();
+        vars.expectedEarlyUnwindThreshold = defaults.EARLY_UNWIND_THRESHOLD();
+        assertEq(vars.actualEarlyUnwindThreshold, vars.expectedEarlyUnwindThreshold, "EARLY_UNWIND_THRESHOLD");
 
-            address actualLiquidityPool = constructedLiquidityDeployerWETH.LIQUIDITY_POOL();
-            address expectedLiquidityPool = address(liquidityPool);
-            assertEq(actualLiquidityPool, expectedLiquidityPool, "LIQUIDITY_POOL");
+        vars.actualFeeCalculator = constructedLiquidityDeployerWETH.FEE_CALCULATOR();
+        vars.expectedFeeCalculator = address(feeCalculator);
+        assertEq(vars.actualFeeCalculator, vars.expectedFeeCalculator, "FEE_CALCULATOR");
 
-            uint256 actualMaxDeploymentAmount = constructedLiquidityDeployerWETH.MAX_DEPLOYMENT_AMOUNT();
-            uint256 expectedMaxDeploymentAmount = defaults.MAX_LIQUIDITY_AMOUNT();
-            assertEq(actualMaxDeploymentAmount, expectedMaxDeploymentAmount, "MAX_DEPLOYMENT_AMOUNT");
+        vars.actualLiquidityPool = constructedLiquidityDeployerWETH.LIQUIDITY_POOL();
+        vars.expectedLiquidityPool = address(liquidityPool);
+        assertEq(vars.actualLiquidityPool, vars.expectedLiquidityPool, "LIQUIDITY_POOL");
 
-            uint256 actualMaxDuration = constructedLiquidityDeployerWETH.MAX_DURATION();
-            uint256 expectedMaxDuration = defaults.MAX_LIQUIDITY_DURATION();
-            assertEq(actualMaxDuration, expectedMaxDuration, "MAX_DURATION");
-        }
-        {
-            uint256 actualMinDeploymentAmount = constructedLiquidityDeployerWETH.MIN_DEPLOYMENT_AMOUNT();
-            uint256 expectedMinDeploymentAmount = defaults.MIN_LIQUIDITY_AMOUNT();
-            assertEq(actualMinDeploymentAmount, expectedMinDeploymentAmount, "MIN_DEPLOYMENT_AMOUNT");
+        vars.actualMaxDeploymentAmount = constructedLiquidityDeployerWETH.MAX_DEPLOYMENT_AMOUNT();
+        vars.expectedMaxDeploymentAmount = defaults.MAX_LIQUIDITY_AMOUNT();
+        assertEq(vars.actualMaxDeploymentAmount, vars.expectedMaxDeploymentAmount, "MAX_DEPLOYMENT_AMOUNT");
 
-            uint256 actualMinDuration = constructedLiquidityDeployerWETH.MIN_DURATION();
-            uint256 expectedMinDuration = defaults.MIN_LIQUIDITY_DURATION();
-            assertEq(actualMinDuration, expectedMinDuration, "MIN_DURATION");
+        vars.actualMaxDuration = constructedLiquidityDeployerWETH.MAX_DURATION();
+        vars.expectedMaxDuration = defaults.MAX_LIQUIDITY_DURATION();
+        assertEq(vars.actualMaxDuration, vars.expectedMaxDuration, "MAX_DURATION");
 
-            address actualReserve = constructedLiquidityDeployerWETH.RESERVE();
-            address expectedReserve = users.reserve;
-            assertEq(actualReserve, expectedReserve, "RESERVE");
+        vars.actualMinDeploymentAmount = constructedLiquidityDeployerWETH.MIN_DEPLOYMENT_AMOUNT();
+        vars.expectedMinDeploymentAmount = defaults.MIN_LIQUIDITY_AMOUNT();
+        assertEq(vars.actualMinDeploymentAmount, vars.expectedMinDeploymentAmount, "MIN_DEPLOYMENT_AMOUNT");
 
-            uint256 actualReserveFactor = constructedLiquidityDeployerWETH.RESERVE_FACTOR();
-            uint256 expectedReserveFactor = defaults.RESERVE_FACTOR();
-            assertEq(actualReserveFactor, expectedReserveFactor, "RESERVE_FACTOR");
+        vars.actualMinDuration = constructedLiquidityDeployerWETH.MIN_DURATION();
+        vars.expectedMinDuration = defaults.MIN_LIQUIDITY_DURATION();
+        assertEq(vars.actualMinDuration, vars.expectedMinDuration, "MIN_DURATION");
 
-            address actualWETH = constructedLiquidityDeployerWETH.WETH();
-            address expectedWETH = address(liquidityPool.asset());
-            assertEq(actualWETH, expectedWETH, "WETH");
-        }
+        address actualReserve = constructedLiquidityDeployerWETH.RESERVE();
+        address expectedReserve = users.reserve;
+        assertEq(actualReserve, expectedReserve, "RESERVE");
+
+        vars.actualReserveFactor = constructedLiquidityDeployerWETH.RESERVE_FACTOR();
+        vars.expectedReserveFactor = defaults.RESERVE_FACTOR();
+        assertEq(vars.actualReserveFactor, vars.expectedReserveFactor, "RESERVE_FACTOR");
+
+        address actualWETH = constructedLiquidityDeployerWETH.WETH();
+        address expectedWETH = address(liquidityPool.asset());
+        assertEq(actualWETH, expectedWETH, "WETH");
     }
 }

@@ -52,7 +52,7 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployerWETH_Fork_Test 
         changePrank({ msgSender: address(users.admin) });
         liquidityDeployerWETH.unpause();
         // Deploy the liquidity.
-        deployLiquidityToPair({
+        deployLiquidity({
             originator_: users.sender,
             pair_: pair,
             token_: token,
@@ -74,9 +74,12 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployerWETH_Fork_Test 
         whenContractIsPaused
         givenPairHasReceivedLiquidity
     {
-        // Unwind the liquidity.
+        // Simulate the passage of time.
         (,,, uint256 deadline,) = liquidityDeployerWETH.liquidityDeployments(pair);
-        unwindLiquidityFromPair({ pair_: pair, timestamp_: deadline });
+        vm.warp(deadline);
+
+        // Unwind the liquidity.
+        unwindLiquidity({ pair_: pair });
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityDeployer_PairAlreadyUnwound.selector, pair));

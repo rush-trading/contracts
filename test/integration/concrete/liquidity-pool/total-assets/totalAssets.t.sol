@@ -11,7 +11,7 @@ contract TotalAssets_Integration_Concrete_Test is LiquidityPool_Integration_Conc
     }
 
     function test_GivenPoolHasReceivedDepositsButNoDispatches() external {
-        depositToLiquidityPool(defaults.DEPOSIT_AMOUNT());
+        deposit(defaults.DEPOSIT_AMOUNT());
 
         uint256 actualTotalAssets = liquidityPool.totalAssets();
         uint256 expectedTotalAssets = defaults.DEPOSIT_AMOUNT();
@@ -19,7 +19,7 @@ contract TotalAssets_Integration_Concrete_Test is LiquidityPool_Integration_Conc
     }
 
     function test_GivenPoolHasReceivedDepositsAndDispatches() external {
-        depositToLiquidityPool(defaults.DEPOSIT_AMOUNT());
+        deposit(defaults.DEPOSIT_AMOUNT());
         changePrank({ msgSender: address(dispatchAssetCaller) });
         liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.DISPATCH_AMOUNT(), data: "" });
 
@@ -29,7 +29,7 @@ contract TotalAssets_Integration_Concrete_Test is LiquidityPool_Integration_Conc
     }
 
     function test_GivenPoolHasReceivedDepositsAndAllAreDispatched() external {
-        depositToLiquidityPool(defaults.DEPOSIT_AMOUNT());
+        deposit(defaults.DEPOSIT_AMOUNT());
         changePrank({ msgSender: address(dispatchAssetCaller) });
         liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT(), data: "" });
 
