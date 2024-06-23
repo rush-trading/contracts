@@ -42,7 +42,7 @@ contract FeeCalculator {
 
     /**
      * @notice The base fee rate when the utilization ratio is 0.
-     * @dev Expressed in 18 decimals.
+     * @dev Expressed as a per-second rate in 18 decimals.
      */
     uint256 public immutable BASE_FEE_RATE;
 
@@ -60,13 +60,13 @@ contract FeeCalculator {
 
     /**
      * @notice The slope of the interest rate curve when utilization ratio is > 0 and <= OPTIMAL_UTILIZATION_RATIO.
-     * @dev Expressed in 18 decimals.
+     * @dev Expressed as a per-second rate in 18 decimals.
      */
     uint256 public immutable RATE_SLOPE1;
 
     /**
      * @notice The slope of the interest rate curve when utilization ratio is > OPTIMAL_UTILIZATION_RATIO.
-     * @dev Expressed in 18 decimals.
+     * @dev Expressed as a per-second rate in 18 decimals.
      */
     uint256 public immutable RATE_SLOPE2;
 
