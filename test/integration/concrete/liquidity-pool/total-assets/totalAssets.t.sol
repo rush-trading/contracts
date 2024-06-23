@@ -10,16 +10,18 @@ contract TotalAssets_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         assertEq(actualTotalAssets, expectedTotalAssets, "totalAssets");
     }
 
-    function test_GivenPoolHasReceivedDepositsButNoDispatches() external {
-        deposit(defaults.DEPOSIT_AMOUNT());
+    modifier givenPoolHasReceivedDeposits() {
+        deposit({ asset: address(wethMock), amount: defaults.DEPOSIT_AMOUNT() });
+        _;
+    }
 
+    function test_GivenPoolHasReceivedDepositsButNoDispatches() external givenPoolHasReceivedDeposits {
         uint256 actualTotalAssets = liquidityPool.totalAssets();
         uint256 expectedTotalAssets = defaults.DEPOSIT_AMOUNT();
         assertEq(actualTotalAssets, expectedTotalAssets, "totalAssets");
     }
 
-    function test_GivenPoolHasReceivedDepositsAndDispatches() external {
-        deposit(defaults.DEPOSIT_AMOUNT());
+    function test_GivenPoolHasReceivedDepositsAndDispatches() external givenPoolHasReceivedDeposits {
         changePrank({ msgSender: address(dispatchAssetCaller) });
         liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.DISPATCH_AMOUNT(), data: "" });
 
@@ -28,8 +30,7 @@ contract TotalAssets_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         assertEq(actualTotalAssets, expectedTotalAssets, "totalAssets");
     }
 
-    function test_GivenPoolHasReceivedDepositsAndAllAreDispatched() external {
-        deposit(defaults.DEPOSIT_AMOUNT());
+    function test_GivenPoolHasReceivedDepositsAndAllAreDispatched() external givenPoolHasReceivedDeposits {
         changePrank({ msgSender: address(dispatchAssetCaller) });
         liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT(), data: "" });
 

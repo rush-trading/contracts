@@ -333,7 +333,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         });
 
         // Deploy the liquidity.
-        vars.wethBalanceBefore = wethMock.balanceOf({ account: pair });
+        vars.wethBalanceBefore = weth.balanceOf({ account: pair });
         vars.tokenBalanceOfSenderBefore = GoodRushERC20Mock(token).balanceOf({ account: users.sender });
         liquidityDeployerWETH.deployLiquidity{ value: vars.msgValue }({
             originator: users.sender,
@@ -342,7 +342,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
             amount: vars.amount,
             duration: vars.duration
         });
-        vars.wethBalanceAfter = wethMock.balanceOf({ account: pair });
+        vars.wethBalanceAfter = weth.balanceOf({ account: pair });
         vars.tokenBalanceOfSenderAfter = GoodRushERC20Mock(token).balanceOf({ account: users.sender });
 
         // Assert that the liquidity was deployed.
@@ -401,7 +401,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         });
 
         // Deploy the liquidity.
-        vars.wethBalanceBefore = wethMock.balanceOf({ account: pair });
+        vars.wethBalanceBefore = weth.balanceOf({ account: pair });
         vars.tokenBalanceOfSenderBefore = GoodRushERC20Mock(token).balanceOf({ account: users.sender });
         liquidityDeployerWETH.deployLiquidity{ value: vars.msgValue }({
             originator: users.sender,
@@ -410,7 +410,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
             amount: vars.amount,
             duration: vars.duration
         });
-        vars.wethBalanceAfter = wethMock.balanceOf({ account: pair });
+        vars.wethBalanceAfter = weth.balanceOf({ account: pair });
         vars.tokenBalanceOfSenderAfter = GoodRushERC20Mock(token).balanceOf({ account: users.sender });
 
         // Assert that the liquidity was deployed.

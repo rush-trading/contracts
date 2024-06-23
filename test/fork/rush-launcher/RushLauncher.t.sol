@@ -27,7 +27,7 @@ contract RushLauncher_Test is Fork_Test {
     /// @dev Deploys the contract.
     function deploy() internal {
         rushLauncher = new RushLauncher({
-            baseAsset_: address(wethMock),
+            baseAsset_: address(weth),
             erc20Factory_: rushERC20Factory,
             liquidityDeployer_: address(liquidityDeployerWETH),
             minSupply_: defaults.TOKEN_MIN_SUPPLY(),

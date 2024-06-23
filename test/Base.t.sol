@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25 <0.9.0;
 
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Test } from "forge-std/src/Test.sol";
 import { Users } from "./utils/Types.sol";
 import { Utils } from "./utils/Utils.sol";
@@ -70,14 +71,6 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
         changePrank({ msgSender: caller });
     }
 
-    /// @dev Approves the core contracts to spend assets from the users.
-    function approveCore() internal {
-        (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.sender });
-        wethMock.approve({ spender: address(liquidityPool), value: type(uint256).max });
-        changePrank({ msgSender: caller });
-    }
-
     /// @dev Creates a RushERC20 token.
     function createRushERC20(address implementation) internal returns (address) {
         (, address caller,) = vm.readCallers();
@@ -96,7 +89,6 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
-        deal({ token: address(wethMock), to: user, give: 100 ether });
         return user;
     }
 
@@ -104,8 +96,6 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     function deployCore() internal {
         rushERC20Factory = new RushERC20Factory({ admin_: users.admin });
         vm.label({ account: address(rushERC20Factory), newLabel: "RushERC20Factory" });
-        liquidityPool = new LiquidityPool({ admin_: users.admin, asset_: address(wethMock) });
-        vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
         feeCalculator = new FeeCalculator({
             baseFeeRate: defaults.BASE_FEE_RATE(),
             optimalUtilizationRatio: defaults.OPTIMAL_UTILIZATION_RATIO(),
@@ -129,9 +119,11 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     }
 
     /// @dev Deposits assets from the Sender to the liquidity pool.
-    function deposit(uint256 amount) internal {
+    function deposit(address asset, uint256 amount) internal {
         (, address caller,) = vm.readCallers();
         changePrank({ msgSender: users.sender });
+        deal({ token: asset, to: users.sender, give: 100e18 });
+        IERC20(asset).approve({ spender: address(liquidityPool), value: type(uint256).max });
         liquidityPool.deposit({ assets: amount, receiver: users.sender });
         changePrank({ msgSender: caller });
     }

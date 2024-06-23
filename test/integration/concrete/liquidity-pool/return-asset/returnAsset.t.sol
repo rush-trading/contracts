@@ -43,7 +43,7 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
 
     function test_WhenAmountIsNotZero() external whenCallerHasAssetManagerRole whenAssetSenderIsNotZeroAddress {
         // Add deposits to the pool.
-        deposit(defaults.DEPOSIT_AMOUNT());
+        deposit({ asset: address(wethMock), amount: defaults.DEPOSIT_AMOUNT() });
 
         // Dispatch the asset.
         uint256 amount = defaults.DISPATCH_AMOUNT();
@@ -53,7 +53,7 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         vm.expectEmit({ emitter: address(liquidityPool) });
         emit ReturnAsset({ originator: address(returnAssetCaller), from: users.sender, amount: amount });
 
-        // Dispatch the asset.
+        // Return the asset.
         uint256 beforeBalance = wethMock.balanceOf(users.sender);
         liquidityPool.returnAsset({ from: users.sender, amount: amount, data: "" });
         uint256 afterBalance = wethMock.balanceOf(users.sender);

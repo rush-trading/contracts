@@ -13,7 +13,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         RushLauncher_Test.setUp();
 
         // Deposit liquidity to the pool.
-        deposit({ amount: defaults.DEPOSIT_AMOUNT() });
+        deposit({ asset: address(weth), amount: defaults.DEPOSIT_AMOUNT() });
 
         // Add template to the factory.
         addTemplate({ implementation: address(new RushERC20Basic()) });
