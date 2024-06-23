@@ -4,6 +4,7 @@ pragma solidity >=0.8.25;
 import { ERC4626 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { ERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
 import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -13,6 +14,8 @@ import { Errors } from "src/libraries/Errors.sol";
  * @notice A permissioned ERC4626-based liquidity pool contract.
  */
 contract LiquidityPool is ERC4626, AccessControl {
+    using SafeERC20 for IERC20;
+
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
@@ -112,7 +115,7 @@ contract LiquidityPool is ERC4626, AccessControl {
         outstandingAssets += amount;
 
         // Interactions: Transfer the asset to the recipient.
-        IERC20(asset()).transfer(to, amount);
+        IERC20(asset()).safeTransfer(to, amount);
         // Interactions: Execute the callback logic after transferring the assets.
         IDispatchAssetCallback(msg.sender).onDispatchAsset({ to: to, amount: amount, data: data });
 
@@ -153,7 +156,7 @@ contract LiquidityPool is ERC4626, AccessControl {
         // Interactions: Execute the callback logic before receiving the assets.
         IReturnAssetCallback(msg.sender).onReturnAsset({ from: from, amount: amount, data: data });
         // Interactions: Transfer the asset from the sender.
-        IERC20(asset()).transferFrom(from, address(this), amount);
+        IERC20(asset()).safeTransferFrom(from, address(this), amount);
 
         // Emit an event.
         emit ReturnAsset({ originator: msg.sender, from: from, amount: amount });
