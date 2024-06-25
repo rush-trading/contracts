@@ -21,5 +21,14 @@ contract Constructor_LiquidityPool_Integration_Concrete_Test is Base_Test {
         bool actualHasRole = constructedLiquidityPool.hasRole({ role: DEFAULT_ADMIN_ROLE, account: users.admin });
         bool expectedHasRole = true;
         assertEq(actualHasRole, expectedHasRole, "DEFAULT_ADMIN_ROLE");
+
+        // Assert that the values were set correctly.
+        string memory actualName = constructedLiquidityPool.name();
+        string memory expectedName = string("Rush Wrapped Ether Liquidity Pool");
+        assertEq(actualName, expectedName, "name");
+
+        string memory actualSymbol = constructedLiquidityPool.symbol();
+        string memory expectedSymbol = string("rWETH");
+        assertEq(actualSymbol, expectedSymbol, "symbol");
     }
 }

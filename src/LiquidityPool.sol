@@ -62,7 +62,6 @@ contract LiquidityPool is ERC4626, AccessControl {
         address asset_
     )
         ERC4626(ERC20(asset_))
-        // TODO: rename to be more inline with branding
         ERC20(
             string(abi.encodePacked("Rush ", ERC20(asset_).name(), " Liquidity Pool")),
             string(abi.encodePacked("r", ERC20(asset_).symbol()))

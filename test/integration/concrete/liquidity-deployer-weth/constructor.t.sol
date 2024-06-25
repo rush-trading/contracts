@@ -59,7 +59,6 @@ contract Constructor_LiquidityDeployerWETH_Integration_Concrete_Test is Integrat
         assertEq(vars.actualHasRole, vars.expectedHasRole, "DEFAULT_ADMIN_ROLE");
 
         // Assert that the values were set correctly.
-
         vars.actualEarlyUnwindThreshold = constructedLiquidityDeployerWETH.EARLY_UNWIND_THRESHOLD();
         vars.expectedEarlyUnwindThreshold = defaults.EARLY_UNWIND_THRESHOLD();
         assertEq(vars.actualEarlyUnwindThreshold, vars.expectedEarlyUnwindThreshold, "EARLY_UNWIND_THRESHOLD");
