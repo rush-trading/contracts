@@ -25,6 +25,16 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
     );
 
     /**
+     * @notice Emitted when the contract is paused.
+     */
+    event Pause();
+
+    /**
+     * @notice Emitted when the contract is unpaused.
+     */
+    event Unpause();
+
+    /**
      * @notice Emitted when liquidity is unwound from a pair.
      * @param pair The address of the Uniswap V2 pair that liquidity was unwound from.
      * @param originator The address that originated the request (i.e., the user).

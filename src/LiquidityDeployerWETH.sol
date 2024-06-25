@@ -241,14 +241,16 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
     function pause() public onlyRole(DEFAULT_ADMIN_ROLE) {
         _pause();
 
-        // TODO: emit an event.
+        // Emit an event.
+        emit Pause();
     }
 
     /// @inheritdoc ILiquidityDeployer
     function unpause() public onlyRole(DEFAULT_ADMIN_ROLE) {
         _unpause();
 
-        // TODO: emit an event.
+        // Emit an event.
+        emit Unpause();
     }
 
     /// @inheritdoc ILiquidityDeployer

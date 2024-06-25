@@ -21,7 +21,11 @@ contract Unpause_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         changePrank({ msgSender: users.admin });
 
         // Pause the contract.
-        liquidityDeployerWETH.pause();
+        pause();
+
+        // Expect the relevant event to be emitted.
+        vm.expectEmit({ emitter: address(liquidityDeployerWETH) });
+        emit Unpause();
 
         // Unpause the contract.
         liquidityDeployerWETH.unpause();

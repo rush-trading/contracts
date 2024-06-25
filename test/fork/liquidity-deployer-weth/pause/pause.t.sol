@@ -20,6 +20,10 @@ contract Pause_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         // Set Admin as the caller.
         changePrank({ msgSender: users.admin });
 
+        // Expect the relevant event to be emitted.
+        vm.expectEmit({ emitter: address(liquidityDeployerWETH) });
+        emit Pause();
+
         // Pause the contract.
         liquidityDeployerWETH.pause();
     }
