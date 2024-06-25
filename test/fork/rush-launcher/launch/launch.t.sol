@@ -7,16 +7,17 @@ import { RushLauncher } from "src/RushLauncher.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
 
-// TODO: refactor to use Defaults rather than hardcoding values.
 contract Launch_Fork_Test is RushLauncher_Test {
     function setUp() public virtual override {
         RushLauncher_Test.setUp();
+
+        rushERC20 = new RushERC20Basic();
 
         // Deposit liquidity to the pool.
         deposit({ asset: address(weth), amount: defaults.DEPOSIT_AMOUNT() });
 
         // Add template to the factory.
-        addTemplate({ implementation: address(new RushERC20Basic()) });
+        addTemplate({ implementation: address(rushERC20) });
     }
 
     function test_RevertWhen_TokenMaxSupplyIsLessThanMinimumLimit() external {
@@ -24,10 +25,11 @@ contract Launch_Fork_Test is RushLauncher_Test {
         uint256 maxSupply = defaults.TOKEN_MIN_SUPPLY() - 1;
         uint256 liquidityAmount = defaults.DISPATCH_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
+        string memory description = rushERC20.description();
         vm.expectRevert(abi.encodeWithSelector(Errors.RushLauncher_LowMaxSupply.selector, maxSupply));
         rushLauncher.launch(
             RushLauncher.LaunchParams({
-                templateDescription: "RushERC20Basic",
+                templateDescription: description,
                 name: "MyToken",
                 symbol: "MTK",
                 maxSupply: maxSupply,
@@ -42,6 +44,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         uint256 maxSupply = defaults.TOKEN_MIN_SUPPLY();
         uint256 liquidityAmount = defaults.DISPATCH_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
+        string memory description = rushERC20.description();
         (uint256 fee,) = feeCalculator.calculateFee(
             FeeCalculator.CalculateFeeParams({
                 duration: liquidityDuration,
@@ -62,7 +65,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
          });
         emit Launch({
             token: address(0),
-            kind: keccak256(abi.encodePacked("RushERC20Basic")),
+            kind: keccak256(abi.encodePacked(description)),
             pair: address(0),
             maxSupply: maxSupply,
             liquidityAmount: liquidityAmount,
@@ -72,7 +75,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         // Launch the token with pair and liquidity.
         rushLauncher.launch{ value: fee }(
             RushLauncher.LaunchParams({
-                templateDescription: "RushERC20Basic",
+                templateDescription: description,
                 name: "MyToken",
                 symbol: "MTK",
                 maxSupply: maxSupply,
