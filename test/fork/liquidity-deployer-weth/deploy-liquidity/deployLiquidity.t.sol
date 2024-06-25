@@ -9,7 +9,7 @@ import { LiquidityDeployerWETH_Fork_Test } from "../LiquidityDeployerWETH.t.sol"
 contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
     function test_RevertWhen_CallerDoesNotHaveLiquidityDeployerRole() external {
         // Make Eve the caller in this test.
-        changePrank({ msgSender: users.eve });
+        resetPrank({ msgSender: users.eve });
 
         // Run the test.
         uint256 amount = defaults.DISPATCH_AMOUNT();
@@ -28,7 +28,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
 
     modifier whenCallerHasLiquidityDeployerRole() {
         // Make LiquidityDeployer the caller in this test.
-        changePrank({ msgSender: address(users.liquidityDeployer) });
+        resetPrank({ msgSender: address(users.liquidityDeployer) });
         _;
     }
 

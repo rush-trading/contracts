@@ -8,7 +8,7 @@ import { Base_Test } from "test/Base.t.sol";
 contract Constructor_LiquidityPool_Integration_Concrete_Test is Base_Test {
     function test_Constructor() external {
         // Make Sender the caller in this test.
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit();

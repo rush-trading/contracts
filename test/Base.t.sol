@@ -66,22 +66,22 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     /// @dev Adds a template to the RushERC20Factory.
     function addTemplate(address implementation) internal {
         (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.admin });
+        resetPrank({ msgSender: users.admin });
         rushERC20Factory.addTemplate({ implementation: implementation });
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
     }
 
     /// @dev Creates a RushERC20 token.
     function createRushERC20(address implementation) internal returns (address) {
         (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.admin });
+        resetPrank({ msgSender: users.admin });
         rushERC20Factory.addTemplate({ implementation: implementation });
-        changePrank({ msgSender: users.tokenDeployer });
+        resetPrank({ msgSender: users.tokenDeployer });
         address erc20 = rushERC20Factory.createERC20({
             originator: users.sender,
             kind: keccak256(abi.encodePacked(IRushERC20(implementation).description()))
         });
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
         return erc20;
     }
 
@@ -121,21 +121,21 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     /// @dev Deposits assets from the Sender to the liquidity pool.
     function deposit(address asset, uint256 amount) internal {
         (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
         deal({ token: asset, to: users.sender, give: 100e18 });
         IERC20(asset).approve({ spender: address(liquidityPool), value: type(uint256).max });
         liquidityPool.deposit({ assets: amount, receiver: users.sender });
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
     }
 
     /// @dev Grants the necessary roles of the core contracts.
     function grantRolesCore() internal {
         (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.admin });
+        resetPrank({ msgSender: users.admin });
         liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityDeployerWETH) });
         rushERC20Factory.grantRole({ role: TOKEN_DEPLOYER_ROLE, account: address(users.tokenDeployer) });
         liquidityDeployerWETH.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(users.liquidityDeployer) });
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

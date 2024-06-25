@@ -7,7 +7,7 @@ import { LiquidityPool_Integration_Concrete_Test } from "../LiquidityPool.t.sol"
 contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Concrete_Test {
     function test_RevertWhen_CallerDoesNotHaveAssetManagerRole() external {
         // Make Eve the caller in this test.
-        changePrank({ msgSender: users.eve });
+        resetPrank({ msgSender: users.eve });
 
         // Run the test.
         uint256 amount = defaults.DISPATCH_AMOUNT();
@@ -19,7 +19,7 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
 
     modifier whenCallerHasAssetManagerRole() {
         // Make ReturnAssetCaller the caller in this test.
-        changePrank({ msgSender: address(returnAssetCaller) });
+        resetPrank({ msgSender: address(returnAssetCaller) });
         _;
     }
 

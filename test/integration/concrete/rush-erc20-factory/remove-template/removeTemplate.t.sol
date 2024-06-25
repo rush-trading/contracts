@@ -7,7 +7,7 @@ import { RushERC20Factory_Integration_Concrete_Test } from "../RushERC20Factory.
 contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integration_Concrete_Test {
     function test_RevertWhen_CallerDoesNotHaveAdminRole() external {
         // Make Eve the caller in this test.
-        changePrank({ msgSender: users.eve });
+        resetPrank({ msgSender: users.eve });
 
         // Run the test.
         bytes32 kind = defaults.TEMPLATE_KIND();
@@ -19,7 +19,7 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
 
     modifier whenCallerHasAdminRole() {
         // Make Admin the caller in this test.
-        changePrank({ msgSender: users.admin });
+        resetPrank({ msgSender: users.admin });
         _;
     }
 

@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { LiquidityDeployerWETH_Fork_Test } from "../LiquidityDeployerWETH.t.sol";
 
 contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployerWETH_Fork_Test {
     function test_RevertWhen_CallerDoesNotHaveAdminRole() external {
         // Make Eve the caller in this test.
-        changePrank({ msgSender: users.eve });
+        resetPrank({ msgSender: users.eve });
 
         // Run the test.
         address[] memory pairs = new address[](1);
@@ -20,7 +19,7 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployerWETH_Fork_Test 
     }
 
     modifier whenCallerHasAdminRole() {
-        changePrank({ msgSender: users.admin });
+        resetPrank({ msgSender: users.admin });
         _;
     }
 
@@ -49,7 +48,7 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployerWETH_Fork_Test 
     modifier givenPairHasReceivedLiquidity() {
         (, address caller,) = vm.readCallers();
         // Momentarily unpause the contract to deploy the liquidity.
-        changePrank({ msgSender: address(users.admin) });
+        resetPrank({ msgSender: address(users.admin) });
         liquidityDeployerWETH.unpause();
         // Deploy the liquidity.
         deployLiquidity({
@@ -62,9 +61,9 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployerWETH_Fork_Test 
             feeAmount_: defaults.FEE_AMOUNT()
         });
         // Pause the contract again.
-        changePrank({ msgSender: address(users.admin) });
+        resetPrank({ msgSender: address(users.admin) });
         liquidityDeployerWETH.pause();
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
         _;
     }
 

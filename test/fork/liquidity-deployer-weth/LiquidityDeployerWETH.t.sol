@@ -46,7 +46,7 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
         internal
     {
         (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: address(users.liquidityDeployer) });
+        resetPrank({ msgSender: address(users.liquidityDeployer) });
         GoodRushERC20Mock(token).mint({ account: pair_, amount: tokenAmount_ });
         liquidityDeployerWETH.deployLiquidity{ value: feeAmount_ }({
             originator: originator_,
@@ -56,23 +56,23 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
             duration: duration_
         });
         IUniswapV2Pair(pair_).sync();
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
     }
 
     /// @dev Pauses the contract.
     function pause() internal {
         (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: address(users.admin) });
+        resetPrank({ msgSender: address(users.admin) });
         liquidityDeployerWETH.pause();
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
     }
 
     /// @dev Unwinds the liquidity from the pair.
     function unwindLiquidity(address pair_) internal {
         (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: address(users.liquidityDeployer) });
+        resetPrank({ msgSender: address(users.liquidityDeployer) });
         liquidityDeployerWETH.unwindLiquidity({ pair: pair_ });
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

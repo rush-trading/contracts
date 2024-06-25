@@ -7,7 +7,7 @@ import { LiquidityDeployerWETH_Fork_Test } from "../LiquidityDeployerWETH.t.sol"
 contract Pause_Fork_Test is LiquidityDeployerWETH_Fork_Test {
     function test_RevertWhen_CallerDoesNotHaveAdminRole() external {
         // Set Eve as the caller.
-        changePrank({ msgSender: users.eve });
+        resetPrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(
@@ -18,7 +18,7 @@ contract Pause_Fork_Test is LiquidityDeployerWETH_Fork_Test {
 
     function test_WhenCallerHasAdminRole() external {
         // Set Admin as the caller.
-        changePrank({ msgSender: users.admin });
+        resetPrank({ msgSender: users.admin });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(liquidityDeployerWETH) });

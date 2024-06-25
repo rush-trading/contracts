@@ -39,10 +39,10 @@ contract RushLauncher_Test is Fork_Test {
     /// @dev Grants roles.
     function grantRoles() internal {
         (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.admin });
+        resetPrank({ msgSender: users.admin });
         rushERC20Factory.grantRole({ role: TOKEN_DEPLOYER_ROLE, account: address(rushLauncher) });
         liquidityDeployerWETH.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(rushLauncher) });
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

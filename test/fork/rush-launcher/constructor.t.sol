@@ -8,7 +8,7 @@ import { Fork_Test } from "test/fork/Fork.t.sol";
 contract Constructor_RushLauncher_Fork_Test is Fork_Test {
     function test_Constructor() external {
         // Make Sender the caller in this test.
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
 
         // Construct the contract.
         RushLauncher constructedRushLauncher = new RushLauncher({

@@ -9,7 +9,7 @@ import { RushERC20Factory_Integration_Concrete_Test } from "../RushERC20Factory.
 contract CreateERC20_Integration_Concrete_Test is RushERC20Factory_Integration_Concrete_Test {
     function test_RevertWhen_CallerDoesNotHaveTokenDeployerRole() external {
         // Make Eve the caller in this test.
-        changePrank({ msgSender: users.eve });
+        resetPrank({ msgSender: users.eve });
 
         // Run the test.
         bytes32 kind = defaults.TEMPLATE_KIND();
@@ -21,7 +21,7 @@ contract CreateERC20_Integration_Concrete_Test is RushERC20Factory_Integration_C
 
     modifier whenCallerHasTokenDeployerRole() {
         // Make TokenDeployer the caller in this test.
-        changePrank({ msgSender: users.tokenDeployer });
+        resetPrank({ msgSender: users.tokenDeployer });
         _;
     }
 

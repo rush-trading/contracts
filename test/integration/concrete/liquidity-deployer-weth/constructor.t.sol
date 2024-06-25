@@ -32,7 +32,7 @@ contract Constructor_LiquidityDeployerWETH_Integration_Concrete_Test is Integrat
     function test_Constructor() external {
         Vars memory vars;
         // Make Sender the caller in this test.
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit();

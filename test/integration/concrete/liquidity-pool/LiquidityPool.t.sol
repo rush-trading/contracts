@@ -39,18 +39,18 @@ contract LiquidityPool_Integration_Concrete_Test is Integration_Test {
     /// @dev Dispatches assets from the liquidity pool to the Recipient.
     function dispatchAsset(uint256 amount) internal {
         (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: address(dispatchAssetCaller) });
+        resetPrank({ msgSender: address(dispatchAssetCaller) });
         liquidityPool.dispatchAsset({ to: users.recipient, amount: amount, data: "" });
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
     }
 
     /// @dev Grants roles.
     function grantRoles() internal {
         (, address caller,) = vm.readCallers();
-        changePrank({ msgSender: users.admin });
+        resetPrank({ msgSender: users.admin });
         liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(dispatchAssetCaller) });
         liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(returnAssetCaller) });
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
