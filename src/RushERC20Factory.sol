@@ -86,7 +86,7 @@ contract RushERC20Factory is AccessControlExtended {
         }
 
         // Effects: Add token template to the factory.
-        // TODO: check possible collisions with keccak256, possibly via fuzzing.
+        // TODO: check possible collisions with keccak256, possibly via an invariant test.
         bytes32 kind = keccak256(abi.encodePacked(IRushERC20(implementation).description()));
         templates[kind].set({ implementation: implementation });
 
