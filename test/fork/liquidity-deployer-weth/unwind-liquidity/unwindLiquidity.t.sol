@@ -54,9 +54,15 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployerWETH_Fork_Test {
         givenPairHasNotBeenUnwound
     {
         (,,, uint256 deadline,) = liquidityDeployerWETH.liquidityDeployments(pair);
+        uint256 currentReserve = IERC20(weth).balanceOf(pair);
+        uint256 targetReserve = defaults.DISPATCH_AMOUNT() + liquidityDeployerWETH.EARLY_UNWIND_THRESHOLD();
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityDeployer_UnwindNotReady.selector, pair, deadline));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.LiquidityDeployer_UnwindNotReady.selector, pair, deadline, currentReserve, targetReserve
+            )
+        );
         liquidityDeployerWETH.unwindLiquidity({ pair: pair });
     }
 

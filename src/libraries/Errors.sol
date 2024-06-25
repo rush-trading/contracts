@@ -67,8 +67,12 @@ library Errors {
      * @notice Thrown when liquidity unwinding conditions are not met.
      * @param pair The address of the Uniswap V2 pair.
      * @param deadline The deadline timestamp.
+     * @param currentReserve The current base asset reserve of the pair.
+     * @param targetReserve The target base asset reserve of the pair.
      */
-    error LiquidityDeployer_UnwindNotReady(address pair, uint256 deadline);
+    error LiquidityDeployer_UnwindNotReady(
+        address pair, uint256 deadline, uint256 currentReserve, uint256 targetReserve
+    );
 
     /**
      * @notice Thrown when the duration is greater than the maximum limit.
