@@ -2,7 +2,7 @@
 pragma solidity >=0.8.25;
 
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import { ERC165, IERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 
 /**
@@ -26,6 +26,11 @@ contract BadRushERC20Mock is ERC165, ERC20Upgradeable, IRushERC20 {
         override
         initializer
     { }
+
+    /// @inheritdoc IERC165
+    function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
 
     /// @inheritdoc IRushERC20
     function version() public pure returns (uint256) {

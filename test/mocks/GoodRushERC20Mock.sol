@@ -26,6 +26,11 @@ contract GoodRushERC20Mock is RushERC20Abstract, ERC20Upgradeable {
         initializer
     { }
 
+    /// @inheritdoc RushERC20Abstract
+    function supportsInterface(bytes4 interfaceId) public view override(RushERC20Abstract) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+
     /// @inheritdoc IRushERC20
     function version() public pure override returns (uint256) {
         return 42;
