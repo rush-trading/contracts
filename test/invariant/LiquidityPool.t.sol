@@ -56,5 +56,13 @@ contract LiquidityPool_Invariant_Test is Invariant_Test {
         );
     }
 
+    function invariant_totalAssetsGeBalance() external view {
+        assertGe(liquidityPool.totalAssets(), wethMock.balanceOf(address(liquidityPool)));
+    }
+
+    function invariant_totalAssetsGeOutstandingAssets() external view {
+        assertGe(liquidityPool.totalAssets(), liquidityPool.outstandingAssets());
+    }
+
     // #endregion ----------------------------------------------------------------------------------- //
 }
