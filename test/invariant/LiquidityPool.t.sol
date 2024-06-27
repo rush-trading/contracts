@@ -59,14 +59,24 @@ contract LiquidityPool_Invariant_Test is Invariant_Test {
 
     // #region ----------------------------------=|+ INVARIANTS +|=---------------------------------- //
 
+    function invariant_balanceIsConsistent() external view {
+        assertEq(wethMock.balanceOf(address(liquidityPool)), liquidityPoolStore.balance());
+    }
+
+    function invariant_balanceLeTotalAssets() external view {
+        assertLe(wethMock.balanceOf(address(liquidityPool)), liquidityPoolStore.totalAssets());
+    }
+
+    function invariant_outstandingAssetsIsConsistent() external view {
+        assertEq(liquidityPool.outstandingAssets(), liquidityPoolStore.outstandingAssets());
+    }
+
     function invariant_outstandingAssetsLeTotalAssets() external view {
         assertLe(liquidityPool.outstandingAssets(), liquidityPoolStore.totalAssets());
     }
 
     function invariant_totalAssetsEqSumOfOutstandingAndBalance() external view {
-        assertEq(
-            liquidityPool.totalAssets(), liquidityPool.outstandingAssets() + wethMock.balanceOf(address(liquidityPool))
-        );
+        assertEq(liquidityPool.totalAssets(), liquidityPoolStore.outstandingAssets() + liquidityPoolStore.balance());
     }
 
     function invariant_totalAssetsIsConsistent() external view {
@@ -74,11 +84,11 @@ contract LiquidityPool_Invariant_Test is Invariant_Test {
     }
 
     function invariant_totalAssetsGeBalance() external view {
-        assertGe(liquidityPool.totalAssets(), wethMock.balanceOf(address(liquidityPool)));
+        assertGe(liquidityPool.totalAssets(), liquidityPoolStore.balance());
     }
 
     function invariant_totalAssetsGeOutstandingAssets() external view {
-        assertGe(liquidityPool.totalAssets(), liquidityPool.outstandingAssets());
+        assertGe(liquidityPool.totalAssets(), liquidityPoolStore.outstandingAssets());
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

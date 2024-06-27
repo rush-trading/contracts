@@ -51,6 +51,8 @@ contract LiquidityPoolHandler is BaseHandler {
         approveFrom({ token: asset, owner: receiver, spender: address(liquidityPool), amount: amount });
         // Increase the total assets managed by the LiquidityPool.
         liquidityPoolStore.increaseTotalAssets(amount);
+        // Increase the balance of the LiquidityPool.
+        liquidityPoolStore.increaseBalance(amount);
         // Deposit the assets into the LiquidityPool.
         return liquidityPool.deposit(amount, receiver);
     }
@@ -72,6 +74,8 @@ contract LiquidityPoolHandler is BaseHandler {
         deal({ token: address(liquidityPool), to: owner, give: shares });
         // Decrease the total assets managed by the LiquidityPool.
         liquidityPoolStore.decreaseTotalAssets(amount);
+        // Decrease the balance of the LiquidityPool.
+        liquidityPoolStore.decreaseBalance(amount);
         // Withdraw the assets from the LiquidityPool.
         return liquidityPool.withdraw(amount, receiver, owner);
     }
@@ -92,6 +96,10 @@ contract LiquidityPoolHandler is BaseHandler {
         // Bound the amount to the range (1, _assetReserve()).
         amount = bound(amount, 1, _assetReserve());
 
+        // Decrease the balance of the LiquidityPool.
+        liquidityPoolStore.decreaseBalance(amount);
+        // Increase the outstanding assets of the LiquidityPool.
+        liquidityPoolStore.increaseOutstandingAssets(amount);
         // Dispatch the assets to the `to` address.
         liquidityPool.dispatchAsset(to, amount, data);
     }
@@ -117,6 +125,10 @@ contract LiquidityPoolHandler is BaseHandler {
         deal({ token: asset, to: from, give: amount });
         // Approve the LiquidityPool to spend the assets from the `from` address.
         approveFrom({ token: asset, owner: from, spender: address(liquidityPool), amount: amount });
+        // Increase the balance of the LiquidityPool.
+        liquidityPoolStore.increaseBalance(amount);
+        // Decrease the outstanding assets of the LiquidityPool.
+        liquidityPoolStore.decreaseOutstandingAssets(amount);
         // Return the assets from the `from` address to the LiquidityPool.
         liquidityPool.returnAsset(from, amount, data);
     }
