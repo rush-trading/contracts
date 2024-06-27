@@ -106,6 +106,11 @@ contract LiquidityPool is ERC4626, AccessControl {
         if (to == address(0)) {
             revert Errors.LiquidityPool_ZeroAddress();
         }
+        // TODO: uncomment the following check in order to maintain an invariant.
+        // // Checks: `to` must not be the contract address.
+        // if (to == address(this)) {
+        //     revert Errors.LiquidityPool_SelfDispatch();
+        // }
         // Checks: `amount` must be greater than zero.
         if (amount == 0) {
             revert Errors.LiquidityPool_ZeroAmount();
@@ -145,6 +150,11 @@ contract LiquidityPool is ERC4626, AccessControl {
         if (from == address(0)) {
             revert Errors.LiquidityPool_ZeroAddress();
         }
+        // TODO: uncomment the following check in order to maintain an invariant.
+        // Checks: `from` must not be the contract address.
+        // if (from == address(this)) {
+        //     revert Errors.LiquidityPool_SelfReturn();
+        // }
         // Checks: `amount` must be greater than zero.
         if (amount == 0) {
             revert Errors.LiquidityPool_ZeroAmount();

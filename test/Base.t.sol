@@ -44,6 +44,9 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
         // Deploy the base test contracts.
         wethMock = new WETHMock();
 
+        // Label the base test contracts.
+        vm.label({ account: address(wethMock), newLabel: "WETHMock" });
+
         // Create users for testing.
         users = Users({
             admin: createUser("Admin"),

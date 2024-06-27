@@ -3,6 +3,7 @@ pragma solidity >=0.8.25 <0.9.0;
 
 import { LiquidityPool } from "src/LiquidityPool.sol";
 import { BaseHandler } from "./BaseHandler.sol";
+import { LiquidityPoolStore } from "../stores/LiquidityPoolStore.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @notice Base contract with common logic needed by all handler contracts.
@@ -10,6 +11,7 @@ contract LiquidityPoolHandler is BaseHandler {
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
 
     LiquidityPool internal liquidityPool;
+    LiquidityPoolStore internal liquidityPoolStore;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -21,8 +23,9 @@ contract LiquidityPoolHandler is BaseHandler {
 
     // #region ---------------------------------=|+ CONSTRUCTOR +|=---------------------------------- //
 
-    constructor(LiquidityPool liquidityPool_) {
+    constructor(LiquidityPool liquidityPool_, LiquidityPoolStore liquidityPoolStore_) {
         liquidityPool = liquidityPool_;
+        liquidityPoolStore = liquidityPoolStore_;
         asset = liquidityPool.asset();
     }
 
@@ -35,6 +38,10 @@ contract LiquidityPoolHandler is BaseHandler {
         if (receiver == address(0)) {
             return 0;
         }
+        // Skip when the `receiver` address is the LiquidityPool.
+        if (receiver == address(liquidityPool)) {
+            return 0;
+        }
         // Bound the `amount` to the range (0, MAX_LIQUIDITY_AMOUNT).
         amount = bound(amount, 0, MAX_LIQUIDITY_AMOUNT);
 
@@ -42,6 +49,8 @@ contract LiquidityPoolHandler is BaseHandler {
         deal({ token: asset, to: receiver, give: amount });
         // Approve the LiquidityPool to spend the assets from the receiver.
         approveFrom({ token: asset, owner: receiver, spender: address(liquidityPool), amount: amount });
+        // Increase the total assets managed by the LiquidityPool.
+        liquidityPoolStore.increaseTotalAssets(amount);
         // Deposit the assets into the LiquidityPool.
         return liquidityPool.deposit(amount, receiver);
     }
@@ -51,16 +60,18 @@ contract LiquidityPoolHandler is BaseHandler {
         if (receiver == address(0) || owner == address(0)) {
             return 0;
         }
-        // Bound the `amount` to the range (0, _assetReserve()).
-        amount = bound(amount, 0, _assetReserve());
-        // Skip when the shares are greater than the LP token total supply.
-        uint256 shares = liquidityPool.previewWithdraw(amount);
-        if (shares > liquidityPool.totalSupply()) {
+        // Skip when the `receiver` or `owner` address is the LiquidityPool.
+        if (receiver == address(liquidityPool) || owner == address(liquidityPool)) {
             return 0;
         }
+        // Bound the `amount` to the range (0, _assetReserve()).
+        amount = bound(amount, 0, _assetReserve());
 
-        // Give required assets to the owner.
+        // Give required LiquidityPool shares to the owner.
+        uint256 shares = liquidityPool.previewWithdraw(amount);
         deal({ token: address(liquidityPool), to: owner, give: shares });
+        // Decrease the total assets managed by the LiquidityPool.
+        liquidityPoolStore.decreaseTotalAssets(amount);
         // Withdraw the assets from the LiquidityPool.
         return liquidityPool.withdraw(amount, receiver, owner);
     }
@@ -68,6 +79,10 @@ contract LiquidityPoolHandler is BaseHandler {
     function dispatchAsset(address to, uint256 amount, bytes calldata data) public useNewSender(address(this)) {
         // Skip when the `to` address is the zero address.
         if (to == address(0)) {
+            return;
+        }
+        // Skip when the `to` address is the LiquidityPool.
+        if (to == address(liquidityPool)) {
             return;
         }
         // Skip given the asset reserve is zero.
@@ -84,6 +99,10 @@ contract LiquidityPoolHandler is BaseHandler {
     function returnAsset(address from, uint256 amount, bytes calldata data) public useNewSender(address(this)) {
         // Skip when the `from` address is the zero address.
         if (from == address(0)) {
+            return;
+        }
+        // Skip when the `from` address is the LiquidityPool.
+        if (from == address(liquidityPool)) {
             return;
         }
         // Skip given the outstanding assets are zero.
