@@ -76,6 +76,7 @@ contract LiquidityPool is ERC4626, AccessControl {
 
     /// @dev See {IERC4626-totalAssets}.
     function totalAssets() public view override returns (uint256) {
+        // TODO: use internal bookkeeping instead of querying the balance.
         return IERC20(asset()).balanceOf(address(this)) + outstandingAssets;
     }
 
