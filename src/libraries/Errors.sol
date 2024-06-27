@@ -109,6 +109,12 @@ library Errors {
 
     // #region --------------------------------=|+ LIQUIDITY-POOL +|=-------------------------------- //
 
+    /// @notice Thrown when attempting to dispatch assets to the LiquidityPool itself.
+    error LiquidityPool_SelfDispatch();
+
+    /// @notice Thrown when attempting to return assets from the LiquidityPool itself.
+    error LiquidityPool_SelfReturn();
+
     /// @notice Thrown when a zero address is provided.
     error LiquidityPool_ZeroAddress();
 

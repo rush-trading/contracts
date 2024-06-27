@@ -5,9 +5,12 @@ returnAsset.t.sol
     ├── when asset sender is zero address
     │   └── it should revert
     └── when asset sender is not zero address
-        ├── when amount is zero
+        ├── when asset sender is LiquidityPool itself
         │   └── it should revert
-        └── when amount is not zero
-            ├── it should execute callback logic
-            ├── it should transfer asset from sender to pool
-            └── it should emit a {ReturnAsset} event
+        └── when asset sender is not LiquidityPool itself
+            ├── when amount is zero
+            │   └── it should revert
+            └── when amount is not zero
+                ├── it should execute callback logic
+                ├── it should transfer asset from sender to pool
+                └── it should emit a {ReturnAsset} event

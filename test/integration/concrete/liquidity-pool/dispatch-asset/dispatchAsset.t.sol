@@ -34,14 +34,39 @@ contract DispatchAsset_Integration_Concrete_Test is LiquidityPool_Integration_Co
         _;
     }
 
-    function test_RevertWhen_AmountIsZero() external whenCallerHasAssetManagerRole whenAssetRecipientIsNotZeroAddress {
+    function test_RevertWhen_AssetRecipientIsLiquidityPoolItself()
+        external
+        whenCallerHasAssetManagerRole
+        whenAssetRecipientIsNotZeroAddress
+    {
+        // Run the test.
+        uint256 amount = defaults.DISPATCH_AMOUNT();
+        vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityPool_SelfDispatch.selector));
+        liquidityPool.dispatchAsset({ to: address(liquidityPool), amount: amount, data: "" });
+    }
+
+    modifier whenAssetRecipientIsNotLiquidityPoolItself() {
+        _;
+    }
+
+    function test_RevertWhen_AmountIsZero()
+        external
+        whenCallerHasAssetManagerRole
+        whenAssetRecipientIsNotZeroAddress
+        whenAssetRecipientIsNotLiquidityPoolItself
+    {
         // Run the test.
         uint256 amount = 0;
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityPool_ZeroAmount.selector));
         liquidityPool.dispatchAsset({ to: users.recipient, amount: amount, data: "" });
     }
 
-    function test_WhenAmountIsNotZero() external whenCallerHasAssetManagerRole whenAssetRecipientIsNotZeroAddress {
+    function test_WhenAmountIsNotZero()
+        external
+        whenCallerHasAssetManagerRole
+        whenAssetRecipientIsNotZeroAddress
+        whenAssetRecipientIsNotLiquidityPoolItself
+    {
         // Add deposits to the pool.
         deposit({ asset: address(wethMock), amount: defaults.DEPOSIT_AMOUNT() });
 
