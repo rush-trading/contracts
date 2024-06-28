@@ -91,6 +91,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     /// @dev Generates a user, labels its address, and funds it with test assets.
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
+        vm.label({ account: user, newLabel: name });
         vm.deal({ account: user, newBalance: 100 ether });
         return user;
     }
@@ -125,6 +126,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
     function deposit(address asset, uint256 amount) internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.sender });
+        // TODO: split logic below into own function(s).
         deal({ token: asset, to: users.sender, give: 100e18 });
         IERC20(asset).approve({ spender: address(liquidityPool), value: type(uint256).max });
         liquidityPool.deposit({ assets: amount, receiver: users.sender });

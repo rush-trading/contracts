@@ -6,7 +6,7 @@ import { BaseHandler } from "./BaseHandler.sol";
 import { LiquidityPoolStore } from "../stores/LiquidityPoolStore.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-/// @notice Base contract with common logic needed by all handler contracts.
+/// @notice Exposes {LiquidityPool} functions to Foundry for invariant testing purposes.
 contract LiquidityPoolHandler is BaseHandler {
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
 
