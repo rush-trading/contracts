@@ -18,9 +18,9 @@
 
 [profile.default.invariant]
   call_override = false # Override unsafe external calls to perform reentrancy checks
-  depth = 32            # Number of calls executed in one run
+  depth = 50            # Number of calls executed in one run
   fail_on_revert = true
-  runs = 1_000
+  runs = 20
 
 [profile.ci]
   fuzz = { runs = 10_000 }

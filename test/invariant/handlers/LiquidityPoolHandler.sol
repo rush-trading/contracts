@@ -33,7 +33,7 @@ contract LiquidityPoolHandler is BaseHandler {
 
     // #region ------------------------------=|+ HANDLER FUNCTIONS +|=------------------------------- //
 
-    function deposit(uint256 amount, address receiver) public useNewSender(receiver) {
+    function deposit(uint256 amount, address receiver) external useNewSender(receiver) {
         // Skip when the `receiver` address is the zero address.
         if (receiver == address(0)) {
             return;
@@ -57,7 +57,7 @@ contract LiquidityPoolHandler is BaseHandler {
         liquidityPool.deposit(amount, receiver);
     }
 
-    function withdraw(uint256 amount, address receiver, address owner) public useNewSender(owner) {
+    function withdraw(uint256 amount, address receiver, address owner) external useNewSender(owner) {
         // Skip when the `receiver` or `owner` address is the zero address.
         if (receiver == address(0) || owner == address(0)) {
             return;
@@ -80,7 +80,7 @@ contract LiquidityPoolHandler is BaseHandler {
         liquidityPool.withdraw(amount, receiver, owner);
     }
 
-    function dispatchAsset(address to, uint256 amount, bytes calldata data) public useNewSender(address(this)) {
+    function dispatchAsset(address to, uint256 amount, bytes calldata data) external useNewSender(address(this)) {
         // Skip when the `to` address is the zero address.
         if (to == address(0)) {
             return;
@@ -104,7 +104,7 @@ contract LiquidityPoolHandler is BaseHandler {
         liquidityPool.dispatchAsset(to, amount, data);
     }
 
-    function returnAsset(address from, uint256 amount, bytes calldata data) public useNewSender(address(this)) {
+    function returnAsset(address from, uint256 amount, bytes calldata data) external useNewSender(address(this)) {
         // Skip when the `from` address is the zero address.
         if (from == address(0)) {
             return;
@@ -137,9 +137,9 @@ contract LiquidityPoolHandler is BaseHandler {
 
     // #region ------------------------------=|+ CALLBACK FUNCTIONS +|=------------------------------ //
 
-    function onDispatchAsset(address to, uint256 amount, bytes calldata data) public { }
+    function onDispatchAsset(address to, uint256 amount, bytes calldata data) external { }
 
-    function onReturnAsset(address from, uint256 amount, bytes calldata data) public { }
+    function onReturnAsset(address from, uint256 amount, bytes calldata data) external { }
 
     // #endregion ----------------------------------------------------------------------------------- //
 
