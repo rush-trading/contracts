@@ -9,6 +9,7 @@ import { Calculations } from "./utils/Calculations.sol";
 import { Constants } from "./utils/Constants.sol";
 import { Defaults } from "./utils/Defaults.sol";
 import { Events } from "./utils/Events.sol";
+import { Precompiles } from "./utils/Precompiles.sol";
 
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
@@ -18,7 +19,7 @@ import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { WETHMock } from "test/mocks/WethMock.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
-abstract contract Base_Test is Test, Utils, Calculations, Constants, Events {
+abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Precompiles {
     // #region ----------------------------------=|+ VARIABLES +|=----------------------------------- //
 
     Users internal users;

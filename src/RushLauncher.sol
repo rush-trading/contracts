@@ -80,6 +80,8 @@ contract RushLauncher {
      */
     uint256 public immutable MIN_SUPPLY;
 
+    // TODO: Add MAX_SUPPLY limit as well.
+
     /**
      * @notice The address of the Uniswap V2 factory.
      */
@@ -119,7 +121,7 @@ contract RushLauncher {
      * @notice Launches a new ERC20 token market.
      * @param params The launch parameters.
      */
-    function launch(LaunchParams calldata params) external payable {
+    function launch(LaunchParams calldata params) external payable returns (address token, address pair) {
         // Checks: Maximum supply must be greater than the minimum limit.
         if (params.maxSupply < MIN_SUPPLY) {
             revert Errors.RushLauncher_LowMaxSupply(params.maxSupply);
@@ -128,9 +130,9 @@ contract RushLauncher {
         // Compute the kind of the token template.
         bytes32 kind = keccak256(abi.encodePacked(params.templateDescription));
         // Interactions: Create a new ERC20 token.
-        address token = ERC20_FACTORY.createERC20({ originator: msg.sender, kind: kind });
+        token = ERC20_FACTORY.createERC20({ originator: msg.sender, kind: kind });
         // Interactions: Create the Uniswap V2 pair.
-        address pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).createPair({ tokenA: token, tokenB: BASE_ASSET });
+        pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).createPair({ tokenA: token, tokenB: BASE_ASSET });
         // Interactions: Initialize the ERC20 token.
         IRushERC20(token).initialize({
             name: params.name,
