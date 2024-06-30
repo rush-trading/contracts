@@ -13,13 +13,13 @@ contract Defaults {
     uint256 public constant FEE_AMOUNT = 0.0009460973173113 ether;
     uint256 public constant FEE_EXCESS_AMOUNT = 0.00042 ether;
     uint256 public constant DISPATCH_AMOUNT = 2.75 ether; // 2.75 WETH
-    uint256 public constant EARLY_UNWIND_THRESHOLD = 10 ether; // 10 WETH
+    uint256 public constant EARLY_UNWIND_THRESHOLD = 100 ether; // 100 WETH
     uint256 public constant FEE_RATE_U_000 = BASE_FEE_RATE; // U is 0%
     uint256 public constant FEE_RATE_U_OPT = FEE_RATE_U_000 + RATE_SLOPE1; // U is optimal
     uint256 public constant FEE_RATE_U_100 = FEE_RATE_U_OPT + RATE_SLOPE2; // U is 100%
     uint256 public constant LIQUIDITY_DURATION = 3 hours;
-    uint256 public constant MAX_LIQUIDITY_AMOUNT = 10_000_000_000 ether; // 10B WETH
-    uint256 public constant MAX_LIQUIDITY_DURATION = 12_775_000 days; // ~35k years
+    uint256 public constant MAX_LIQUIDITY_AMOUNT = 1000 ether; // 1000 WETH
+    uint256 public constant MAX_LIQUIDITY_DURATION = 1 days;
     uint256 public constant MAX_RATIO = 1e18; // 100%
     uint256 public constant MIN_LIQUIDITY_AMOUNT = 1 ether; // 1 WETH
     uint256 public constant MIN_LIQUIDITY_DURATION = 30 minutes;

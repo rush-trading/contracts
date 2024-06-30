@@ -10,8 +10,8 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract LiquidityPoolHandler is BaseHandler {
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
 
-    LiquidityPool internal liquidityPool;
-    LiquidityPoolStore internal liquidityPoolStore;
+    LiquidityPool internal immutable liquidityPool;
+    LiquidityPoolStore internal immutable liquidityPoolStore;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -33,17 +33,17 @@ contract LiquidityPoolHandler is BaseHandler {
 
     // #region ------------------------------=|+ HANDLER FUNCTIONS +|=------------------------------- //
 
-    function deposit(uint256 amount, address receiver) public useNewSender(receiver) returns (uint256) {
+    function deposit(uint256 amount, address receiver) public useNewSender(receiver) {
         // Skip when the `receiver` address is the zero address.
         if (receiver == address(0)) {
-            return 0;
+            return;
         }
         // Skip when the `receiver` address is the LiquidityPool.
         if (receiver == address(liquidityPool)) {
-            return 0;
+            return;
         }
-        // Bound the `amount` to the range (0, MAX_LIQUIDITY_AMOUNT).
-        amount = bound(amount, 0, MAX_LIQUIDITY_AMOUNT);
+        // Bound the `amount` to the range (0, 10B WETH).
+        amount = bound(amount, 0, 10_000_000_000 ether);
 
         // Give required assets to the receiver.
         deal({ token: asset, to: receiver, give: amount });
@@ -54,17 +54,17 @@ contract LiquidityPoolHandler is BaseHandler {
         // Increase the balance of the LiquidityPool.
         liquidityPoolStore.increaseBalance(amount);
         // Deposit the assets into the LiquidityPool.
-        return liquidityPool.deposit(amount, receiver);
+        liquidityPool.deposit(amount, receiver);
     }
 
-    function withdraw(uint256 amount, address receiver, address owner) public useNewSender(owner) returns (uint256) {
+    function withdraw(uint256 amount, address receiver, address owner) public useNewSender(owner) {
         // Skip when the `receiver` or `owner` address is the zero address.
         if (receiver == address(0) || owner == address(0)) {
-            return 0;
+            return;
         }
         // Skip when the `receiver` or `owner` address is the LiquidityPool.
         if (receiver == address(liquidityPool) || owner == address(liquidityPool)) {
-            return 0;
+            return;
         }
         // Bound the `amount` to the range (0, _assetReserve()).
         amount = bound(amount, 0, _assetReserve());
@@ -77,7 +77,7 @@ contract LiquidityPoolHandler is BaseHandler {
         // Decrease the balance of the LiquidityPool.
         liquidityPoolStore.decreaseBalance(amount);
         // Withdraw the assets from the LiquidityPool.
-        return liquidityPool.withdraw(amount, receiver, owner);
+        liquidityPool.withdraw(amount, receiver, owner);
     }
 
     function dispatchAsset(address to, uint256 amount, bytes calldata data) public useNewSender(address(this)) {
