@@ -74,6 +74,12 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         uint256 amount = defaults.DISPATCH_AMOUNT();
         dispatchAsset(amount);
 
+        // Supply the asset to the Sender.
+        deal({ token: address(wethMock), to: users.sender, give: amount });
+
+        // Approve the LiquidityPool to spend the asset on behalf of the Sender.
+        approveFrom({ asset: address(wethMock), owner: users.sender, spender: address(liquidityPool), amount: amount });
+
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(liquidityPool) });
         emit ReturnAsset({ originator: address(returnAssetCaller), from: users.sender, amount: amount });

@@ -127,9 +127,8 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
     function deposit(address asset, uint256 amount) internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.sender });
-        // TODO: split logic below into own function(s).
-        deal({ token: asset, to: users.sender, give: 100e18 });
-        IERC20(asset).approve({ spender: address(liquidityPool), value: type(uint256).max });
+        deal({ token: asset, to: users.sender, give: amount });
+        IERC20(asset).approve({ spender: address(liquidityPool), value: amount });
         liquidityPool.deposit({ assets: amount, receiver: users.sender });
         resetPrank({ msgSender: caller });
     }

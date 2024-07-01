@@ -48,7 +48,7 @@ contract LiquidityPoolHandler is BaseHandler {
         // Give required assets to the receiver.
         deal({ token: asset, to: receiver, give: amount });
         // Approve the LiquidityPool to spend the assets from the receiver.
-        approveFrom({ token: asset, owner: receiver, spender: address(liquidityPool), amount: amount });
+        approveFrom({ asset: asset, owner: receiver, spender: address(liquidityPool), amount: amount });
         // Increase the total assets managed by the LiquidityPool.
         liquidityPoolStore.increaseTotalAssets(amount);
         // Increase the balance of the LiquidityPool.
@@ -124,7 +124,7 @@ contract LiquidityPoolHandler is BaseHandler {
         // Give required assets to the `from` address.
         deal({ token: asset, to: from, give: amount });
         // Approve the LiquidityPool to spend the assets from the `from` address.
-        approveFrom({ token: asset, owner: from, spender: address(liquidityPool), amount: amount });
+        approveFrom({ asset: asset, owner: from, spender: address(liquidityPool), amount: amount });
         // Increase the balance of the LiquidityPool.
         liquidityPoolStore.increaseBalance(amount);
         // Decrease the outstanding assets of the LiquidityPool.

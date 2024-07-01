@@ -75,7 +75,7 @@ contract RushLauncherHandler is BaseHandler {
             // Give required assets.
             deal({ token: weth, to: address(this), give: amount });
             // Approve the LiquidityPool to spend the assets.
-            approveFrom({ token: weth, owner: address(this), spender: address(liquidityPool), amount: amount });
+            approveFrom({ asset: weth, owner: address(this), spender: address(liquidityPool), amount: amount });
             // Deposit the assets into the LiquidityPool.
             liquidityPool.deposit(amount, address(this));
         }
