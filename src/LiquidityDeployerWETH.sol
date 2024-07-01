@@ -202,8 +202,6 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
         // Interactions: Swap any excess ETH to tokens.
         vars.excessAmount = msg.value - vars.totalFee;
         if (vars.excessAmount > 0) {
-            // TODO: Limit how much can be swapped.
-
             // Interactions: Convert excess ETH to WETH.
             IWETH(WETH).deposit{ value: vars.excessAmount }();
             // Interactions: Transfer excess WETH to the pair.
