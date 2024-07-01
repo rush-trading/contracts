@@ -76,11 +76,14 @@ contract RushLauncher {
     address public immutable LIQUIDITY_DEPLOYER;
 
     /**
+     * @notice The maximum minted supply of the ERC20 token.
+     */
+    uint256 public immutable MAX_SUPPLY_LIMIT;
+
+    /**
      * @notice The minimum minted supply of the ERC20 token.
      */
-    uint256 public immutable MIN_SUPPLY;
-
-    // TODO: Add MAX_SUPPLY limit as well.
+    uint256 public immutable MIN_SUPPLY_LIMIT;
 
     /**
      * @notice The address of the Uniswap V2 factory.
@@ -96,20 +99,23 @@ contract RushLauncher {
      * @param baseAsset_ The address of the base asset for liquidity.
      * @param erc20Factory_ The address of the ERC20 factory contract.
      * @param liquidityDeployer_ The address of the liquidity deployer contract.
-     * @param minSupply_ The minimum minted supply of the ERC20 token.
+     * @param maxSupplyLimit_ The maximum minted supply of the ERC20 token.
+     * @param minSupplyLimit_ The minimum minted supply of the ERC20 token.
      * @param uniswapV2Factory_ The address of the Uniswap V2 factory contract.
      */
     constructor(
         address baseAsset_,
         RushERC20Factory erc20Factory_,
         address liquidityDeployer_,
-        uint256 minSupply_,
+        uint256 maxSupplyLimit_,
+        uint256 minSupplyLimit_,
         address uniswapV2Factory_
     ) {
         BASE_ASSET = baseAsset_;
         ERC20_FACTORY = erc20Factory_;
         LIQUIDITY_DEPLOYER = liquidityDeployer_;
-        MIN_SUPPLY = minSupply_;
+        MAX_SUPPLY_LIMIT = maxSupplyLimit_;
+        MIN_SUPPLY_LIMIT = minSupplyLimit_;
         UNISWAP_V2_FACTORY = uniswapV2Factory_;
     }
 
@@ -123,8 +129,12 @@ contract RushLauncher {
      */
     function launch(LaunchParams calldata params) external payable returns (address token, address pair) {
         // Checks: Maximum supply must be greater than the minimum limit.
-        if (params.maxSupply < MIN_SUPPLY) {
+        if (params.maxSupply < MIN_SUPPLY_LIMIT) {
             revert Errors.RushLauncher_LowMaxSupply(params.maxSupply);
+        }
+        // Checks: Maximum supply must be less than the maximum limit.
+        if (params.maxSupply > MAX_SUPPLY_LIMIT) {
+            revert Errors.RushLauncher_HighMaxSupply(params.maxSupply);
         }
 
         // Compute the kind of the token template.

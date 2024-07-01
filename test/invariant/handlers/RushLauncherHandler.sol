@@ -57,9 +57,8 @@ contract RushLauncherHandler is BaseHandler {
     // #region ------------------------------=|+ HANDLER FUNCTIONS +|=------------------------------- //
 
     function launch(LaunchParams memory params) external useNewSender(address(this)) {
-        // Bound the `maxSupply` to the range (MIN_SUPPLY, MAX_SUPPLY).
-        // TODO: remove hardcoded value once `MAX_SUPPLY` is implemented in `RushLauncher`.
-        params.maxSupply = bound(params.maxSupply, rushLauncher.MIN_SUPPLY(), 1_000_000_000e18);
+        // Bound the `maxSupply` to the range (MIN_SUPPLY_LIMIT, MAX_SUPPL_LIMITY).
+        params.maxSupply = bound(params.maxSupply, rushLauncher.MIN_SUPPLY_LIMIT(), rushLauncher.MAX_SUPPLY_LIMIT());
         // Bound the `liquidityAmount` to the range (MIN_DEPLOYMENT_AMOUNT, MAX_DEPLOYMENT_AMOUNT).
         params.liquidityAmount = bound(
             params.liquidityAmount,

@@ -40,8 +40,38 @@ contract Launch_Fork_Test is RushLauncher_Test {
         );
     }
 
-    function test_WhenTokenMaxSupplyIsGreaterOrEqualToMinimumLimit() external {
-        uint256 maxSupply = defaults.TOKEN_MIN_SUPPLY();
+    modifier whenTokenMaxSupplyIsNotLessThanMinimumLimit() {
+        _;
+    }
+
+    function test_RevertWhen_TokenMaxSupplyIsGreaterThanMaximumLimit()
+        external
+        whenTokenMaxSupplyIsNotLessThanMinimumLimit
+    {
+        // Run the test.
+        uint256 maxSupply = defaults.TOKEN_MAX_SUPPLY() + 1;
+        uint256 liquidityAmount = defaults.DISPATCH_AMOUNT();
+        uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
+        string memory description = rushERC20.description();
+        vm.expectRevert(abi.encodeWithSelector(Errors.RushLauncher_HighMaxSupply.selector, maxSupply));
+        rushLauncher.launch(
+            RushLauncher.LaunchParams({
+                templateDescription: description,
+                name: "MyToken",
+                symbol: "MTK",
+                maxSupply: maxSupply,
+                data: abi.encodePacked(users.recipient, ""),
+                liquidityAmount: liquidityAmount,
+                liquidityDuration: liquidityDuration
+            })
+        );
+    }
+
+    function test_WhenTokenMaxSupplyIsNotGreaterThanMaximumLimit()
+        external
+        whenTokenMaxSupplyIsNotLessThanMinimumLimit
+    {
+        uint256 maxSupply = defaults.TOKEN_MAX_SUPPLY();
         uint256 liquidityAmount = defaults.DISPATCH_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
         string memory description = rushERC20.description();

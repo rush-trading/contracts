@@ -15,7 +15,8 @@ contract Constructor_RushLauncher_Fork_Test is Fork_Test {
             baseAsset_: address(weth),
             erc20Factory_: rushERC20Factory,
             liquidityDeployer_: address(liquidityDeployerWETH),
-            minSupply_: defaults.TOKEN_MIN_SUPPLY(),
+            maxSupplyLimit_: defaults.TOKEN_MAX_SUPPLY(),
+            minSupplyLimit_: defaults.TOKEN_MIN_SUPPLY(),
             uniswapV2Factory_: address(uniswapV2Factory)
         });
 
@@ -32,9 +33,13 @@ contract Constructor_RushLauncher_Fork_Test is Fork_Test {
         address expectedLiquidityDeployer = address(liquidityDeployerWETH);
         assertEq(actualLiquidityDeployer, expectedLiquidityDeployer, "LIQUIDITY_DEPLOYER");
 
-        uint256 actualMinSupply = constructedRushLauncher.MIN_SUPPLY();
-        uint256 expectedMinSupply = defaults.TOKEN_MIN_SUPPLY();
-        assertEq(actualMinSupply, expectedMinSupply, "MIN_SUPPLY");
+        uint256 actualMaxSupplyLimit = constructedRushLauncher.MAX_SUPPLY_LIMIT();
+        uint256 expectedMaxSupplyLimit = defaults.TOKEN_MAX_SUPPLY();
+        assertEq(actualMaxSupplyLimit, expectedMaxSupplyLimit, "MAX_SUPPLY_LIMIT");
+
+        uint256 actualMinSupplyLimit = constructedRushLauncher.MIN_SUPPLY_LIMIT();
+        uint256 expectedMinSupplyLimit = defaults.TOKEN_MIN_SUPPLY();
+        assertEq(actualMinSupplyLimit, expectedMinSupplyLimit, "MIN_SUPPLY_LIMIT");
 
         address actualUniswapV2Factory = constructedRushLauncher.UNISWAP_V2_FACTORY();
         address expectedUniswapV2Factory = address(uniswapV2Factory);

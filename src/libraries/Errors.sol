@@ -139,6 +139,12 @@ library Errors {
     // #region --------------------------------=|+ RUSH-LAUNCHER +|=--------------------------------- //
 
     /**
+     * @notice Thrown when the maximum supply of the token is too high.
+     * @param maxSupply The maximum supply of the token.
+     */
+    error RushLauncher_HighMaxSupply(uint256 maxSupply);
+
+    /**
      * @notice Thrown when the maximum supply of the token is too low.
      * @param maxSupply The maximum supply of the token.
      */
