@@ -19,8 +19,8 @@ contract RushLauncher {
      * @param token The address of the ERC20 token.
      * @param kind The kind of the ERC20 token template.
      * @param pair The address of the Uniswap V2 pair.
-     * @param maxSupply The maximum supply of the ERC20 token.
-     * @param liquidityAmount The amount of liquidity deployed.
+     * @param maxSupply The minted maximum supply of the ERC20 token.
+     * @param liquidityAmount The amount of base asset liquidity deployed.
      * @param liquidityDuration The duration of the liquidity deployment.
      */
     event Launch(
@@ -41,10 +41,10 @@ contract RushLauncher {
      * @param templateDescription The description of the token template.
      * @param name The name of the ERC20 token.
      * @param symbol The symbol of the ERC20 token.
-     * @param maxSupply The maximum supply of the ERC20 token.
+     * @param maxSupply The minted maximum supply of the ERC20 token.
      * @param data Additional data for the token initialization.
-     * @param liquidityAmount The amount of liquidity to deploy.
-     * @param liquidityDuration The duration of the liquidity deployment.
+     * @param liquidityAmount The amount of base asset liquidity to deploy.
+     * @param liquidityDuration The duration of the liquidity deployment (in seconds).
      */
     struct LaunchParams {
         string templateDescription;

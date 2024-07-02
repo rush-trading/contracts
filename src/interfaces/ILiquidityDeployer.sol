@@ -17,7 +17,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
      * @param originator The address that originated the request (i.e., the user).
      * @param token The address of the token that will be deployed as liquidity.
      * @param pair The address of the Uniswap V2 pair that will receive liquidity.
-     * @param amount The amount of liquidity deployed.
+     * @param amount The amount of base asset liquidity deployed.
      * @param deadline The deadline timestamp by which the liquidity must be unwound.
      */
     event DeployLiquidity(
@@ -38,7 +38,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
      * @notice Emitted when liquidity is unwound from a pair.
      * @param pair The address of the Uniswap V2 pair that liquidity was unwound from.
      * @param originator The address that originated the request (i.e., the user).
-     * @param amount The amount of liquidity unwound.
+     * @param amount The amount of base asset liquidity unwound.
      */
     event UnwindLiquidity(address indexed pair, address indexed originator, uint256 amount);
 
@@ -98,8 +98,8 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
      * @param originator The address that originated the request (i.e., the user).
      * @param pair The address of the Uniswap V2 pair that will receive liquidity.
      * @param token The address of the token launched.
-     * @param amount The amount of liquidity to deploy.
-     * @param duration The duration for which the liquidity will be deployed.
+     * @param amount The amount of base asset liquidity to deploy.
+     * @param duration The duration for which the liquidity will be deployed (in seconds).
      */
     function deployLiquidity(
         address originator,
