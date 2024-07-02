@@ -31,7 +31,7 @@ contract CalculateFee_Unit_Fuzz_Test is FeeCalculator_Unit_Shared_Test {
         reserveFactor = bound(reserveFactor, 0, defaults.MAX_RATIO());
         uint256 newLiquidity = outstandingPlusNewLiquidity - outstandingLiquidity;
 
-        // Fetch the fees from the fee calculator.
+        // Fetch the fees from the FeeCalculator.
         (uint256 totalFee, uint256 reserveFee) = feeCalculator.calculateFee(
             FeeCalculator.CalculateFeeParams({
                 duration: duration,
@@ -84,7 +84,7 @@ contract CalculateFee_Unit_Fuzz_Test is FeeCalculator_Unit_Shared_Test {
         reserveFactor = bound(reserveFactor, 0, defaults.MAX_RATIO());
         uint256 newLiquidity = outstandingPlusNewLiquidity - outstandingLiquidity;
 
-        // Fetch the fees from the fee calculator.
+        // Fetch the fees from the FeeCalculator.
         (uint256 totalFee, uint256 reserveFee) = feeCalculator.calculateFee(
             FeeCalculator.CalculateFeeParams({
                 duration: duration,

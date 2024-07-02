@@ -29,10 +29,10 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
      */
     uint256 public immutable EARLY_UNWIND_THRESHOLD;
 
-    /// @notice The address of the fee calculator contract.
+    /// @notice The address of the FeeCalculator contract.
     address public immutable FEE_CALCULATOR;
 
-    /// @notice The address of the liquidity pool contract.
+    /// @notice The address of the LiquidityPool contract.
     address public immutable LIQUIDITY_POOL;
 
     /// @notice The maximum amount that can be deployed as liquidity.
@@ -81,8 +81,8 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
      * Constructor
      * @param admin_ The address to grant the admin role.
      * @param earlyUnwindThreshold_ The level of asset liquidity in pair at which early unwinding is allowed.
-     * @param feeCalculator_ The address of the fee calculator contract.
-     * @param liquidityPool_ The address of the liquidity pool contract.
+     * @param feeCalculator_ The address of the FeeCalculator contract.
+     * @param liquidityPool_ The address of the LiquidityPool contract.
      * @param maxDeploymentAmount_ The maximum amount that can be deployed as liquidity.
      * @param maxDuration_ The maximum duration for liquidity deployment.
      * @param minDeploymentAmount_ The minimum amount that can be deployed as liquidity.

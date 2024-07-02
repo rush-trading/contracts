@@ -16,7 +16,7 @@ contract RushLauncher {
 
     /**
      * @notice Emitted when a new ERC20 token market is launched.
-     * @param rushERC20 The address of the ERC20 token.
+     * @param rushERC20 The address of the RushERC20 token.
      * @param kind The kind of the ERC20 token template.
      * @param uniV2Pair The address of the Uniswap V2 pair.
      * @param maxSupply The minted maximum supply of the ERC20 token.
@@ -66,12 +66,12 @@ contract RushLauncher {
     address public immutable BASE_ASSET;
 
     /**
-     * @notice The address of the ERC20 factory.
+     * @notice The address of the RushERC20Factory.
      */
     RushERC20Factory public immutable ERC20_FACTORY;
 
     /**
-     * @notice The address of the liquidity deployer.
+     * @notice The address of the LiquidityDeployer.
      */
     address public immutable LIQUIDITY_DEPLOYER;
 
@@ -97,8 +97,8 @@ contract RushLauncher {
     /**
      * @dev Constructor
      * @param baseAsset_ The address of the base asset for liquidity.
-     * @param erc20Factory_ The address of the ERC20 factory contract.
-     * @param liquidityDeployer_ The address of the liquidity deployer contract.
+     * @param erc20Factory_ The address of the RushERC20Factory contract.
+     * @param liquidityDeployer_ The address of the LiquidityDeployer contract.
      * @param maxSupplyLimit_ The maximum minted supply of the ERC20 token.
      * @param minSupplyLimit_ The minimum minted supply of the ERC20 token.
      * @param uniswapV2Factory_ The address of the Uniswap V2 factory contract.

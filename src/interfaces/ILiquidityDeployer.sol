@@ -15,7 +15,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
     /**
      * @notice Emitted when liquidity is deployed to a pair.
      * @param originator The address that originated the request (i.e., the user).
-     * @param rushERC20 The address of the launched RushERC20 token.
+     * @param rushERC20 The address of the RushERC20 token.
      * @param uniV2Pair The address of the Uniswap V2 pair that will receive liquidity.
      * @param amount The amount of base asset liquidity deployed.
      * @param deadline The deadline timestamp by which the liquidity must be unwound.
@@ -101,7 +101,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
      *
      * @param originator The address that originated the request (i.e., the user).
      * @param uniV2Pair The address of the Uniswap V2 pair that will receive liquidity.
-     * @param rushERC20 The address of the token launched.
+     * @param rushERC20 The address of the RushERC20 token.
      * @param amount The amount of base asset liquidity to deploy.
      * @param duration The duration for which the liquidity will be deployed (in seconds).
      */

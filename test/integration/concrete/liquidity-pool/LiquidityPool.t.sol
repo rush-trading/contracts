@@ -36,7 +36,7 @@ contract LiquidityPool_Integration_Concrete_Test is Integration_Test {
         vm.label({ account: address(returnAssetCaller), newLabel: "ReturnAssetCaller" });
     }
 
-    /// @dev Dispatches assets from the liquidity pool to the Recipient.
+    /// @dev Dispatches assets from the LiquidityPool to the Recipient.
     function dispatchAsset(uint256 amount) internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: address(dispatchAssetCaller) });

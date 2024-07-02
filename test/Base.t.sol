@@ -123,7 +123,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         vm.label({ account: address(liquidityDeployer), newLabel: "LiquidityDeployer" });
     }
 
-    /// @dev Deposits assets from the Sender to the liquidity pool.
+    /// @dev Deposits assets from the Sender to the LiquidityPool.
     function deposit(address asset, uint256 amount) internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.sender });
