@@ -13,7 +13,7 @@ import { Precompiles } from "./utils/Precompiles.sol";
 
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
-import { LiquidityDeployerWETH } from "src/LiquidityDeployerWETH.sol";
+import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { WETHMock } from "test/mocks/WethMock.sol";
@@ -31,7 +31,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
     Defaults internal defaults;
     // TODO: Use interfaces instead of concrete contracts.
     FeeCalculator internal feeCalculator;
-    LiquidityDeployerWETH internal liquidityDeployerWETH;
+    LiquidityDeployer internal liquidityDeployer;
     LiquidityPool internal liquidityPool;
     IRushERC20 internal rushERC20;
     RushERC20Factory internal rushERC20Factory;
@@ -55,8 +55,8 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
             liquidityDeployer: createUser("LiquidityDeployer"),
             recipient: createUser("Recipient"),
             reserve: createUser("Reserve"),
-            sender: createUser("Sender"),
-            tokenDeployer: createUser("TokenDeployer")
+            rushCreator: createUser("RushCreator"),
+            sender: createUser("Sender")
         });
 
         // Deploy the defaults contract.
@@ -80,8 +80,8 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
         rushERC20Factory.addTemplate({ implementation: implementation });
-        resetPrank({ msgSender: users.tokenDeployer });
-        address erc20 = rushERC20Factory.createERC20({
+        resetPrank({ msgSender: users.rushCreator });
+        address erc20 = rushERC20Factory.createRushERC20({
             originator: users.sender,
             kind: keccak256(abi.encodePacked(IRushERC20(implementation).description()))
         });
@@ -108,7 +108,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
             rateSlope2: defaults.RATE_SLOPE2()
         });
         vm.label({ account: address(feeCalculator), newLabel: "FeeCalculator" });
-        liquidityDeployerWETH = new LiquidityDeployerWETH({
+        liquidityDeployer = new LiquidityDeployer({
             admin_: users.admin,
             earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
             feeCalculator_: address(feeCalculator),
@@ -120,7 +120,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
             reserve_: users.reserve,
             reserveFactor_: defaults.RESERVE_FACTOR()
         });
-        vm.label({ account: address(liquidityDeployerWETH), newLabel: "LiquidityDeployerWETH" });
+        vm.label({ account: address(liquidityDeployer), newLabel: "LiquidityDeployer" });
     }
 
     /// @dev Deposits assets from the Sender to the liquidity pool.
@@ -137,9 +137,9 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
     function grantRolesCore() internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityDeployerWETH) });
-        rushERC20Factory.grantRole({ role: TOKEN_DEPLOYER_ROLE, account: address(users.tokenDeployer) });
-        liquidityDeployerWETH.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(users.liquidityDeployer) });
+        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityDeployer) });
+        rushERC20Factory.grantRole({ role: RUSH_CREATOR_ROLE, account: address(users.rushCreator) });
+        liquidityDeployer.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(users.liquidityDeployer) });
         resetPrank({ msgSender: caller });
     }
 

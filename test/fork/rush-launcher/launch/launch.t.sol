@@ -22,7 +22,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
 
     function test_RevertWhen_TokenMaxSupplyIsLessThanMinimumLimit() external {
         // Run the test.
-        uint256 maxSupply = defaults.TOKEN_MIN_SUPPLY() - 1;
+        uint256 maxSupply = defaults.RUSH_ERC20_MIN_SUPPLY() - 1;
         uint256 liquidityAmount = defaults.DISPATCH_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
         string memory description = rushERC20.description();
@@ -49,7 +49,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         whenTokenMaxSupplyIsNotLessThanMinimumLimit
     {
         // Run the test.
-        uint256 maxSupply = defaults.TOKEN_MAX_SUPPLY() + 1;
+        uint256 maxSupply = defaults.RUSH_ERC20_MAX_SUPPLY() + 1;
         uint256 liquidityAmount = defaults.DISPATCH_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
         string memory description = rushERC20.description();
@@ -71,7 +71,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         external
         whenTokenMaxSupplyIsNotLessThanMinimumLimit
     {
-        uint256 maxSupply = defaults.TOKEN_MAX_SUPPLY();
+        uint256 maxSupply = defaults.RUSH_ERC20_MAX_SUPPLY();
         uint256 liquidityAmount = defaults.DISPATCH_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
         string memory description = rushERC20.description();
@@ -88,21 +88,21 @@ contract Launch_Fork_Test is RushLauncher_Test {
         // Expect the relevant event to be emitted.
         vm.expectEmit({
             emitter: address(rushLauncher),
-            checkTopic1: false, // Ignore `token` field.
+            checkTopic1: false, // Ignore `rushERC20` field.
             checkTopic2: true, // Check `kind` field.
-            checkTopic3: false, // Ignore `pair` field.
+            checkTopic3: false, // Ignore `uniV2Pair` field.
             checkData: true // Check `maxSupply`, `liquidityAmount`, and `liquidityDuration` fields.
          });
         emit Launch({
-            token: address(0),
+            rushERC20: address(0),
             kind: keccak256(abi.encodePacked(description)),
-            pair: address(0),
+            uniV2Pair: address(0),
             maxSupply: maxSupply,
             liquidityAmount: liquidityAmount,
             liquidityDuration: liquidityDuration
         });
 
-        // Launch the token with pair and liquidity.
+        // Launch the RushERC20 token with its liquidity.
         rushLauncher.launch{ value: fee }(
             RushLauncher.LaunchParams({
                 templateDescription: description,

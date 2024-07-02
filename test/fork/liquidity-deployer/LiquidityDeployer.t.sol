@@ -5,11 +5,11 @@ import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
 import { Fork_Test } from "test/fork/Fork.t.sol";
 import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 
-contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
+contract LiquidityDeployer_Fork_Test is Fork_Test {
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
 
-    address internal pair;
-    address internal token;
+    address internal uniV2Pair;
+    address internal rushERC20Mock;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -27,18 +27,18 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
 
     /// @dev Deploys the contracts.
     function deploy() internal {
-        token = createRushERC20({ implementation: address(new GoodRushERC20Mock()) });
-        vm.label({ account: token, newLabel: "RushERC20" });
-        pair = uniswapV2Factory.createPair({ tokenA: token, tokenB: address(weth) });
-        vm.label({ account: pair, newLabel: "UniswapV2Pair" });
+        rushERC20Mock = createRushERC20({ implementation: address(new GoodRushERC20Mock()) });
+        vm.label({ account: rushERC20Mock, newLabel: "RushERC20Mock" });
+        uniV2Pair = uniswapV2Factory.createPair({ tokenA: rushERC20Mock, tokenB: address(weth) });
+        vm.label({ account: uniV2Pair, newLabel: "UniswapV2Pair" });
     }
 
-    /// @dev Deploys liquidity to the pair.
+    /// @dev Deploys liquidity to the Uniswap V2 pair.
     function deployLiquidity(
         address originator_,
-        address pair_,
-        address token_,
-        uint256 tokenAmount_,
+        address uniV2Pair_,
+        address rushERC20_,
+        uint256 rushERC20Amount_,
         uint256 wethAmount_,
         uint256 duration_,
         uint256 feeAmount_
@@ -47,15 +47,15 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
     {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: address(users.liquidityDeployer) });
-        GoodRushERC20Mock(token).mint({ account: pair_, amount: tokenAmount_ });
-        liquidityDeployerWETH.deployLiquidity{ value: feeAmount_ }({
+        GoodRushERC20Mock(rushERC20Mock).mint({ account: uniV2Pair_, amount: rushERC20Amount_ });
+        liquidityDeployer.deployLiquidity{ value: feeAmount_ }({
             originator: originator_,
-            pair: pair_,
-            token: token_,
+            uniV2Pair: uniV2Pair_,
+            rushERC20: rushERC20_,
             amount: wethAmount_,
             duration: duration_
         });
-        IUniswapV2Pair(pair_).sync();
+        IUniswapV2Pair(uniV2Pair_).sync();
         resetPrank({ msgSender: caller });
     }
 
@@ -63,15 +63,15 @@ contract LiquidityDeployerWETH_Fork_Test is Fork_Test {
     function pause() internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: address(users.admin) });
-        liquidityDeployerWETH.pause();
+        liquidityDeployer.pause();
         resetPrank({ msgSender: caller });
     }
 
-    /// @dev Unwinds the liquidity from the pair.
-    function unwindLiquidity(address pair_) internal {
+    /// @dev Unwinds the liquidity from the Uniswap V2 pair.
+    function unwindLiquidity(address uniV2Pair_) internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: address(users.liquidityDeployer) });
-        liquidityDeployerWETH.unwindLiquidity({ pair: pair_ });
+        liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair_ });
         resetPrank({ msgSender: caller });
     }
 

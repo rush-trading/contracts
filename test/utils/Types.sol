@@ -12,8 +12,8 @@ struct Users {
     address payable recipient;
     // Reserve to receive fees.
     address payable reserve;
+    // Rush creator.
+    address payable rushCreator;
     // Default message sender.
     address payable sender;
-    // Token deployer.
-    address payable tokenDeployer;
 }

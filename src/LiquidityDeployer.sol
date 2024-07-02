@@ -16,16 +16,16 @@ import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 
 /**
- * @title LiquidityDeployerWETH
+ * @title LiquidityDeployer
  * @notice A permissioned contract for deploying WETH-backed liquidity to Uniswap V2 pairs.
  */
-contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
+contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
     using SafeERC20 for IERC20;
 
     // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
 
     /**
-     * @notice The level of asset liquidity in pair at which early unwinding is allowed.
+     * @notice The level of asset liquidity in a Uniswap V2 pair at which early unwinding is allowed.
      */
     uint256 public immutable EARLY_UNWIND_THRESHOLD;
 
@@ -71,7 +71,7 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
     /// @notice A mapping of liquidity deployments.
-    mapping(address pair => LiquidityDeployment) public liquidityDeployments;
+    mapping(address uniV2Pair => LiquidityDeployment) public liquidityDeployments;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -122,8 +122,8 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
     /// @inheritdoc ILiquidityDeployer
     function deployLiquidity(
         address originator,
-        address pair,
-        address token,
+        address uniV2Pair,
+        address rushERC20,
         uint256 amount,
         uint256 duration
     )
@@ -134,21 +134,21 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
     {
         DeployLiquidityLocalVars memory vars;
         // Checks: Pair must not have received liquidity before.
-        if (liquidityDeployments[pair].deadline != 0) {
-            revert Errors.LiquidityDeployer_PairAlreadyReceivedLiquidity({ token: token, pair: pair });
+        if (liquidityDeployments[uniV2Pair].deadline != 0) {
+            revert Errors.LiquidityDeployer_PairAlreadyReceivedLiquidity({ rushERC20: rushERC20, uniV2Pair: uniV2Pair });
         }
-        // Checks: Total supply of the deployed token must be greater than 0.
-        vars.totalSupply = IERC20(token).totalSupply();
+        // Checks: Total supply of the RushERC20 token must be greater than 0.
+        vars.totalSupply = IERC20(rushERC20).totalSupply();
         if (vars.totalSupply == 0) {
-            revert Errors.LiquidityDeployer_TotalSupplyZero({ token: token, pair: pair });
+            revert Errors.LiquidityDeployer_TotalSupplyZero({ rushERC20: rushERC20, uniV2Pair: uniV2Pair });
         }
-        // Checks: Pair should contain entire supply of the deployed token.
-        vars.pairBalance = IERC20(token).balanceOf(address(pair));
-        if (vars.pairBalance != vars.totalSupply) {
+        // Checks: Pair should contain entire supply of the RushERC20 token.
+        vars.rushERC20BalanceOfPair = IERC20(rushERC20).balanceOf(address(uniV2Pair));
+        if (vars.rushERC20BalanceOfPair != vars.totalSupply) {
             revert Errors.LiquidityDeployer_PairSupplyDiscrepancy({
-                token: token,
-                pair: pair,
-                pairBalance: vars.pairBalance,
+                rushERC20: rushERC20,
+                uniV2Pair: uniV2Pair,
+                rushERC20BalanceOfPair: vars.rushERC20BalanceOfPair,
                 totalSupply: vars.totalSupply
             });
         }
@@ -184,8 +184,8 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
 
         // Effects: Store the liquidity deployment.
         vars.deadline = block.timestamp + duration;
-        liquidityDeployments[pair] = LiquidityDeployment({
-            token: token,
+        liquidityDeployments[uniV2Pair] = LiquidityDeployment({
+            rushERC20: rushERC20,
             originator: originator,
             amount: amount,
             deadline: vars.deadline,
@@ -194,9 +194,9 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
 
         // Interactions: Dispatch asset from LiquidityPool to the pair.
         LiquidityPool(LIQUIDITY_POOL).dispatchAsset({
-            to: pair,
+            to: uniV2Pair,
             amount: amount,
-            data: abi.encode(vars.totalFee, vars.reserveFee, pair)
+            data: abi.encode(vars.totalFee, vars.reserveFee, uniV2Pair)
         });
 
         // Interactions: Swap any excess ETH to tokens.
@@ -205,19 +205,19 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
             // Interactions: Convert excess ETH to WETH.
             IWETH(WETH).deposit{ value: vars.excessAmount }();
             // Interactions: Transfer excess WETH to the pair.
-            IERC20(WETH).safeTransfer(pair, vars.excessAmount);
+            IERC20(WETH).safeTransfer(uniV2Pair, vars.excessAmount);
 
-            vars.isToken0WETH = IUniswapV2Pair(pair).token0() == WETH;
-            (vars.reserve0, vars.reserve1,) = IUniswapV2Pair(pair).getReserves();
-            (vars.wethReserve, vars.tokenReserve) =
+            vars.isToken0WETH = IUniswapV2Pair(uniV2Pair).token0() == WETH;
+            (vars.reserve0, vars.reserve1,) = IUniswapV2Pair(uniV2Pair).getReserves();
+            (vars.wethReserve, vars.rushERC20Reserve) =
                 vars.isToken0WETH ? (vars.reserve0, vars.reserve1) : (vars.reserve1, vars.reserve0);
             vars.amountInWithFee = vars.excessAmount * 997;
-            vars.numerator = vars.amountInWithFee * vars.tokenReserve;
+            vars.numerator = vars.amountInWithFee * vars.rushERC20Reserve;
             vars.denominator = (vars.wethReserve * 1000) + vars.amountInWithFee;
             vars.amountOut = vars.numerator / vars.denominator;
 
             // Interactions: Swap excess WETH to tokens.
-            IUniswapV2Pair(pair).swap({
+            IUniswapV2Pair(uniV2Pair).swap({
                 amount0Out: vars.isToken0WETH ? 0 : vars.amountOut,
                 amount1Out: vars.isToken0WETH ? vars.amountOut : 0,
                 to: originator,
@@ -228,8 +228,8 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
         // Emit an event.
         emit DeployLiquidity({
             originator: originator,
-            token: token,
-            pair: pair,
+            rushERC20: rushERC20,
+            uniV2Pair: uniV2Pair,
             amount: amount,
             deadline: vars.deadline
         });
@@ -252,25 +252,25 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
     }
 
     /// @inheritdoc ILiquidityDeployer
-    function unwindLiquidityEMERGENCY(address[] calldata pairs) external onlyRole(DEFAULT_ADMIN_ROLE) whenPaused {
-        for (uint256 i = 0; i < pairs.length; i++) {
-            address pair = pairs[i];
-            LiquidityDeployment storage deployment = liquidityDeployments[pair];
+    function unwindLiquidityEMERGENCY(address[] calldata uniV2Pairs) external onlyRole(DEFAULT_ADMIN_ROLE) whenPaused {
+        for (uint256 i = 0; i < uniV2Pairs.length; i++) {
+            address uniV2Pair = uniV2Pairs[i];
+            LiquidityDeployment storage deployment = liquidityDeployments[uniV2Pair];
             // Checks: Pair must have received liquidity before.
             if (deployment.deadline == 0) {
-                revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ pair: pair });
+                revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ uniV2Pair: uniV2Pair });
             }
             // Checks: Pair must not have been unwound before.
             if (deployment.isUnwound) {
-                revert Errors.LiquidityDeployer_PairAlreadyUnwound({ pair: pair });
+                revert Errors.LiquidityDeployer_PairAlreadyUnwound({ uniV2Pair: uniV2Pair });
             }
 
-            (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
-            (uint256 wethReserve, uint256 tokenReserve) =
-                IUniswapV2Pair(pair).token0() == WETH ? (reserve0, reserve1) : (reserve1, reserve0);
+            (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(uniV2Pair).getReserves();
+            (uint256 wethReserve, uint256 rushERC20Reserve) =
+                IUniswapV2Pair(uniV2Pair).token0() == WETH ? (reserve0, reserve1) : (reserve1, reserve0);
 
             // Unwind the liquidity deployment.
-            _unwindLiquidity({ pair: pair, wethReserve: wethReserve, tokenReserve: tokenReserve });
+            _unwindLiquidity({ uniV2Pair: uniV2Pair, wethReserve: wethReserve, rushERC20Reserve: rushERC20Reserve });
         }
     }
 
@@ -279,24 +279,24 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
     // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc ILiquidityDeployer
-    function unwindLiquidity(address pair) external {
-        LiquidityDeployment storage deployment = liquidityDeployments[pair];
+    function unwindLiquidity(address uniV2Pair) external {
+        LiquidityDeployment storage deployment = liquidityDeployments[uniV2Pair];
         // Checks: Pair must have received liquidity before.
         if (deployment.deadline == 0) {
-            revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ pair: pair });
+            revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ uniV2Pair: uniV2Pair });
         }
         // Checks: Pair must not have been unwound before.
         if (deployment.isUnwound) {
-            revert Errors.LiquidityDeployer_PairAlreadyUnwound({ pair: pair });
+            revert Errors.LiquidityDeployer_PairAlreadyUnwound({ uniV2Pair: uniV2Pair });
         }
         // Checks: Deadline must have passed or early unwind threshold must be met.
-        (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
-        (uint256 wethReserve, uint256 tokenReserve) =
-            IUniswapV2Pair(pair).token0() == WETH ? (reserve0, reserve1) : (reserve1, reserve0);
+        (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(uniV2Pair).getReserves();
+        (uint256 wethReserve, uint256 rushERC20Reserve) =
+            IUniswapV2Pair(uniV2Pair).token0() == WETH ? (reserve0, reserve1) : (reserve1, reserve0);
         uint256 targetWETHReserve = deployment.amount + EARLY_UNWIND_THRESHOLD;
         if (block.timestamp < deployment.deadline && wethReserve < targetWETHReserve) {
             revert Errors.LiquidityDeployer_UnwindNotReady({
-                pair: pair,
+                uniV2Pair: uniV2Pair,
                 deadline: deployment.deadline,
                 currentReserve: wethReserve,
                 targetReserve: targetWETHReserve
@@ -304,7 +304,7 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
         }
 
         // Unwind the liquidity deployment.
-        _unwindLiquidity({ pair: pair, wethReserve: wethReserve, tokenReserve: tokenReserve });
+        _unwindLiquidity({ uniV2Pair: uniV2Pair, wethReserve: wethReserve, rushERC20Reserve: rushERC20Reserve });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -332,11 +332,11 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
             revert Errors.LiquidityDeployer_InvalidCallbackSender({ sender: msg.sender });
         }
 
-        (uint256 totalFee, uint256 reserveFee, address pair) = abi.decode(data, (uint256, uint256, address));
+        (uint256 totalFee, uint256 reserveFee, address uniV2Pair) = abi.decode(data, (uint256, uint256, address));
         // Interactions: Convert received fee from ETH to WETH.
         IWETH(WETH).deposit{ value: totalFee }();
         // Interactions: Transfer reserve fee to the pair to maintain `unwindLiquidity` invariant.
-        IERC20(WETH).safeTransfer(pair, reserveFee);
+        IERC20(WETH).safeTransfer(uniV2Pair, reserveFee);
         // Interactions: Transfer the remaining fee to the LiquidityPool.
         IERC20(WETH).safeTransfer(LIQUIDITY_POOL, totalFee - reserveFee);
         // Interactions: Mint LP tokens.
@@ -355,7 +355,7 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
      * 3. Else if the LP tokens to redeem are less than the balance, burn the excess LP tokens to avoid rug pulling
      * traders.
      * 4. Burn the LP tokens to redeem the deployed liquidity + reserve fee.
-     * 5. Burn entire balance of deployed token.
+     * 5. Burn entire balance of RushERC20 token.
      * 6. Deposit the reserve fee and transfer share to the reserve.
      *
      * @param amount The amount of WETH to return to the LiquidityPool.
@@ -368,31 +368,31 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
         }
 
         // TODO: double-check this calculation.
-        (address pair, address token, uint256 wethReserve, uint256 tokenReserve) =
+        (address uniV2Pair, address rushERC20, uint256 wethReserve, uint256 rushERC20Reserve) =
             abi.decode(data, (address, address, uint256, uint256));
         // TODO: use more intuitive local variable names.
-        uint256 finalAmount = IERC20(WETH).balanceOf(pair);
+        uint256 finalAmount = IERC20(WETH).balanceOf(uniV2Pair);
         // TODO: include `reserveFee` of `deployLiquidity` in the calculation.
         uint256 excessAmount = finalAmount - amount;
         // Calculate a reserve fee from the excess amount.
         uint256 reserveFee = (ud(excessAmount) * ud(RESERVE_FACTOR)).intoUint256();
         // Get the LP token balance.
-        uint256 lpTokenBalance = IUniswapV2Pair(pair).balanceOf(address(this));
+        uint256 lpTokenBalance = IUniswapV2Pair(uniV2Pair).balanceOf(address(this));
 
         // Interactions: Transfer LP token balance to the pair.
-        IERC20(pair).safeTransfer(pair, lpTokenBalance);
+        IERC20(uniV2Pair).safeTransfer(uniV2Pair, lpTokenBalance);
         // Interactions: Burn the LP tokens to redeem the underlying assets.
-        IUniswapV2Pair(pair).burn(address(this));
+        IUniswapV2Pair(uniV2Pair).burn(address(this));
         uint256 wethToReturn = wethReserve - (amount + reserveFee);
-        uint256 tokenToReturn = (ud(tokenReserve) * (ud(wethToReturn) / ud(wethReserve))).intoUint256();
+        uint256 rushERC20ToReturn = (ud(rushERC20Reserve) * (ud(wethToReturn) / ud(wethReserve))).intoUint256();
         // Interactions: Transfer the WETH to return to the pair.
-        IERC20(WETH).safeTransfer(pair, wethToReturn);
-        // Interactions: Transfer the deployed token to return to the pair.
-        IERC20(token).safeTransfer(pair, tokenToReturn);
+        IERC20(WETH).safeTransfer(uniV2Pair, wethToReturn);
+        // Interactions: Transfer the RushERC20 to return to the pair.
+        IERC20(rushERC20).safeTransfer(uniV2Pair, rushERC20ToReturn);
         // Interactions: Mint LP tokens and send them to the 1 address to lock them.
-        IUniswapV2Pair(pair).mint(address(1));
-        // Interactions: Burn entire remaining balance of deployed token.
-        IERC20(token).safeTransfer(address(1), IERC20(token).balanceOf(address(this)));
+        IUniswapV2Pair(uniV2Pair).mint(address(1));
+        // Interactions: Burn entire remaining balance of the RushERC20 token.
+        IERC20(rushERC20).safeTransfer(address(1), IERC20(rushERC20).balanceOf(address(this)));
         // Interactions: Transfer the reserve fee to the reserve.
         IERC20(WETH).safeTransfer(RESERVE, IERC20(WETH).balanceOf(address(this)) - amount);
         // Interactions: Approve the LiquidityPool to transfer the returned WETH.
@@ -404,8 +404,8 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
     // #region -----------------------=|+ INTERNAL NON-CONSTANT FUNCTIONS +|=------------------------ //
 
     /// @dev Unwinds the liquidity deployment.
-    function _unwindLiquidity(address pair, uint256 wethReserve, uint256 tokenReserve) internal {
-        LiquidityDeployment storage deployment = liquidityDeployments[pair];
+    function _unwindLiquidity(address uniV2Pair, uint256 wethReserve, uint256 rushERC20Reserve) internal {
+        LiquidityDeployment storage deployment = liquidityDeployments[uniV2Pair];
 
         // Effects: Set deployment as unwound.
         deployment.isUnwound = true;
@@ -414,11 +414,11 @@ contract LiquidityDeployerWETH is ILiquidityDeployer, AccessControl, Pausable {
         LiquidityPool(LIQUIDITY_POOL).returnAsset({
             from: address(this),
             amount: deployment.amount,
-            data: abi.encode(pair, deployment.token, wethReserve, tokenReserve)
+            data: abi.encode(uniV2Pair, deployment.rushERC20, wethReserve, rushERC20Reserve)
         });
 
         // Emit an event.
-        emit UnwindLiquidity({ pair: pair, originator: deployment.originator, amount: deployment.amount });
+        emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: deployment.originator, amount: deployment.amount });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

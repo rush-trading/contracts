@@ -8,12 +8,12 @@ deployLiquidity.t.sol
         ├── given pair has already received liquidity
         │   └── it should revert
         └── given pair has not received liquidity
-            ├── given total supply of deployed token is zero
+            ├── given total supply of RushERC20 is zero
             │   └── it should revert
-            └── given total supply of deployed token is not zero
-                ├── given pair does not contain entire supply of deployed token
+            └── given total supply of RushERC20 is not zero
+                ├── given pair does not contain entire supply of RushERC20
                 │   └── it should revert
-                └── given pair contains entire supply of deployed token
+                └── given pair contains entire supply of RushERC20
                     ├── given amount to deploy is less than minimum amount
                     │   └── it should revert
                     └── given amount to deploy is greater than or equal to minimum amount
@@ -33,6 +33,6 @@ deployLiquidity.t.sol
                                         │   ├── it should deploy liquidity
                                         │   └── it should emit a {DeployLiquidity} event
                                         └── given excess msg value is greater than zero
-                                            ├── it should swap excess msg value for deployed token
+                                            ├── it should swap excess msg value for RushERC20
                                             ├── it should deploy liquidity
                                             └── it should emit a {DeployLiquidity} event

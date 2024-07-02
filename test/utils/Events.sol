@@ -21,7 +21,7 @@ abstract contract Events {
 
     event AddTemplate(bytes32 indexed kind, uint256 indexed version, address implementation);
 
-    event CreateERC20(address indexed originator, bytes32 indexed kind, uint256 indexed version, address token);
+    event CreateRushERC20(address indexed originator, bytes32 indexed kind, uint256 indexed version, address rushERC20);
 
     event RemoveTemplate(bytes32 indexed kind, uint256 indexed version);
 
@@ -30,9 +30,9 @@ abstract contract Events {
     // #region --------------------------------=|+ RUSH-LAUNCHER +|=--------------------------------- //
 
     event Launch(
-        address indexed token,
+        address indexed rushERC20,
         bytes32 indexed kind,
-        address indexed pair,
+        address indexed uniV2Pair,
         uint256 maxSupply,
         uint256 liquidityAmount,
         uint256 liquidityDuration
@@ -43,14 +43,18 @@ abstract contract Events {
     // #region ------------------------------=|+ LIQUIDITY-DEPLOYER +|=------------------------------ //
 
     event DeployLiquidity(
-        address indexed originator, address indexed token, address indexed pair, uint256 amount, uint256 deadline
+        address indexed originator,
+        address indexed rushERC20,
+        address indexed uniV2Pair,
+        uint256 amount,
+        uint256 deadline
     );
 
     event Pause();
 
     event Unpause();
 
-    event UnwindLiquidity(address indexed pair, address indexed originator, uint256 amount);
+    event UnwindLiquidity(address indexed uniV2Pair, address indexed originator, uint256 amount);
 
     // #endregion ----------------------------------------------------------------------------------- //
 

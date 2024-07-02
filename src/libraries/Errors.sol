@@ -24,9 +24,9 @@ library Errors {
 
     /**
      * @notice Thrown when the pair has already been unwound.
-     * @param pair The address of the Uniswap V2 pair.
+     * @param uniV2Pair The address of the Uniswap V2 pair.
      */
-    error LiquidityDeployer_PairAlreadyUnwound(address pair);
+    error LiquidityDeployer_PairAlreadyUnwound(address uniV2Pair);
 
     /**
      * @notice Thrown when the received deployment fee does not match the expected fee.
@@ -43,35 +43,37 @@ library Errors {
 
     /**
      * @notice Thrown when a pair has already received liquidity.
-     * @param token The address of the deployed token of the pair.
-     * @param pair The address of the Uniswap V2 pair that has already received liquidity.
+     * @param rushERC20 The address of the RushERC20 token.
+     * @param uniV2Pair The address of the Uniswap V2 pair that has already received liquidity.
      */
-    error LiquidityDeployer_PairAlreadyReceivedLiquidity(address token, address pair);
+    error LiquidityDeployer_PairAlreadyReceivedLiquidity(address rushERC20, address uniV2Pair);
 
     /**
      * @notice Thrown when the pair has not received liquidity.
-     * @param pair The address of the Uniswap V2 pair.
+     * @param uniV2Pair The address of the Uniswap V2 pair.
      */
-    error LiquidityDeployer_PairNotReceivedLiquidity(address pair);
+    error LiquidityDeployer_PairNotReceivedLiquidity(address uniV2Pair);
 
     /**
-     * @notice Thrown when the pool does not contain the entire supply of the other token.
-     * @param token The address of the other token.
-     * @param pair The address of the Uniswap V2 pair.
-     * @param pairBalance The balance of the deployed token in the pair.
-     * @param totalSupply The total supply of the deployed token.
+     * @notice Thrown when the pool does not contain the entire supply of the RushERC20 token.
+     * @param rushERC20 The address of the RushERC20 token.
+     * @param uniV2Pair The address of the Uniswap V2 pair.
+     * @param rushERC20BalanceOfPair The balance of the RushERC20 token held by the pair.
+     * @param totalSupply The total supply of the RushERC20 token.
      */
-    error LiquidityDeployer_PairSupplyDiscrepancy(address token, address pair, uint256 pairBalance, uint256 totalSupply);
+    error LiquidityDeployer_PairSupplyDiscrepancy(
+        address rushERC20, address uniV2Pair, uint256 rushERC20BalanceOfPair, uint256 totalSupply
+    );
 
     /**
      * @notice Thrown when liquidity unwinding conditions are not met.
-     * @param pair The address of the Uniswap V2 pair.
+     * @param uniV2Pair The address of the Uniswap V2 pair.
      * @param deadline The deadline timestamp.
      * @param currentReserve The current base asset reserve of the pair.
      * @param targetReserve The target base asset reserve of the pair.
      */
     error LiquidityDeployer_UnwindNotReady(
-        address pair, uint256 deadline, uint256 currentReserve, uint256 targetReserve
+        address uniV2Pair, uint256 deadline, uint256 currentReserve, uint256 targetReserve
     );
 
     /**
@@ -99,11 +101,11 @@ library Errors {
     error LiquidityDeployer_MinLiquidtyAmount(uint256 amount);
 
     /**
-     * @notice Thrown when the total supply of the deployed token is zero.
-     * @param token The address of the deployed token.
-     * @param pair The address of the Uniswap V2 pair.
+     * @notice Thrown when the total supply of the RushERC20 is zero.
+     * @param rushERC20 The address of the RushERC20 token.
+     * @param uniV2Pair The address of the Uniswap V2 pair.
      */
-    error LiquidityDeployer_TotalSupplyZero(address token, address pair);
+    error LiquidityDeployer_TotalSupplyZero(address rushERC20, address uniV2Pair);
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -130,7 +132,7 @@ library Errors {
 
     /**
      * @dev Thrown when the template does not exist.
-     * @param kind The kind of token template.
+     * @param kind The kind of RushERC20 token template.
      */
     error RushERC20Factory_NotTemplate(bytes32 kind);
 

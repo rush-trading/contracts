@@ -29,9 +29,9 @@ contract RushLauncher_Test is Fork_Test {
         rushLauncher = new RushLauncher({
             baseAsset_: address(weth),
             erc20Factory_: rushERC20Factory,
-            liquidityDeployer_: address(liquidityDeployerWETH),
-            maxSupplyLimit_: defaults.TOKEN_MAX_SUPPLY(),
-            minSupplyLimit_: defaults.TOKEN_MIN_SUPPLY(),
+            liquidityDeployer_: address(liquidityDeployer),
+            maxSupplyLimit_: defaults.RUSH_ERC20_MAX_SUPPLY(),
+            minSupplyLimit_: defaults.RUSH_ERC20_MIN_SUPPLY(),
             uniswapV2Factory_: address(uniswapV2Factory)
         });
         vm.label({ account: address(rushLauncher), newLabel: "RushLauncher" });
@@ -41,8 +41,8 @@ contract RushLauncher_Test is Fork_Test {
     function grantRoles() internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
-        rushERC20Factory.grantRole({ role: TOKEN_DEPLOYER_ROLE, account: address(rushLauncher) });
-        liquidityDeployerWETH.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(rushLauncher) });
+        rushERC20Factory.grantRole({ role: RUSH_CREATOR_ROLE, account: address(rushLauncher) });
+        liquidityDeployer.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(rushLauncher) });
         resetPrank({ msgSender: caller });
     }
 

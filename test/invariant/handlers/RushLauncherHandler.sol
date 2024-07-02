@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 import { RushLauncherStore } from "../stores/RushLauncherStore.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
-import { LiquidityDeployerWETH } from "src/LiquidityDeployerWETH.sol";
+import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
@@ -17,7 +17,7 @@ contract RushLauncherHandler is BaseHandler {
     FeeCalculator internal feeCalculator;
     RushLauncher internal rushLauncher;
     RushLauncherStore internal rushLauncherStore;
-    LiquidityDeployerWETH internal liquidityDeployerWETH;
+    LiquidityDeployer internal liquidityDeployer;
     LiquidityPool internal liquidityPool;
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -33,9 +33,9 @@ contract RushLauncherHandler is BaseHandler {
     constructor(RushLauncher rushLauncher_, RushLauncherStore rushLauncherStore_) {
         rushLauncher = rushLauncher_;
         rushLauncherStore = rushLauncherStore_;
-        liquidityDeployerWETH = LiquidityDeployerWETH(rushLauncher_.LIQUIDITY_DEPLOYER());
-        feeCalculator = FeeCalculator(liquidityDeployerWETH.FEE_CALCULATOR());
-        liquidityPool = LiquidityPool(liquidityDeployerWETH.LIQUIDITY_POOL());
+        liquidityDeployer = LiquidityDeployer(rushLauncher_.LIQUIDITY_DEPLOYER());
+        feeCalculator = FeeCalculator(liquidityDeployer.FEE_CALCULATOR());
+        liquidityPool = LiquidityPool(liquidityDeployer.LIQUIDITY_POOL());
         weth = liquidityPool.asset();
     }
 
@@ -61,17 +61,15 @@ contract RushLauncherHandler is BaseHandler {
         params.maxSupply = bound(params.maxSupply, rushLauncher.MIN_SUPPLY_LIMIT(), rushLauncher.MAX_SUPPLY_LIMIT());
         // Bound the `liquidityAmount` to the range (MIN_DEPLOYMENT_AMOUNT, MAX_DEPLOYMENT_AMOUNT).
         params.liquidityAmount = bound(
-            params.liquidityAmount,
-            liquidityDeployerWETH.MIN_DEPLOYMENT_AMOUNT(),
-            liquidityDeployerWETH.MAX_DEPLOYMENT_AMOUNT()
+            params.liquidityAmount, liquidityDeployer.MIN_DEPLOYMENT_AMOUNT(), liquidityDeployer.MAX_DEPLOYMENT_AMOUNT()
         );
         // Bound the `liquidityDuration` to the range (MIN_DURATION, MAX_DURATION).
         params.liquidityDuration =
-            bound(params.liquidityDuration, liquidityDeployerWETH.MIN_DURATION(), liquidityDeployerWETH.MAX_DURATION());
+            bound(params.liquidityDuration, liquidityDeployer.MIN_DURATION(), liquidityDeployer.MAX_DURATION());
         // Supply LiquidityPool with required liquidity.
         uint256 wethReserve = IERC20(weth).balanceOf(address(liquidityPool));
-        if (wethReserve < liquidityDeployerWETH.MAX_DEPLOYMENT_AMOUNT()) {
-            uint256 amount = liquidityDeployerWETH.MAX_DEPLOYMENT_AMOUNT() - wethReserve;
+        if (wethReserve < liquidityDeployer.MAX_DEPLOYMENT_AMOUNT()) {
+            uint256 amount = liquidityDeployer.MAX_DEPLOYMENT_AMOUNT() - wethReserve;
             // Give required assets.
             deal({ token: weth, to: address(this), give: amount });
             // Approve the LiquidityPool to spend the assets.
@@ -85,13 +83,13 @@ contract RushLauncherHandler is BaseHandler {
                 duration: params.liquidityDuration,
                 newLiquidity: params.liquidityAmount,
                 outstandingLiquidity: liquidityPool.outstandingAssets(),
-                reserveFactor: liquidityDeployerWETH.RESERVE_FACTOR(),
+                reserveFactor: liquidityDeployer.RESERVE_FACTOR(),
                 totalLiquidity: liquidityPool.totalAssets()
             })
         );
         vm.deal({ account: address(this), newBalance: totalFee });
-        // Launch the ERC20 token market.
-        (, address pair) = rushLauncher.launch{ value: totalFee }(
+        // Launch the RushERC20 token with its liquidity.
+        (, address uniV2Pair) = rushLauncher.launch{ value: totalFee }(
             RushLauncher.LaunchParams({
                 templateDescription: "RushERC20Basic",
                 name: params.name,
@@ -103,7 +101,7 @@ contract RushLauncherHandler is BaseHandler {
             })
         );
         // Push the deployment to the store.
-        rushLauncherStore.pushDeployment(pair);
+        rushLauncherStore.pushDeployment(uniV2Pair);
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

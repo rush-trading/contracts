@@ -5,15 +5,15 @@ pragma solidity >=0.8.25 <0.9.0;
 contract RushLauncherStore {
     // #region ----------------------------------=|+ VARIABLES +|=----------------------------------- //
 
-    mapping(uint256 id => address pair) public deployments;
+    mapping(uint256 id => address uniV2Pair) public deployments;
     uint256 public nextDeploymentId;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region -----------------------------------=|+ HELPERS +|=------------------------------------ //
 
-    function pushDeployment(address pair) external {
-        deployments[nextDeploymentId] = pair;
+    function pushDeployment(address uniV2Pair) external {
+        deployments[nextDeploymentId] = uniV2Pair;
         nextDeploymentId++;
     }
 

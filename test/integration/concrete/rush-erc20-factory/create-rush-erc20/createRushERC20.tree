@@ -1,7 +1,7 @@
-createERC20.t.sol
-├── when caller does not have token deployer role
+createRushERC20.t.sol
+├── when caller does not have rush creator role
 │   └── it should revert
-└── when caller has token deployer role
+└── when caller has rush creator role
     ├── given implementation is not registered
     │   └── it should revert
     └── given implementation is registered

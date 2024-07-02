@@ -3,7 +3,7 @@ pragma solidity >=0.8.25 <0.9.0;
 
 import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
-import { LiquidityDeployerWETH } from "src/LiquidityDeployerWETH.sol";
+import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 
 import { Invariant_Test } from "./Invariant.t.sol";
 
@@ -40,7 +40,7 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
 
         // Prevent these contracts from being fuzzed as `msg.sender`.
         excludeSender(address(feeCalculator));
-        excludeSender(address(liquidityDeployerWETH));
+        excludeSender(address(liquidityDeployer));
         excludeSender(address(liquidityPool));
         excludeSender(address(rushERC20Factory));
         excludeSender(address(rushLauncher));
@@ -65,7 +65,7 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         liquidityPool = new LiquidityPool({ admin_: users.admin, asset_: address(wethMock) });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
 
-        liquidityDeployerWETH = new LiquidityDeployerWETH({
+        liquidityDeployer = new LiquidityDeployer({
             admin_: users.admin,
             earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
             feeCalculator_: address(feeCalculator),
@@ -77,7 +77,7 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
             reserve_: address(users.reserve),
             reserveFactor_: defaults.RESERVE_FACTOR()
         });
-        vm.label({ account: address(liquidityDeployerWETH), newLabel: "LiquidityDeployerWETH" });
+        vm.label({ account: address(liquidityDeployer), newLabel: "LiquidityDeployer" });
 
         rushERC20Factory = new RushERC20Factory({ admin_: users.admin });
         vm.label({ account: address(rushERC20Factory), newLabel: "RushERC20Factory" });
@@ -88,9 +88,9 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         rushLauncher = new RushLauncher({
             baseAsset_: address(wethMock),
             erc20Factory_: rushERC20Factory,
-            liquidityDeployer_: address(liquidityDeployerWETH),
-            maxSupplyLimit_: defaults.TOKEN_MAX_SUPPLY(),
-            minSupplyLimit_: defaults.TOKEN_MIN_SUPPLY(),
+            liquidityDeployer_: address(liquidityDeployer),
+            maxSupplyLimit_: defaults.RUSH_ERC20_MAX_SUPPLY(),
+            minSupplyLimit_: defaults.RUSH_ERC20_MIN_SUPPLY(),
             uniswapV2Factory_: address(uniswapV2Factory)
         });
         vm.label({ account: address(rushLauncher), newLabel: "RushLauncher" });
@@ -107,9 +107,9 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
     function grantRoles() internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
-        rushERC20Factory.grantRole({ role: TOKEN_DEPLOYER_ROLE, account: address(rushLauncher) });
-        liquidityDeployerWETH.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(rushLauncher) });
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityDeployerWETH) });
+        rushERC20Factory.grantRole({ role: RUSH_CREATOR_ROLE, account: address(rushLauncher) });
+        liquidityDeployer.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(rushLauncher) });
+        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityDeployer) });
         resetPrank({ msgSender: caller });
     }
 
@@ -120,18 +120,18 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
     function invariant_alwaysCanUnwindAtDeadline() external {
         uint256 id = rushLauncherStore.nextDeploymentId();
         for (uint256 i = 0; i < id; i++) {
-            address pair = rushLauncherStore.deployments(i);
+            address uniV2Pair = rushLauncherStore.deployments(i);
             // Skip the entire test if the first pair is address(0).
-            if (pair == address(0)) {
+            if (uniV2Pair == address(0)) {
                 return;
             }
 
             // Set time to be at the deadline.
-            (,,, uint256 deadline,) = liquidityDeployerWETH.liquidityDeployments(pair);
+            (,,, uint256 deadline,) = liquidityDeployer.liquidityDeployments(uniV2Pair);
             vm.warp(deadline);
 
             // Should be able to unwind.
-            liquidityDeployerWETH.unwindLiquidity(pair);
+            liquidityDeployer.unwindLiquidity(uniV2Pair);
         }
     }
 

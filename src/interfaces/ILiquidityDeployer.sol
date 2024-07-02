@@ -15,13 +15,17 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
     /**
      * @notice Emitted when liquidity is deployed to a pair.
      * @param originator The address that originated the request (i.e., the user).
-     * @param token The address of the token that will be deployed as liquidity.
-     * @param pair The address of the Uniswap V2 pair that will receive liquidity.
+     * @param rushERC20 The address of the launched RushERC20 token.
+     * @param uniV2Pair The address of the Uniswap V2 pair that will receive liquidity.
      * @param amount The amount of base asset liquidity deployed.
      * @param deadline The deadline timestamp by which the liquidity must be unwound.
      */
     event DeployLiquidity(
-        address indexed originator, address indexed token, address indexed pair, uint256 amount, uint256 deadline
+        address indexed originator,
+        address indexed rushERC20,
+        address indexed uniV2Pair,
+        uint256 amount,
+        uint256 deadline
     );
 
     /**
@@ -36,11 +40,11 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
 
     /**
      * @notice Emitted when liquidity is unwound from a pair.
-     * @param pair The address of the Uniswap V2 pair that liquidity was unwound from.
+     * @param uniV2Pair The address of the Uniswap V2 pair that liquidity was unwound from.
      * @param originator The address that originated the request (i.e., the user).
      * @param amount The amount of base asset liquidity unwound.
      */
-    event UnwindLiquidity(address indexed pair, address indexed originator, uint256 amount);
+    event UnwindLiquidity(address indexed uniV2Pair, address indexed originator, uint256 amount);
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -48,7 +52,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
 
     struct DeployLiquidityLocalVars {
         uint256 totalSupply;
-        uint256 pairBalance;
+        uint256 rushERC20BalanceOfPair;
         uint256 reserveFee;
         uint256 totalFee;
         uint256 deadline;
@@ -57,7 +61,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
         uint256 reserve0;
         uint256 reserve1;
         uint256 wethReserve;
-        uint256 tokenReserve;
+        uint256 rushERC20Reserve;
         uint256 amountInWithFee;
         uint256 numerator;
         uint256 denominator;
@@ -65,7 +69,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
     }
 
     struct LiquidityDeployment {
-        address token;
+        address rushERC20;
         address originator;
         uint256 amount;
         uint256 deadline;
@@ -83,8 +87,8 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
      * - Can only be called by a liquidity deployer role.
      * - Contract must not be paused.
      * - Pair must not have received liquidity before.
-     * - Total supply of the deployed token must be greater than 0.
-     * - Pair should contain entire supply of the deployed token.
+     * - Total supply of the RushERC20 must be greater than 0.
+     * - Pair should contain entire supply of the RushERC20 token.
      * - Amount to deploy must not be less than minimum limit.
      * - Amount to deploy must not be greater than maximum limit.
      * - Duration must not be less than minimum limit.
@@ -96,15 +100,15 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
      * 2. Dispatch asset from LiquidityPool to the pair.
      *
      * @param originator The address that originated the request (i.e., the user).
-     * @param pair The address of the Uniswap V2 pair that will receive liquidity.
-     * @param token The address of the token launched.
+     * @param uniV2Pair The address of the Uniswap V2 pair that will receive liquidity.
+     * @param rushERC20 The address of the token launched.
      * @param amount The amount of base asset liquidity to deploy.
      * @param duration The duration for which the liquidity will be deployed (in seconds).
      */
     function deployLiquidity(
         address originator,
-        address pair,
-        address token,
+        address uniV2Pair,
+        address rushERC20,
         uint256 amount,
         uint256 duration
     )
@@ -136,9 +140,9 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
      * - Pair must have received liquidity before.
      * - Pair must not have been unwound before.
      *
-     * @param pairs The addresses of the Uniswap V2 pairs that liquidity will be unwound from.
+     * @param uniV2Pairs The addresses of the Uniswap V2 pairs that liquidity will be unwound from.
      */
-    function unwindLiquidityEMERGENCY(address[] calldata pairs) external;
+    function unwindLiquidityEMERGENCY(address[] calldata uniV2Pairs) external;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -156,9 +160,9 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
      * 1. Set deployment as unwound.
      * 2. Return asset to the LiquidityPool.
      *
-     * @param pair The address of the Uniswap V2 pair that liquidity will be unwound from.
+     * @param uniV2Pair The address of the Uniswap V2 pair that liquidity will be unwound from.
      */
-    function unwindLiquidity(address pair) external;
+    function unwindLiquidity(address uniV2Pair) external;
 
     // #endregion ----------------------------------------------------------------------------------- //
 }

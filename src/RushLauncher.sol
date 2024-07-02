@@ -16,17 +16,17 @@ contract RushLauncher {
 
     /**
      * @notice Emitted when a new ERC20 token market is launched.
-     * @param token The address of the ERC20 token.
+     * @param rushERC20 The address of the ERC20 token.
      * @param kind The kind of the ERC20 token template.
-     * @param pair The address of the Uniswap V2 pair.
+     * @param uniV2Pair The address of the Uniswap V2 pair.
      * @param maxSupply The minted maximum supply of the ERC20 token.
      * @param liquidityAmount The amount of base asset liquidity deployed.
      * @param liquidityDuration The duration of the liquidity deployment.
      */
     event Launch(
-        address indexed token,
+        address indexed rushERC20,
         bytes32 indexed kind,
-        address indexed pair,
+        address indexed uniV2Pair,
         uint256 maxSupply,
         uint256 liquidityAmount,
         uint256 liquidityDuration
@@ -127,7 +127,7 @@ contract RushLauncher {
      * @notice Launches a new ERC20 token market.
      * @param params The launch parameters.
      */
-    function launch(LaunchParams calldata params) external payable returns (address token, address pair) {
+    function launch(LaunchParams calldata params) external payable returns (address rushERC20, address uniV2Pair) {
         // Checks: Maximum supply must be greater than the minimum limit.
         if (params.maxSupply < MIN_SUPPLY_LIMIT) {
             revert Errors.RushLauncher_LowMaxSupply(params.maxSupply);
@@ -139,32 +139,32 @@ contract RushLauncher {
 
         // Compute the kind of the token template.
         bytes32 kind = keccak256(abi.encodePacked(params.templateDescription));
-        // Interactions: Create a new ERC20 token.
-        token = ERC20_FACTORY.createERC20({ originator: msg.sender, kind: kind });
+        // Interactions: Create a new RushERC20 token.
+        rushERC20 = ERC20_FACTORY.createRushERC20({ originator: msg.sender, kind: kind });
         // Interactions: Create the Uniswap V2 pair.
-        pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).createPair({ tokenA: token, tokenB: BASE_ASSET });
-        // Interactions: Initialize the ERC20 token.
-        IRushERC20(token).initialize({
+        uniV2Pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).createPair({ tokenA: rushERC20, tokenB: BASE_ASSET });
+        // Interactions: Initialize the RushERC20 token.
+        IRushERC20(rushERC20).initialize({
             name: params.name,
             symbol: params.symbol,
             maxSupply: params.maxSupply,
-            recipient: pair,
+            recipient: uniV2Pair,
             data: params.data
         });
         // Interactions: Create a new pair and deploy liquidity.
         ILiquidityDeployer(LIQUIDITY_DEPLOYER).deployLiquidity{ value: msg.value }({
             originator: msg.sender,
-            pair: pair,
-            token: token,
+            uniV2Pair: uniV2Pair,
+            rushERC20: rushERC20,
             amount: params.liquidityAmount,
             duration: params.liquidityDuration
         });
 
         // Emit an event.
         emit Launch({
-            token: token,
+            rushERC20: rushERC20,
             kind: kind,
-            pair: pair,
+            uniV2Pair: uniV2Pair,
             maxSupply: params.maxSupply,
             liquidityAmount: params.liquidityAmount,
             liquidityDuration: params.liquidityDuration

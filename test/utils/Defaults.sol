@@ -29,10 +29,10 @@ contract Defaults {
     uint256 public constant RESERVE_FACTOR = 0.1e18; // 10%
     bytes32 public immutable TEMPLATE_KIND;
     uint256 public immutable TEMPLATE_VERSION;
-    string public constant TOKEN_NAME = "GoodRush";
-    string public constant TOKEN_SYMBOL = "GR";
-    uint256 public constant TOKEN_MAX_SUPPLY = 100_000_000_000e18; // 100B tokens
-    uint256 public constant TOKEN_MIN_SUPPLY = 100_000e18; // 100k tokens
+    string public constant RUSH_ERC20_NAME = "GoodRush";
+    string public constant RUSH_ERC20_SYMBOL = "GR";
+    uint256 public constant RUSH_ERC20_MAX_SUPPLY = 100_000_000_000e18; // 100B tokens
+    uint256 public constant RUSH_ERC20_MIN_SUPPLY = 100_000e18; // 100k tokens
     bytes4 public constant UNKNOWN_INTERFACE_ID = 0xdeadbeef;
 
     // #endregion ----------------------------------------------------------------------------------- //

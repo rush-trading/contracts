@@ -27,13 +27,13 @@ contract RushERC20Factory is AccessControlExtended {
     event AddTemplate(bytes32 indexed kind, uint256 indexed version, address implementation);
 
     /**
-     * @dev Emitted when a new token contract is created.
+     * @dev Emitted when a new RushERC20 token contract is created.
      * @param originator The address of the originator of creation request.
      * @param kind The kind of token.
      * @param version The version of the token implementation.
-     * @param token The address of the created token.
+     * @param rushERC20 The address of the new RushERC20 token.
      */
-    event CreateERC20(address indexed originator, bytes32 indexed kind, uint256 indexed version, address token);
+    event CreateRushERC20(address indexed originator, bytes32 indexed kind, uint256 indexed version, address rushERC20);
 
     /**
      * @dev Emitted when a token template is removed.
@@ -95,11 +95,11 @@ contract RushERC20Factory is AccessControlExtended {
     }
 
     /**
-     * @notice Creates a new ERC20 token of a given kind.
+     * @notice Creates a new RushERC20 token of a given kind.
      * @dev Created tokens are not initialized.
      *
      * Requirements:
-     * - The caller must have the token deployer role.
+     * - The caller must have the rush creator role.
      * - An implementation must be registered for the given kind.
      *
      * Actions:
@@ -108,19 +108,24 @@ contract RushERC20Factory is AccessControlExtended {
      * @param kind The kind of token to create.
      * @param originator The address of the originator of creation request.
      */
-    function createERC20(
+    function createRushERC20(
         bytes32 kind,
         address originator
     )
         external
-        onlyRole(TOKEN_DEPLOYER_ROLE)
-        returns (address token)
+        onlyRole(RUSH_CREATOR_ROLE)
+        returns (address rushERC20)
     {
         // Effects: Create a new token using the implementation.
-        token = templates[kind].clone();
+        rushERC20 = templates[kind].clone();
 
         // Emit an event.
-        emit CreateERC20({ originator: originator, kind: kind, version: IRushERC20(token).version(), token: token });
+        emit CreateRushERC20({
+            originator: originator,
+            kind: kind,
+            version: IRushERC20(rushERC20).version(),
+            rushERC20: rushERC20
+        });
     }
 
     /**
