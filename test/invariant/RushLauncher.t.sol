@@ -135,5 +135,27 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         }
     }
 
+    function invariant_alwaysCanUnwindEmergencyAnytime() external {
+        // Set Admin as the caller.
+        resetPrank({ msgSender: users.admin });
+
+        // Pause the contract.
+        liquidityDeployer.pause();
+
+        uint256 id = rushLauncherStore.nextDeploymentId();
+        address[] memory uniV2Pairs = new address[](id);
+        for (uint256 i = 0; i < id; i++) {
+            address uniV2Pair = rushLauncherStore.deployments(i);
+            // Skip the entire test if the first pair is address(0).
+            if (uniV2Pair == address(0)) {
+                return;
+            }
+            uniV2Pairs[i] = uniV2Pair;
+        }
+
+        // Should be able to unwind.
+        liquidityDeployer.unwindLiquidityEMERGENCY(uniV2Pairs);
+    }
+
     // #endregion ----------------------------------------------------------------------------------- //
 }
