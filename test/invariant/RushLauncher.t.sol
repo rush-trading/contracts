@@ -118,6 +118,42 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
     // #region ----------------------------------=|+ INVARIANTS +|=---------------------------------- //
 
     function invariant_alwaysCanUnwindAtDeadline() external {
+        // Unwind at the deadline.
+        _unwindDeadline();
+    }
+
+    function invariant_alwaysCanUnwindDeadlineIfUniswapFeeOn() external {
+        // Set FeeToSetter as the caller.
+        resetPrank({ msgSender: uniswapV2Factory.feeToSetter() });
+
+        // Set Uniswap fee on.
+        uniswapV2Factory.setFeeToSetter(users.recipient);
+
+        // Unwind at the deadline.
+        _unwindDeadline();
+    }
+
+    function invariant_alwaysCanUnwindEmergency() external {
+        // Emergency unwind.
+        _unwindEmergency();
+    }
+
+    function invariant_alwaysCanUnwindEmergencyIfUniswapFeeOn() external {
+        // Set FeeToSetter as the caller.
+        resetPrank({ msgSender: uniswapV2Factory.feeToSetter() });
+
+        // Set Uniswap fee on.
+        uniswapV2Factory.setFeeToSetter(users.recipient);
+
+        // Emergency unwind.
+        _unwindEmergency();
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -------------------------=|+ INTERNAL CONSTANT FUNCTIONS +|=-------------------------- //
+
+    function _unwindDeadline() internal {
         uint256 id = rushLauncherStore.nextDeploymentId();
         for (uint256 i = 0; i < id; i++) {
             address uniV2Pair = rushLauncherStore.deployments(i);
@@ -135,7 +171,7 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_alwaysCanUnwindEmergencyAnytime() external {
+    function _unwindEmergency() internal {
         // Set Admin as the caller.
         resetPrank({ msgSender: users.admin });
 
