@@ -28,10 +28,10 @@ contract RushLauncher_Test is Fork_Test {
     function deploy() internal {
         rushLauncher = new RushLauncher({
             baseAsset_: address(weth),
-            erc20Factory_: rushERC20Factory,
             liquidityDeployer_: address(liquidityDeployer),
             maxSupplyLimit_: defaults.RUSH_ERC20_MAX_SUPPLY(),
             minSupplyLimit_: defaults.RUSH_ERC20_MIN_SUPPLY(),
+            rushERC20Factory_: address(rushERC20Factory),
             uniswapV2Factory_: address(uniswapV2Factory)
         });
         vm.label({ account: address(rushLauncher), newLabel: "RushLauncher" });

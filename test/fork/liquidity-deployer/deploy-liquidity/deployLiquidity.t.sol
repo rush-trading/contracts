@@ -3,6 +3,7 @@ pragma solidity >=0.8.25 <0.9.0;
 
 import { ud } from "@prb/math/src/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
+import { LD } from "src/types/DataTypes.sol";
 import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 import { LiquidityDeployer_Fork_Test } from "../LiquidityDeployer.t.sol";
 
@@ -358,8 +359,14 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vars.expectedBalanceDiff = vars.amount + vars.reserveFee;
         assertEq(vars.wethBalanceAfter - vars.wethBalanceBefore, vars.expectedBalanceDiff, "balanceOf");
 
-        (vars.actualRushERC20, vars.actualOriginator, vars.actualAmount, vars.actualDeadline, vars.actualIsUnwound) =
-            liquidityDeployer.liquidityDeployments(uniV2Pair);
+        LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
+        (vars.actualRushERC20, vars.actualOriginator, vars.actualAmount, vars.actualDeadline, vars.actualIsUnwound) = (
+            liquidityDeployment.rushERC20,
+            liquidityDeployment.originator,
+            liquidityDeployment.amount,
+            liquidityDeployment.deadline,
+            liquidityDeployment.isUnwound
+        );
         vars.expectedRushERC20 = rushERC20Mock;
         vars.expectedOriginator = users.sender;
         vars.expectedAmount = vars.amount;
@@ -428,8 +435,14 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vars.expectedBalanceDiff = vars.amount + defaults.FEE_EXCESS_AMOUNT() + vars.reserveFee;
         assertEq(vars.wethBalanceAfter - vars.wethBalanceBefore, vars.expectedBalanceDiff, "balanceOf");
 
-        (vars.actualRushERC20, vars.actualOriginator, vars.actualAmount, vars.actualDeadline, vars.actualIsUnwound) =
-            liquidityDeployer.liquidityDeployments(uniV2Pair);
+        LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
+        (vars.actualRushERC20, vars.actualOriginator, vars.actualAmount, vars.actualDeadline, vars.actualIsUnwound) = (
+            liquidityDeployment.rushERC20,
+            liquidityDeployment.originator,
+            liquidityDeployment.amount,
+            liquidityDeployment.deadline,
+            liquidityDeployment.isUnwound
+        );
         vars.expectedRushERC20 = rushERC20Mock;
         vars.expectedOriginator = users.sender;
         vars.expectedAmount = vars.amount;

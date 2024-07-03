@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25 <0.9.0;
 
-import { LiquidityPool } from "src/LiquidityPool.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 import { LiquidityPoolStore } from "../stores/LiquidityPoolStore.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 
 /// @notice Exposes {LiquidityPool} functions to Foundry for invariant testing purposes.
 contract LiquidityPoolHandler is BaseHandler {
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
 
-    LiquidityPool internal immutable liquidityPool;
+    ILiquidityPool internal immutable liquidityPool;
     LiquidityPoolStore internal immutable liquidityPoolStore;
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -23,7 +23,7 @@ contract LiquidityPoolHandler is BaseHandler {
 
     // #region ---------------------------------=|+ CONSTRUCTOR +|=---------------------------------- //
 
-    constructor(LiquidityPool liquidityPool_, LiquidityPoolStore liquidityPoolStore_) {
+    constructor(ILiquidityPool liquidityPool_, LiquidityPoolStore liquidityPoolStore_) {
         liquidityPool = liquidityPool_;
         liquidityPoolStore = liquidityPoolStore_;
         asset = liquidityPool.asset();

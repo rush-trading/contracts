@@ -2,8 +2,9 @@
 pragma solidity >=0.8.25 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Errors } from "src/libraries/Errors.sol";
 import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
+import { Errors } from "src/libraries/Errors.sol";
+import { LD } from "src/types/DataTypes.sol";
 import { LiquidityDeployer_Fork_Test } from "../LiquidityDeployer.t.sol";
 
 contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
@@ -33,8 +34,8 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_RevertGiven_PairHasAlreadyBeenUnwound() external givenPairHasReceivedLiquidity {
         // Simulate the passage of time.
-        (,,, uint256 deadline,) = liquidityDeployer.liquidityDeployments(uniV2Pair);
-        vm.warp(deadline);
+        LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
+        vm.warp(liquidityDeployment.deadline);
 
         // Unwind the liquidity.
         unwindLiquidity({ uniV2Pair_: uniV2Pair });
@@ -53,14 +54,18 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenPairHasReceivedLiquidity
         givenPairHasNotBeenUnwound
     {
-        (,,, uint256 deadline,) = liquidityDeployer.liquidityDeployments(uniV2Pair);
+        LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
         uint256 currentReserve = IERC20(weth).balanceOf(uniV2Pair);
         uint256 targetReserve = defaults.DISPATCH_AMOUNT() + liquidityDeployer.EARLY_UNWIND_THRESHOLD();
 
         // Run the test.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.LiquidityDeployer_UnwindNotReady.selector, uniV2Pair, deadline, currentReserve, targetReserve
+                Errors.LiquidityDeployer_UnwindNotReady.selector,
+                uniV2Pair,
+                liquidityDeployment.deadline,
+                currentReserve,
+                targetReserve
             )
         );
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
@@ -106,8 +111,8 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenPairHasNotBeenUnwound
     {
         // Set time to be at the deadline.
-        (,,, uint256 deadline,) = liquidityDeployer.liquidityDeployments(uniV2Pair);
-        vm.warp(deadline);
+        LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
+        vm.warp(liquidityDeployment.deadline);
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(liquidityDeployer) });
@@ -133,8 +138,8 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenPairHasNotBeenUnwound
     {
         // Set time to be at the deadline.
-        (,,, uint256 deadline,) = liquidityDeployer.liquidityDeployments(uniV2Pair);
-        vm.warp(deadline);
+        LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
+        vm.warp(liquidityDeployment.deadline);
 
         // Set WETH reserve to be at the early unwind threshold.
         deal({

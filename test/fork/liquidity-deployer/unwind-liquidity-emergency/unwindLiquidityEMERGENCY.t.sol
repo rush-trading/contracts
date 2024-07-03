@@ -2,6 +2,7 @@
 pragma solidity >=0.8.25 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
+import { LD } from "src/types/DataTypes.sol";
 import { LiquidityDeployer_Fork_Test } from "../LiquidityDeployer.t.sol";
 
 contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployer_Fork_Test {
@@ -74,8 +75,8 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployer_Fork_Test {
         givenPairHasReceivedLiquidity
     {
         // Simulate the passage of time.
-        (,,, uint256 deadline,) = liquidityDeployer.liquidityDeployments(uniV2Pair);
-        vm.warp(deadline);
+        LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
+        vm.warp(liquidityDeployment.deadline);
 
         // Unwind the liquidity.
         unwindLiquidity({ uniV2Pair_: uniV2Pair });

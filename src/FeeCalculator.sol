@@ -3,79 +3,37 @@ pragma solidity >=0.8.25;
 
 import { ud } from "@prb/math/src/UD60x18.sol";
 
+import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
+import { FC } from "src/types/DataTypes.sol";
+
 /**
  * @title FeeCalculator
- * @notice Calculates liquidity deployment fees.
+ * @notice See the documentation in {IFeeCalculator}.
  */
-contract FeeCalculator {
-    // #region -----------------------------------=|+ STRUCTS +|=------------------------------------ //
-
-    /**
-     * @dev The local variables to calculate the liquidity deployment fee.
-     * @param feeRate The fee rate to be applied.
-     * @param utilizationRatio The utilization ratio of the pool.
-     */
-    struct CalculateFeeLocalVars {
-        uint256 feeRate;
-        uint256 utilizationRatio;
-    }
-
-    /**
-     * @dev The parameters to calculate the liquidity deployment fee.
-     * @param duration The duration of liquidity deployment.
-     * @param newLiquidity The liquidity to be deployed.
-     * @param outstandingLiquidity The liquidity already deployed.
-     * @param reserveFactor The reserve factor of the pool.
-     * @param totalLiquidity The total liquidity managed by the pool.
-     */
-    struct CalculateFeeParams {
-        uint256 duration;
-        uint256 newLiquidity;
-        uint256 outstandingLiquidity;
-        uint256 reserveFactor;
-        uint256 totalLiquidity;
-    }
-
-    // #endregion ----------------------------------------------------------------------------------- //
-
+contract FeeCalculator is IFeeCalculator {
     // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
 
-    /**
-     * @notice The base fee rate when the utilization ratio is 0.
-     * @dev Expressed as a per-second rate in 18 decimals.
-     */
-    uint256 public immutable BASE_FEE_RATE;
+    /// @inheritdoc IFeeCalculator
+    uint256 public immutable override BASE_FEE_RATE;
 
-    /**
-     * @dev The excess utilization ratio above the optimal, equal to `100% - OPTIMAL_UTILIZATION_RATIO`.
-     * @dev Expressed in 18 decimals.
-     */
-    uint256 public immutable MAX_EXCESS_UTILIZATION_RATIO;
+    /// @inheritdoc IFeeCalculator
+    uint256 public immutable override MAX_EXCESS_UTILIZATION_RATIO;
 
-    /**
-     * @notice The utilization ratio at which the pool aims to obtain most competitive fee rates.
-     * @dev Expressed in 18 decimals.
-     */
-    uint256 public immutable OPTIMAL_UTILIZATION_RATIO;
+    /// @inheritdoc IFeeCalculator
+    uint256 public immutable override OPTIMAL_UTILIZATION_RATIO;
 
-    /**
-     * @notice The slope of the interest rate curve when utilization ratio is > 0 and <= OPTIMAL_UTILIZATION_RATIO.
-     * @dev Expressed as a per-second rate in 18 decimals.
-     */
-    uint256 public immutable RATE_SLOPE1;
+    /// @inheritdoc IFeeCalculator
+    uint256 public immutable override RATE_SLOPE1;
 
-    /**
-     * @notice The slope of the interest rate curve when utilization ratio is > OPTIMAL_UTILIZATION_RATIO.
-     * @dev Expressed as a per-second rate in 18 decimals.
-     */
-    uint256 public immutable RATE_SLOPE2;
+    /// @inheritdoc IFeeCalculator
+    uint256 public immutable override RATE_SLOPE2;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ---------------------------------=|+ CONSTRUCTOR +|=---------------------------------- //
 
     /**
-     * Constructor
+     * @dev Constructor
      * @param baseFeeRate The base fee rate when the utilization ratio is 0.
      * @param optimalUtilizationRatio The utilization ratio at which the pool aims to obtain most competitive fee rates.
      * @param rateSlope1 The slope of the interest rate curve when utilization ratio is > 0 and <=
@@ -94,19 +52,14 @@ contract FeeCalculator {
 
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
-    /**
-     * @notice Calculate the liquidity deployment fee based on the given conditions.
-     * @dev The fee is calculated in the same token as the liquidity.
-     * @param params The parameters to calculate the fee.
-     * @return totalFee The total fee to be paid.
-     * @return reserveFee The reserve portion of the total fee.
-     */
-    function calculateFee(CalculateFeeParams calldata params)
+    /// @inheritdoc IFeeCalculator
+    function calculateFee(FC.CalculateFeeParams calldata params)
         external
         view
+        override
         returns (uint256 totalFee, uint256 reserveFee)
     {
-        CalculateFeeLocalVars memory vars;
+        FC.CalculateFeeLocalVars memory vars;
 
         vars.feeRate = BASE_FEE_RATE;
         vars.utilizationRatio =

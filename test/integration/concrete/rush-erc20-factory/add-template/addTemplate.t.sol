@@ -41,8 +41,8 @@ contract AddTemplate_Integration_Concrete_Test is RushERC20Factory_Integration_C
         rushERC20Factory.addTemplate({ implementation: address(goodRushERC20Mock) });
 
         // Assert that the template was added.
-        address actualTemplate = rushERC20Factory.templates(defaults.TEMPLATE_KIND());
-        address expectedTemplate = address(goodRushERC20Mock);
-        vm.assertEq(actualTemplate, expectedTemplate, "template");
+        address actualImplementation = rushERC20Factory.getTemplate(defaults.TEMPLATE_KIND()).implementation;
+        address expectedImplementation = address(goodRushERC20Mock);
+        vm.assertEq(actualImplementation, expectedImplementation, "template");
     }
 }

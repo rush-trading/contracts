@@ -4,21 +4,22 @@ pragma solidity >=0.8.25 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 import { RushLauncherStore } from "../stores/RushLauncherStore.sol";
-import { FeeCalculator } from "src/FeeCalculator.sol";
-import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
-import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
+import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
+import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
+import { FC, RL } from "src/types/DataTypes.sol";
+import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
 
 /// @notice Exposes the core functionality holistically to Foundry for invariant testing purposes.
 contract RushLauncherHandler is BaseHandler {
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
 
-    FeeCalculator internal feeCalculator;
+    IFeeCalculator internal feeCalculator;
     RushLauncher internal rushLauncher;
     RushLauncherStore internal rushLauncherStore;
-    LiquidityDeployer internal liquidityDeployer;
-    LiquidityPool internal liquidityPool;
+    ILiquidityDeployer internal liquidityDeployer;
+    ILiquidityPool internal liquidityPool;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -33,9 +34,9 @@ contract RushLauncherHandler is BaseHandler {
     constructor(RushLauncher rushLauncher_, RushLauncherStore rushLauncherStore_) {
         rushLauncher = rushLauncher_;
         rushLauncherStore = rushLauncherStore_;
-        liquidityDeployer = LiquidityDeployer(rushLauncher_.LIQUIDITY_DEPLOYER());
-        feeCalculator = FeeCalculator(liquidityDeployer.FEE_CALCULATOR());
-        liquidityPool = LiquidityPool(liquidityDeployer.LIQUIDITY_POOL());
+        liquidityDeployer = ILiquidityDeployer(rushLauncher_.LIQUIDITY_DEPLOYER());
+        feeCalculator = IFeeCalculator(liquidityDeployer.FEE_CALCULATOR());
+        liquidityPool = ILiquidityPool(liquidityDeployer.LIQUIDITY_POOL());
         weth = liquidityPool.asset();
     }
 
@@ -79,7 +80,7 @@ contract RushLauncherHandler is BaseHandler {
         }
         // Supply the fee.
         (uint256 totalFee,) = feeCalculator.calculateFee(
-            FeeCalculator.CalculateFeeParams({
+            FC.CalculateFeeParams({
                 duration: params.liquidityDuration,
                 newLiquidity: params.liquidityAmount,
                 outstandingLiquidity: liquidityPool.outstandingAssets(),
@@ -90,7 +91,7 @@ contract RushLauncherHandler is BaseHandler {
         vm.deal({ account: address(this), newBalance: totalFee });
         // Launch the RushERC20 token with its liquidity.
         (, address uniV2Pair) = rushLauncher.launch{ value: totalFee }(
-            RushLauncher.LaunchParams({
+            RL.LaunchParams({
                 templateDescription: "RushERC20Basic",
                 name: params.name,
                 symbol: params.symbol,

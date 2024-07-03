@@ -5,6 +5,7 @@ import { Errors } from "src/libraries/Errors.sol";
 import { RushLauncher_Test } from "../RushLauncher.t.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
+import { FC, RL } from "src/types/DataTypes.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
 
 contract Launch_Fork_Test is RushLauncher_Test {
@@ -28,7 +29,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         string memory description = rushERC20.description();
         vm.expectRevert(abi.encodeWithSelector(Errors.RushLauncher_LowMaxSupply.selector, maxSupply));
         rushLauncher.launch(
-            RushLauncher.LaunchParams({
+            RL.LaunchParams({
                 templateDescription: description,
                 name: "MyToken",
                 symbol: "MTK",
@@ -55,7 +56,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         string memory description = rushERC20.description();
         vm.expectRevert(abi.encodeWithSelector(Errors.RushLauncher_HighMaxSupply.selector, maxSupply));
         rushLauncher.launch(
-            RushLauncher.LaunchParams({
+            RL.LaunchParams({
                 templateDescription: description,
                 name: "MyToken",
                 symbol: "MTK",
@@ -76,7 +77,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
         string memory description = rushERC20.description();
         (uint256 fee,) = feeCalculator.calculateFee(
-            FeeCalculator.CalculateFeeParams({
+            FC.CalculateFeeParams({
                 duration: liquidityDuration,
                 newLiquidity: liquidityAmount,
                 outstandingLiquidity: liquidityPool.outstandingAssets(),
@@ -104,7 +105,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
 
         // Launch the RushERC20 token with its liquidity.
         rushLauncher.launch{ value: fee }(
-            RushLauncher.LaunchParams({
+            RL.LaunchParams({
                 templateDescription: description,
                 name: "MyToken",
                 symbol: "MTK",

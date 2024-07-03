@@ -16,6 +16,10 @@ import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
+import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
+import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
+import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
+import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
 import { WETHMock } from "test/mocks/WethMock.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
@@ -29,12 +33,11 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
 
     Defaults internal defaults;
-    // TODO: Use interfaces instead of concrete contracts.
-    FeeCalculator internal feeCalculator;
-    LiquidityDeployer internal liquidityDeployer;
-    LiquidityPool internal liquidityPool;
+    IFeeCalculator internal feeCalculator;
+    ILiquidityDeployer internal liquidityDeployer;
+    ILiquidityPool internal liquidityPool;
     IRushERC20 internal rushERC20;
-    RushERC20Factory internal rushERC20Factory;
+    IRushERC20Factory internal rushERC20Factory;
     WETHMock internal wethMock;
 
     // #endregion ----------------------------------------------------------------------------------- //

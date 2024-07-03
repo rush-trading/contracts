@@ -42,8 +42,8 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
         rushERC20Factory.removeTemplate({ kind: defaults.TEMPLATE_KIND() });
 
         // Assert that the template was removed.
-        address actualTemplate = rushERC20Factory.templates(defaults.TEMPLATE_KIND());
-        address expectedTemplate = address(0);
-        vm.assertEq(actualTemplate, expectedTemplate, "template");
+        address actualImplementation = rushERC20Factory.getTemplate(defaults.TEMPLATE_KIND()).implementation;
+        address expectedImplementation = address(0);
+        vm.assertEq(actualImplementation, expectedImplementation, "template");
     }
 }

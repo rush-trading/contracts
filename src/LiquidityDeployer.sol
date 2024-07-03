@@ -8,77 +8,75 @@ import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
 import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
 import { IWETH } from "src/external/IWETH.sol";
+import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
 import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
+import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
+import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { FeeCalculator } from "src/FeeCalculator.sol";
-import { LiquidityPool } from "src/LiquidityPool.sol";
+import { FC, LD } from "src/types/DataTypes.sol";
+import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 
 /**
  * @title LiquidityDeployer
- * @notice A permissioned contract for deploying WETH-backed liquidity to Uniswap V2 pairs.
+ * @notice See the documentation in {ILiquidityDeployer}.
  */
 contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
     using SafeERC20 for IERC20;
 
     // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
 
-    /**
-     * @notice The level of asset liquidity in a Uniswap V2 pair at which early unwinding is allowed.
-     */
-    uint256 public immutable EARLY_UNWIND_THRESHOLD;
+    /// @inheritdoc ILiquidityDeployer
+    uint256 public immutable override EARLY_UNWIND_THRESHOLD;
 
-    /// @notice The address of the FeeCalculator contract.
-    address public immutable FEE_CALCULATOR;
+    /// @inheritdoc ILiquidityDeployer
+    address public immutable override FEE_CALCULATOR;
 
-    /// @notice The address of the LiquidityPool contract.
-    address public immutable LIQUIDITY_POOL;
+    /// @inheritdoc ILiquidityDeployer
+    address public immutable override LIQUIDITY_POOL;
 
-    /// @notice The maximum amount that can be deployed as liquidity.
-    uint256 public immutable MAX_DEPLOYMENT_AMOUNT;
+    /// @inheritdoc ILiquidityDeployer
+    uint256 public immutable override MAX_DEPLOYMENT_AMOUNT;
 
-    /// @notice The maximum duration for liquidity deployment.
-    uint256 public immutable MAX_DURATION;
+    /// @inheritdoc ILiquidityDeployer
+    uint256 public immutable override MAX_DURATION;
 
-    /// @notice The minimum amount that can be deployed as liquidity.
-    uint256 public immutable MIN_DEPLOYMENT_AMOUNT;
+    /// @inheritdoc ILiquidityDeployer
+    uint256 public immutable override MIN_DEPLOYMENT_AMOUNT;
 
-    /// @notice The minimum duration for liquidity deployment.
-    uint256 public immutable MIN_DURATION;
+    /// @inheritdoc ILiquidityDeployer
+    uint256 public immutable override MIN_DURATION;
 
-    /// @notice The address of the reserve to which collected fees are sent.
-    address public immutable RESERVE;
+    /// @inheritdoc ILiquidityDeployer
+    address public immutable override RESERVE;
 
-    /**
-     * @notice The reserve factor for the LiquidityDeployer.
-     * @dev Represented in 18 decimals (e.g., 1e18 = 100%).
-     */
-    uint256 public immutable RESERVE_FACTOR;
+    /// @inheritdoc ILiquidityDeployer
+    uint256 public immutable override RESERVE_FACTOR;
 
-    /// @notice The WETH contract address.
-    address public immutable WETH;
+    /// @inheritdoc ILiquidityDeployer
+    address public immutable override WETH;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region --------------------------------=|+ ROLE CONSTANTS +|=-------------------------------- //
 
-    /// @notice The liquidity deployer role.
-    bytes32 public constant LIQUIDITY_DEPLOYER_ROLE = keccak256("LIQUIDITY_DEPLOYER_ROLE");
+    /// @inheritdoc ILiquidityDeployer
+    bytes32 public constant override LIQUIDITY_DEPLOYER_ROLE = keccak256("LIQUIDITY_DEPLOYER_ROLE");
 
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
+    // #region -------------------------------=|+ INTERNAL STORAGE +|=------------------------------- //
 
-    /// @notice A mapping of liquidity deployments.
-    mapping(address uniV2Pair => LiquidityDeployment) public liquidityDeployments;
+    /// @dev A mapping of liquidity deployments.
+    mapping(address uniV2Pair => LD.LiquidityDeployment) internal _liquidityDeployments;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ---------------------------------=|+ CONSTRUCTOR +|=---------------------------------- //
 
     /**
-     * Constructor
+     * @dev Constructor
      * @param admin_ The address to grant the admin role.
      * @param earlyUnwindThreshold_ The level of asset liquidity in pair at which early unwinding is allowed.
      * @param feeCalculator_ The address of the FeeCalculator contract.
@@ -111,8 +109,17 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
         MIN_DURATION = minDuration_;
         RESERVE = reserve_;
         RESERVE_FACTOR = reserveFactor_;
-        WETH = LiquidityPool(liquidityPool_).asset();
+        WETH = ILiquidityPool(liquidityPool_).asset();
         _grantRole({ role: DEFAULT_ADMIN_ROLE, account: admin_ });
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
+
+    /// @inheritdoc ILiquidityDeployer
+    function getLiquidityDeployment(address uniV2Pair) external view override returns (LD.LiquidityDeployment memory) {
+        return _liquidityDeployments[uniV2Pair];
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -129,12 +136,13 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
     )
         external
         payable
+        override
         onlyRole(LIQUIDITY_DEPLOYER_ROLE)
         whenNotPaused
     {
-        DeployLiquidityLocalVars memory vars;
+        LD.DeployLiquidityLocalVars memory vars;
         // Checks: Pair must not have received liquidity before.
-        if (liquidityDeployments[uniV2Pair].deadline != 0) {
+        if (_liquidityDeployments[uniV2Pair].deadline != 0) {
             revert Errors.LiquidityDeployer_PairAlreadyReceivedLiquidity({ rushERC20: rushERC20, uniV2Pair: uniV2Pair });
         }
         // Checks: Total supply of the RushERC20 token must be greater than 0.
@@ -169,13 +177,13 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
             revert Errors.LiquidityDeployer_MaxDuration(duration);
         }
         // Checks: `msg.value` must be at least the liquidity deployment fee.
-        (vars.totalFee, vars.reserveFee) = FeeCalculator(FEE_CALCULATOR).calculateFee(
-            FeeCalculator.CalculateFeeParams({
+        (vars.totalFee, vars.reserveFee) = IFeeCalculator(FEE_CALCULATOR).calculateFee(
+            FC.CalculateFeeParams({
                 duration: duration,
                 newLiquidity: amount,
-                outstandingLiquidity: LiquidityPool(LIQUIDITY_POOL).outstandingAssets(),
+                outstandingLiquidity: ILiquidityPool(LIQUIDITY_POOL).outstandingAssets(),
                 reserveFactor: RESERVE_FACTOR,
-                totalLiquidity: LiquidityPool(LIQUIDITY_POOL).totalAssets()
+                totalLiquidity: ILiquidityPool(LIQUIDITY_POOL).totalAssets()
             })
         );
         if (msg.value < vars.totalFee) {
@@ -184,7 +192,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
 
         // Effects: Store the liquidity deployment.
         vars.deadline = block.timestamp + duration;
-        liquidityDeployments[uniV2Pair] = LiquidityDeployment({
+        _liquidityDeployments[uniV2Pair] = LD.LiquidityDeployment({
             rushERC20: rushERC20,
             originator: originator,
             amount: amount,
@@ -193,7 +201,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
         });
 
         // Interactions: Dispatch asset from LiquidityPool to the pair.
-        LiquidityPool(LIQUIDITY_POOL).dispatchAsset({
+        ILiquidityPool(LIQUIDITY_POOL).dispatchAsset({
             to: uniV2Pair,
             amount: amount,
             data: abi.encode(vars.totalFee, vars.reserveFee, uniV2Pair)
@@ -236,7 +244,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
     }
 
     /// @inheritdoc ILiquidityDeployer
-    function pause() public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function pause() external override onlyRole(DEFAULT_ADMIN_ROLE) {
         _pause();
 
         // Emit an event.
@@ -244,7 +252,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
     }
 
     /// @inheritdoc ILiquidityDeployer
-    function unpause() public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function unpause() external override onlyRole(DEFAULT_ADMIN_ROLE) {
         _unpause();
 
         // Emit an event.
@@ -252,10 +260,15 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
     }
 
     /// @inheritdoc ILiquidityDeployer
-    function unwindLiquidityEMERGENCY(address[] calldata uniV2Pairs) external onlyRole(DEFAULT_ADMIN_ROLE) whenPaused {
+    function unwindLiquidityEMERGENCY(address[] calldata uniV2Pairs)
+        external
+        override
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        whenPaused
+    {
         for (uint256 i = 0; i < uniV2Pairs.length; i++) {
             address uniV2Pair = uniV2Pairs[i];
-            LiquidityDeployment storage deployment = liquidityDeployments[uniV2Pair];
+            LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
             // Checks: Pair must have received liquidity before.
             if (deployment.deadline == 0) {
                 revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ uniV2Pair: uniV2Pair });
@@ -279,8 +292,8 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
     // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc ILiquidityDeployer
-    function unwindLiquidity(address uniV2Pair) external {
-        LiquidityDeployment storage deployment = liquidityDeployments[uniV2Pair];
+    function unwindLiquidity(address uniV2Pair) external override {
+        LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
         // Checks: Pair must have received liquidity before.
         if (deployment.deadline == 0) {
             revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ uniV2Pair: uniV2Pair });
@@ -405,13 +418,13 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
 
     /// @dev Unwinds the liquidity deployment.
     function _unwindLiquidity(address uniV2Pair, uint256 wethReserve, uint256 rushERC20Reserve) internal {
-        LiquidityDeployment storage deployment = liquidityDeployments[uniV2Pair];
+        LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
 
         // Effects: Set deployment as unwound.
         deployment.isUnwound = true;
 
         // Interactions: Return asset to the LiquidityPool.
-        LiquidityPool(LIQUIDITY_POOL).returnAsset({
+        ILiquidityPool(LIQUIDITY_POOL).returnAsset({
             from: address(this),
             amount: deployment.amount,
             data: abi.encode(uniV2Pair, deployment.rushERC20, wethReserve, rushERC20Reserve)

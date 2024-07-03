@@ -3,6 +3,7 @@ pragma solidity >=0.8.25 <0.9.0;
 
 import { ud } from "@prb/math/src/UD60x18.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
+import { FC } from "src/types/DataTypes.sol";
 
 import { FeeCalculator_Unit_Shared_Test } from "test/unit/shared/FeeCalculator.t.sol";
 
@@ -21,7 +22,7 @@ contract CalculateFee_Unit_Concrete_Test is FeeCalculator_Unit_Shared_Test {
         assertGt(utilizationRatio, defaults.OPTIMAL_UTILIZATION_RATIO(), "utilizationRatio");
 
         (uint256 actualTotalFee, uint256 actualReserveFee) = feeCalculator.calculateFee(
-            FeeCalculator.CalculateFeeParams({
+            FC.CalculateFeeParams({
                 duration: duration,
                 newLiquidity: newLiquidity,
                 outstandingLiquidity: outstandingLiquidity,
@@ -46,7 +47,7 @@ contract CalculateFee_Unit_Concrete_Test is FeeCalculator_Unit_Shared_Test {
         assertLt(utilizationRatio, defaults.OPTIMAL_UTILIZATION_RATIO(), "utilizationRatio");
 
         (uint256 actualTotalFee, uint256 actualReserveFee) = feeCalculator.calculateFee(
-            FeeCalculator.CalculateFeeParams({
+            FC.CalculateFeeParams({
                 duration: duration,
                 newLiquidity: newLiquidity,
                 outstandingLiquidity: outstandingLiquidity,

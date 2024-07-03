@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25;
 
-import { AccessControlExtended } from "src/abstracts/AccessControlExtended.sol";
+import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
+import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
@@ -10,44 +11,26 @@ import { Errors } from "src/libraries/Errors.sol";
 
 /**
  * @title RushERC20Factory
- * @notice A permissioned factory for deploying ERC20 tokens using predefined templates.
+ * @notice See the documentation in {IRushERC20Factory}.
  */
-contract RushERC20Factory is AccessControlExtended {
+contract RushERC20Factory is IRushERC20Factory, AccessControl {
     using Address for address;
     using CloneTemplate for CloneTemplate.Data;
 
-    // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
+    // #region --------------------------------=|+ ROLE CONSTANTS +|=-------------------------------- //
 
-    /**
-     * @dev Emitted when a new token template is added.
-     * @param kind The kind of token template.
-     * @param version The version of the token implementation.
-     * @param implementation The address of the token implementation.
-     */
-    event AddTemplate(bytes32 indexed kind, uint256 indexed version, address implementation);
+    /// @notice The liquidity deployer role.
+    bytes32 public constant override LIQUIDITY_DEPLOYER_ROLE = keccak256("LIQUIDITY_DEPLOYER_ROLE");
 
-    /**
-     * @dev Emitted when a new RushERC20 token contract is created.
-     * @param originator The address of the originator of creation request.
-     * @param kind The kind of token.
-     * @param version The version of the token implementation.
-     * @param rushERC20 The address of the new RushERC20 token.
-     */
-    event CreateRushERC20(address indexed originator, bytes32 indexed kind, uint256 indexed version, address rushERC20);
-
-    /**
-     * @dev Emitted when a token template is removed.
-     * @param kind The kind of token template.
-     * @param version The version of the token implementation.
-     */
-    event RemoveTemplate(bytes32 indexed kind, uint256 indexed version);
+    /// @notice The rush creator role.
+    bytes32 public constant override RUSH_CREATOR_ROLE = keccak256("RUSH_CREATOR_ROLE");
 
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
+    // #region -------------------------------=|+ INTERNAL STORAGE +|=------------------------------- //
 
-    /// @notice A mapping of token templates.
-    mapping(bytes32 kind => CloneTemplate.Data template) public templates;
+    /// @dev A mapping of token templates.
+    mapping(bytes32 kind => CloneTemplate.Data template) internal _templates;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -64,21 +47,18 @@ contract RushERC20Factory is AccessControlExtended {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
+
+    /// @inheritdoc IRushERC20Factory
+    function getTemplate(bytes32 kind) external view override returns (CloneTemplate.Data memory template) {
+        return _templates[kind];
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
 
-    /**
-     * @notice Add a new token template.
-     * @dev It's not an error to rewrite an existing template with the same kind.
-     *
-     * Requirements:
-     * - The caller must have the default admin role.
-     * - The implementation must support the required interface.
-     *
-     * Actions:
-     * - Adds given token template to the factory.
-     *
-     * @param implementation The address of the token implementation.
-     */
+    /// @inheritdoc IRushERC20Factory
     function addTemplate(address implementation) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Checks: Implementation must support the required interface.
         if (!IERC165(implementation).supportsInterface(type(IRushERC20).interfaceId)) {
@@ -88,26 +68,13 @@ contract RushERC20Factory is AccessControlExtended {
         // Effects: Add token template to the factory.
         // TODO: check possible collisions with keccak256, possibly via an invariant test.
         bytes32 kind = keccak256(abi.encodePacked(IRushERC20(implementation).description()));
-        templates[kind].set({ implementation: implementation });
+        _templates[kind].set({ implementation: implementation });
 
         // Emit an event.
         emit AddTemplate({ kind: kind, version: IRushERC20(implementation).version(), implementation: implementation });
     }
 
-    /**
-     * @notice Creates a new RushERC20 token of a given kind.
-     * @dev Created tokens are not initialized.
-     *
-     * Requirements:
-     * - The caller must have the rush creator role.
-     * - An implementation must be registered for the given kind.
-     *
-     * Actions:
-     * - Creates a new ERC20 token with given kind.
-     *
-     * @param kind The kind of token to create.
-     * @param originator The address of the originator of creation request.
-     */
+    /// @inheritdoc IRushERC20Factory
     function createRushERC20(
         bytes32 kind,
         address originator
@@ -117,7 +84,7 @@ contract RushERC20Factory is AccessControlExtended {
         returns (address rushERC20)
     {
         // Effects: Create a new token using the implementation.
-        rushERC20 = templates[kind].clone();
+        rushERC20 = _templates[kind].clone();
 
         // Emit an event.
         emit CreateRushERC20({
@@ -128,27 +95,16 @@ contract RushERC20Factory is AccessControlExtended {
         });
     }
 
-    /**
-     * @notice Remove a token template.
-     *
-     * Requirements:
-     * - The caller must have the default admin role.
-     * - The given kind must be registered in the factory.
-     *
-     * Actions:
-     * - Remove token template from the factory.
-     *
-     * @param kind The kind of token template to remove.
-     */
+    /// @inheritdoc IRushERC20Factory
     function removeTemplate(bytes32 kind) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Checks: The given kind must be registered in the factory.
-        address implementation = templates[kind].implementation;
+        address implementation = _templates[kind].implementation;
         if (implementation == address(0)) {
             revert Errors.RushERC20Factory_NotTemplate(kind);
         }
 
         // Effects: Remove token template from the factory.
-        delete templates[kind];
+        delete _templates[kind];
 
         // Emit an event.
         emit RemoveTemplate({ kind: kind, version: IRushERC20(implementation).version() });

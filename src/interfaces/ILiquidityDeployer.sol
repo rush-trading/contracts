@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25;
 
+import { IAccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
 import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
-import { LiquidityPool } from "src/LiquidityPool.sol";
+import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
+import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
+import { LD } from "src/types/DataTypes.sol";
 
 /**
  * @title ILiquidityDeployer
  * @notice A permissioned contract for deploying WETH-backed liquidity to Uniswap V2 pairs.
  */
-interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
+interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IAccessControl {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
@@ -48,33 +51,46 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region -----------------------------------=|+ STRUCTS +|=------------------------------------ //
+    // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
-    struct DeployLiquidityLocalVars {
-        uint256 totalSupply;
-        uint256 rushERC20BalanceOfPair;
-        uint256 reserveFee;
-        uint256 totalFee;
-        uint256 deadline;
-        uint256 excessAmount;
-        bool isToken0WETH;
-        uint256 reserve0;
-        uint256 reserve1;
-        uint256 wethReserve;
-        uint256 rushERC20Reserve;
-        uint256 amountInWithFee;
-        uint256 numerator;
-        uint256 denominator;
-        uint256 amountOut;
-    }
+    /// @notice The level of base asset liquidity in a Uniswap V2 pair at which early unwinding is allowed.
+    function EARLY_UNWIND_THRESHOLD() external view returns (uint256);
 
-    struct LiquidityDeployment {
-        address rushERC20;
-        address originator;
-        uint256 amount;
-        uint256 deadline;
-        bool isUnwound;
-    }
+    /// @notice The address of the FeeCalculator contract.
+    function FEE_CALCULATOR() external view returns (address);
+
+    /// @notice The address of the LiquidityPool contract.
+    function LIQUIDITY_POOL() external view returns (address);
+
+    /// @notice The maximum amount that can be deployed as liquidity.
+    function MAX_DEPLOYMENT_AMOUNT() external view returns (uint256);
+
+    /// @notice The maximum duration for liquidity deployment.
+    function MAX_DURATION() external view returns (uint256);
+
+    /// @notice The minimum amount that can be deployed as liquidity.
+    function MIN_DEPLOYMENT_AMOUNT() external view returns (uint256);
+
+    /// @notice The minimum duration for liquidity deployment.
+    function MIN_DURATION() external view returns (uint256);
+
+    /// @notice The address of the reserve to which collected fees are sent.
+    function RESERVE() external view returns (address);
+
+    /**
+     * @notice The reserve factor used to calculate the fee.
+     * @dev Represented in 18 decimals (e.g., 1e18 = 100%).
+     */
+    function RESERVE_FACTOR() external view returns (uint256);
+
+    /// @notice The WETH contract address.
+    function WETH() external view returns (address);
+
+    /// @notice The liquidity deployer role.
+    function LIQUIDITY_DEPLOYER_ROLE() external view returns (bytes32);
+
+    /// @notice Retrieves the liquidity deployment entity.
+    function getLiquidityDeployment(address uniV2Pair) external view returns (LD.LiquidityDeployment memory);
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -98,6 +114,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
      * Actions:
      * 1. Store the liquidity deployment.
      * 2. Dispatch asset from LiquidityPool to the pair.
+     * 3. Swap any excess `msg.value` for RushERC20 tokens and return them to the originator.
      *
      * @param originator The address that originated the request (i.e., the user).
      * @param uniV2Pair The address of the Uniswap V2 pair that will receive liquidity.
@@ -143,10 +160,6 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
      * @param uniV2Pairs The addresses of the Uniswap V2 pairs that liquidity will be unwound from.
      */
     function unwindLiquidityEMERGENCY(address[] calldata uniV2Pairs) external;
-
-    // #endregion ----------------------------------------------------------------------------------- //
-
-    // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /**
      * @notice Unwind liquidity from a given pair and return it to the LiquidityPool.

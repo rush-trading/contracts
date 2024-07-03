@@ -11,6 +11,7 @@ import { RushLauncherHandler } from "./handlers/RushLauncherHandler.sol";
 import { RushLauncherStore } from "./stores/RushLauncherStore.sol";
 import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
+import { LD } from "src/types/DataTypes.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
 
@@ -87,10 +88,10 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
 
         rushLauncher = new RushLauncher({
             baseAsset_: address(wethMock),
-            erc20Factory_: rushERC20Factory,
             liquidityDeployer_: address(liquidityDeployer),
             maxSupplyLimit_: defaults.RUSH_ERC20_MAX_SUPPLY(),
             minSupplyLimit_: defaults.RUSH_ERC20_MIN_SUPPLY(),
+            rushERC20Factory_: address(rushERC20Factory),
             uniswapV2Factory_: address(uniswapV2Factory)
         });
         vm.label({ account: address(rushLauncher), newLabel: "RushLauncher" });
@@ -163,8 +164,8 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
             }
 
             // Set time to be at the deadline.
-            (,,, uint256 deadline,) = liquidityDeployer.liquidityDeployments(uniV2Pair);
-            vm.warp(deadline);
+            LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
+            vm.warp(liquidityDeployment.deadline);
 
             // Should be able to unwind.
             liquidityDeployer.unwindLiquidity(uniV2Pair);
