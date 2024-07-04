@@ -35,16 +35,16 @@ library LD {
         uint256 reserveFee;
         uint256 totalFee;
         uint256 deadline;
-        uint256 excessAmount;
+        uint256 excessValue;
         bool isToken0WETH;
         uint256 reserve0;
         uint256 reserve1;
         uint256 wethReserve;
         uint256 rushERC20Reserve;
-        uint256 amountInWithFee;
+        uint256 amountWETHInWithFee;
         uint256 numerator;
         uint256 denominator;
-        uint256 amountOut;
+        uint256 amountRushERC20Out;
     }
 
     /**

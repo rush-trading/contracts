@@ -151,7 +151,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
             revert Errors.LiquidityDeployer_TotalSupplyZero({ rushERC20: rushERC20, uniV2Pair: uniV2Pair });
         }
         // Checks: Pair should contain entire supply of the RushERC20 token.
-        vars.rushERC20BalanceOfPair = IERC20(rushERC20).balanceOf(address(uniV2Pair));
+        vars.rushERC20BalanceOfPair = IERC20(rushERC20).balanceOf(uniV2Pair);
         if (vars.rushERC20BalanceOfPair != vars.totalSupply) {
             revert Errors.LiquidityDeployer_PairSupplyDiscrepancy({
                 rushERC20: rushERC20,
@@ -208,26 +208,26 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
         });
 
         // Interactions: Swap any excess ETH to tokens.
-        vars.excessAmount = msg.value - vars.totalFee;
-        if (vars.excessAmount > 0) {
+        vars.excessValue = msg.value - vars.totalFee;
+        if (vars.excessValue > 0) {
             // Interactions: Convert excess ETH to WETH.
-            IWETH(WETH).deposit{ value: vars.excessAmount }();
+            IWETH(WETH).deposit{ value: vars.excessValue }();
             // Interactions: Transfer excess WETH to the pair.
-            IERC20(WETH).safeTransfer(uniV2Pair, vars.excessAmount);
+            IERC20(WETH).safeTransfer(uniV2Pair, vars.excessValue);
 
             vars.isToken0WETH = IUniswapV2Pair(uniV2Pair).token0() == WETH;
             (vars.reserve0, vars.reserve1,) = IUniswapV2Pair(uniV2Pair).getReserves();
             (vars.wethReserve, vars.rushERC20Reserve) =
                 vars.isToken0WETH ? (vars.reserve0, vars.reserve1) : (vars.reserve1, vars.reserve0);
-            vars.amountInWithFee = vars.excessAmount * 997;
-            vars.numerator = vars.amountInWithFee * vars.rushERC20Reserve;
-            vars.denominator = (vars.wethReserve * 1000) + vars.amountInWithFee;
-            vars.amountOut = vars.numerator / vars.denominator;
+            vars.amountWETHInWithFee = vars.excessValue * 997;
+            vars.numerator = vars.amountWETHInWithFee * vars.rushERC20Reserve;
+            vars.denominator = (vars.wethReserve * 1000) + vars.amountWETHInWithFee;
+            vars.amountRushERC20Out = vars.numerator / vars.denominator;
 
             // Interactions: Swap excess WETH to tokens.
             IUniswapV2Pair(uniV2Pair).swap({
-                amount0Out: vars.isToken0WETH ? 0 : vars.amountOut,
-                amount1Out: vars.isToken0WETH ? vars.amountOut : 0,
+                amount0Out: vars.isToken0WETH ? 0 : vars.amountRushERC20Out,
+                amount1Out: vars.isToken0WETH ? vars.amountRushERC20Out : 0,
                 to: originator,
                 data: ""
             });
@@ -331,12 +331,12 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
      * - `msg.sender` must be the LiquidityPool.
      *
      * Actions:
-     * 1. Mint LP tokens.
-     * 2. Convert received fee from ETH to WETH.
-     * 3. Deposit the reserve fee and transfer share to the reserve.
-     * 4. Transfer the remaining fee to the LiquidityPool.
+     * 1. Convert received fee from ETH to WETH.
+     * 2. Transfer reserve fee portion to the pair to maintain `unwindLiquidity` invariant.
+     * 3. Transfer the remaining portion of the fee to the LiquidityPool as APY.
+     * 4. Mint LP tokens.
      *
-     * @param to The pair address to which the liquidity is deployed.
+     * @param to The pair address to which the asset is dispatched.
      * @param data The data passed to the callback.
      */
     function onDispatchAsset(address to, uint256, bytes calldata data) external override {
@@ -348,9 +348,9 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
         (uint256 totalFee, uint256 reserveFee, address uniV2Pair) = abi.decode(data, (uint256, uint256, address));
         // Interactions: Convert received fee from ETH to WETH.
         IWETH(WETH).deposit{ value: totalFee }();
-        // Interactions: Transfer reserve fee to the pair to maintain `unwindLiquidity` invariant.
+        // Interactions: Transfer reserve fee portion to the pair to maintain `unwindLiquidity` invariant.
         IERC20(WETH).safeTransfer(uniV2Pair, reserveFee);
-        // Interactions: Transfer the remaining fee to the LiquidityPool.
+        // Interactions: Transfer the remaining portion of the fee to the LiquidityPool as APY.
         IERC20(WETH).safeTransfer(LIQUIDITY_POOL, totalFee - reserveFee);
         // Interactions: Mint LP tokens.
         IUniswapV2Pair(to).mint(address(this));
@@ -383,17 +383,15 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
         // TODO: double-check this calculation.
         (address uniV2Pair, address rushERC20, uint256 wethReserve, uint256 rushERC20Reserve) =
             abi.decode(data, (address, address, uint256, uint256));
-        // TODO: use more intuitive local variable names.
-        uint256 finalAmount = IERC20(WETH).balanceOf(uniV2Pair);
         // TODO: include `reserveFee` of `deployLiquidity` in the calculation.
-        uint256 excessAmount = finalAmount - amount;
+        uint256 excessWETHAmount = wethReserve - amount;
         // Calculate a reserve fee from the excess amount.
-        uint256 reserveFee = (ud(excessAmount) * ud(RESERVE_FACTOR)).intoUint256();
+        uint256 reserveFee = (ud(excessWETHAmount) * ud(RESERVE_FACTOR)).intoUint256();
         // Get the LP token balance.
-        uint256 lpTokenBalance = IUniswapV2Pair(uniV2Pair).balanceOf(address(this));
+        uint256 lpBalance = IUniswapV2Pair(uniV2Pair).balanceOf(address(this));
 
         // Interactions: Transfer LP token balance to the pair.
-        IERC20(uniV2Pair).safeTransfer(uniV2Pair, lpTokenBalance);
+        IERC20(uniV2Pair).safeTransfer(uniV2Pair, lpBalance);
         // Interactions: Burn the LP tokens to redeem the underlying assets.
         IUniswapV2Pair(uniV2Pair).burn(address(this));
         uint256 wethToReturn = wethReserve - (amount + reserveFee);
