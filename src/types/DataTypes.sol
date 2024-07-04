@@ -52,6 +52,7 @@ library LD {
      * @param rushERC20 The address of the RushERC20 token.
      * @param originator The address that originated the request (i.e., the user).
      * @param amount The amount of base asset liquidity deployed.
+     * @param subsidyAmount The amount of base asset liquidity subsidized by the protocol.
      * @param deadline The deadline timestamp by which the liquidity must be unwound.
      * @param isUnwound A flag indicating whether the liquidity has been unwound.
      */
@@ -59,15 +60,31 @@ library LD {
         address rushERC20;
         address originator;
         uint256 amount;
+        uint256 subsidyAmount;
         uint256 deadline;
         bool isUnwound;
+    }
+
+    /// @dev The local variables used in `onReturnAsset`.
+    struct OnReturnAssetLocalVars {
+        address uniV2Pair;
+        address rushERC20;
+        uint256 wethSubsidy;
+        uint256 wethBalance;
+        uint256 rushERC20Balance;
+        uint256 initialWETHReserve;
+        uint256 wethSurplus;
+        uint256 wethSurplusTax;
+        uint256 totalReserveFee;
+        uint256 wethToLock;
+        uint256 rushERC20ToLock;
     }
 }
 
 /// @notice Namespace for the structs used in {RushLauncher}.
 library RL {
     /**
-     * @notice The parameters for launching a new ERC20 token market.
+     * @dev The parameters for launching a new ERC20 token market.
      * @param templateDescription The description of the token template.
      * @param name The name of the ERC20 token.
      * @param symbol The symbol of the ERC20 token.
