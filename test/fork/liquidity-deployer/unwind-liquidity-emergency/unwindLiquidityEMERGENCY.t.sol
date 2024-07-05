@@ -49,7 +49,7 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployer_Fork_Test {
     modifier givenPairHasReceivedLiquidity() {
         (, address caller,) = vm.readCallers();
         // Momentarily unpause the contract to deploy the liquidity.
-        resetPrank({ msgSender: address(users.admin) });
+        resetPrank({ msgSender: users.admin });
         liquidityDeployer.unpause();
         // Deploy the liquidity.
         deployLiquidity({
@@ -62,7 +62,7 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployer_Fork_Test {
             feeAmount_: defaults.FEE_AMOUNT()
         });
         // Pause the contract again.
-        resetPrank({ msgSender: address(users.admin) });
+        resetPrank({ msgSender: users.admin });
         liquidityDeployer.pause();
         resetPrank({ msgSender: caller });
         _;

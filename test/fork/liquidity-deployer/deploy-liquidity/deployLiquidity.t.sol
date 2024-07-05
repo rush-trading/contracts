@@ -29,7 +29,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     modifier whenCallerHasLiquidityDeployerRole() {
         // Make LiquidityDeployer the caller in this test.
-        resetPrank({ msgSender: address(users.liquidityDeployer) });
+        resetPrank({ msgSender: users.liquidityDeployer });
         _;
     }
 

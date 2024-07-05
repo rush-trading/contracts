@@ -141,8 +141,8 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
         liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityDeployer) });
-        rushERC20Factory.grantRole({ role: RUSH_CREATOR_ROLE, account: address(users.rushCreator) });
-        liquidityDeployer.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(users.liquidityDeployer) });
+        rushERC20Factory.grantRole({ role: RUSH_CREATOR_ROLE, account: users.rushCreator });
+        liquidityDeployer.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: users.liquidityDeployer });
         resetPrank({ msgSender: caller });
     }
 

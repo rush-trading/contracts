@@ -46,7 +46,7 @@ contract LiquidityDeployer_Fork_Test is Fork_Test {
         internal
     {
         (, address caller,) = vm.readCallers();
-        resetPrank({ msgSender: address(users.liquidityDeployer) });
+        resetPrank({ msgSender: users.liquidityDeployer });
         GoodRushERC20Mock(rushERC20Mock).mint({ account: uniV2Pair_, amount: rushERC20Amount_ });
         liquidityDeployer.deployLiquidity{ value: feeAmount_ }({
             originator: originator_,
@@ -62,7 +62,7 @@ contract LiquidityDeployer_Fork_Test is Fork_Test {
     /// @dev Pauses the contract.
     function pause() internal {
         (, address caller,) = vm.readCallers();
-        resetPrank({ msgSender: address(users.admin) });
+        resetPrank({ msgSender: users.admin });
         liquidityDeployer.pause();
         resetPrank({ msgSender: caller });
     }
@@ -70,7 +70,7 @@ contract LiquidityDeployer_Fork_Test is Fork_Test {
     /// @dev Unwinds the liquidity from the Uniswap V2 pair.
     function unwindLiquidity(address uniV2Pair_) internal {
         (, address caller,) = vm.readCallers();
-        resetPrank({ msgSender: address(users.liquidityDeployer) });
+        resetPrank({ msgSender: users.liquidityDeployer });
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair_ });
         resetPrank({ msgSender: caller });
     }
