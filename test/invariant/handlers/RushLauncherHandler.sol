@@ -11,7 +11,7 @@ import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { FC, RL } from "src/types/DataTypes.sol";
 import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
 
-/// @notice Exposes the core functionality holistically to Foundry for invariant testing purposes.
+/// @notice Exposes {RushLauncher} functions to Foundry for invariant testing purposes.
 contract RushLauncherHandler is BaseHandler {
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
 

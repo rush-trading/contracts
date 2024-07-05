@@ -8,9 +8,12 @@ import { IRushERC20, RushERC20Abstract } from "src/abstracts/RushERC20Abstract.s
  * @title GoodRushERC20Mock
  */
 contract GoodRushERC20Mock is RushERC20Abstract, ERC20Upgradeable {
+    string private _descriptionOverride;
+    uint256 private _versionOverride;
+
     /// @inheritdoc IRushERC20
-    function description() public pure returns (string memory) {
-        return "RushERC20Mock";
+    function description() public view override returns (string memory) {
+        return bytes(_descriptionOverride).length > 0 ? _descriptionOverride : "RushERC20Mock";
     }
 
     /// @inheritdoc IRushERC20
@@ -32,12 +35,22 @@ contract GoodRushERC20Mock is RushERC20Abstract, ERC20Upgradeable {
     }
 
     /// @inheritdoc IRushERC20
-    function version() public pure override returns (uint256) {
-        return 42;
+    function version() public view override returns (uint256) {
+        return (_versionOverride) > 0 ? _versionOverride : 42;
     }
 
     /// @dev Mints tokens to the specified account.
     function mint(address account, uint256 amount) public {
         _mint(account, amount);
+    }
+
+    /// @dev Updates the description of the token implementation.
+    function setDescription(string calldata newDescription) public {
+        _descriptionOverride = newDescription;
+    }
+
+    /// @dev Updates the version of the token implementation.
+    function setVersion(uint256 newVersion) public {
+        _versionOverride = newVersion;
     }
 }

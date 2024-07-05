@@ -20,10 +20,10 @@ interface IRushERC20 is IERC165, IERC20Metadata {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /// @notice Returns the description of the token implementation.
-    function description() external pure returns (string memory);
+    function description() external view returns (string memory);
 
     /// @notice Returns the version of the token implementation.
-    function version() external pure returns (uint256);
+    function version() external view returns (uint256);
 
     // #endregion ----------------------------------------------------------------------------------- //
 
