@@ -6,7 +6,7 @@ import { IRushERC20, RushERC20Abstract } from "src/abstracts/RushERC20Abstract.s
 
 /**
  * @title RushERC20Basic
- * @notice The basic ERC20 token implementation for rush.trading.
+ * @notice The basic Rush ERC20 token implementation.
  */
 contract RushERC20Basic is ERC20Upgradeable, RushERC20Abstract {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //

@@ -1,6 +1,6 @@
 {
   "name": "@rush-trading/contracts",
-  "description": "Smart contracts of rush.trading protocol",
+  "description": "Smart contracts of rush.trading",
   "version": "1.0.0",
   "author": {
     "name": "rush-trading",

@@ -1,1 +1,1 @@
-# rush.trading
+# Rush

@@ -6,7 +6,7 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 
 /**
  * @title IRushERC20
- * @notice The rush.trading ERC20 token.
+ * @notice The Rush ERC20 token.
  */
 interface IRushERC20 is IERC165, IERC20Metadata {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
