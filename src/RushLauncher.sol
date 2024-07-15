@@ -40,7 +40,7 @@ contract RushLauncher is IRushLauncher {
 
     /**
      * @dev Constructor
-     * @param baseAsset_ The address of the base asset for liquidity.
+     * @param baseAsset_ The address of the base asset for liquidity deployment.
      * @param liquidityDeployer_ The address of the LiquidityDeployer contract.
      * @param maxSupplyLimit_ The maximum minted supply of the ERC20 token.
      * @param minSupplyLimit_ The minimum minted supply of the ERC20 token.
@@ -97,7 +97,7 @@ contract RushLauncher is IRushLauncher {
             recipient: uniV2Pair,
             data: params.data
         });
-        // Interactions: Create a new pair and deploy liquidity.
+        // Interactions: Deploy the liquidity.
         ILiquidityDeployer(LIQUIDITY_DEPLOYER).deployLiquidity{ value: msg.value }({
             originator: msg.sender,
             uniV2Pair: uniV2Pair,

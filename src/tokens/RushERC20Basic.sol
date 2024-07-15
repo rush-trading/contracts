@@ -39,7 +39,7 @@ contract RushERC20Basic is ERC20Upgradeable, RushERC20Abstract {
     {
         __ERC20_init(name, symbol);
         _mint(recipient, maxSupply);
-        emit Initialize(name, symbol, maxSupply, recipient, "");
+        emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: "" });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

@@ -146,18 +146,18 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
             revert Errors.LiquidityDeployer_PairAlreadyReceivedLiquidity({ rushERC20: rushERC20, uniV2Pair: uniV2Pair });
         }
         // Checks: Total supply of the RushERC20 token must be greater than 0.
-        vars.totalSupply = IERC20(rushERC20).totalSupply();
-        if (vars.totalSupply == 0) {
+        vars.rushERC20TotalSupply = IERC20(rushERC20).totalSupply();
+        if (vars.rushERC20TotalSupply == 0) {
             revert Errors.LiquidityDeployer_TotalSupplyZero({ rushERC20: rushERC20, uniV2Pair: uniV2Pair });
         }
         // Checks: Pair should hold entire supply of the RushERC20 token.
         vars.rushERC20BalanceOfPair = IERC20(rushERC20).balanceOf(uniV2Pair);
-        if (vars.rushERC20BalanceOfPair != vars.totalSupply) {
+        if (vars.rushERC20BalanceOfPair != vars.rushERC20TotalSupply) {
             revert Errors.LiquidityDeployer_PairSupplyDiscrepancy({
                 rushERC20: rushERC20,
                 uniV2Pair: uniV2Pair,
                 rushERC20BalanceOfPair: vars.rushERC20BalanceOfPair,
-                totalSupply: vars.totalSupply
+                rushERC20TotalSupply: vars.rushERC20TotalSupply
             });
         }
         // Checks: Amount to deploy must not be less than minimum limit.

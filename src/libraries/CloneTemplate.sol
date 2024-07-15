@@ -5,7 +5,7 @@ import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 
 /**
  * @title CloneTemplate
- * @notice A library for deploying and initializing EIP-1167 clones from a template.
+ * @notice A library for creating EIP-1167 clones from a template.
  */
 library CloneTemplate {
     using Clones for address;

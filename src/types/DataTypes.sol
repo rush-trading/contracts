@@ -30,8 +30,8 @@ library FC {
 library LD {
     /// @dev The local variables used in `deployLiquidity`.
     struct DeployLiquidityLocalVars {
-        uint256 totalSupply;
         uint256 rushERC20BalanceOfPair;
+        uint256 rushERC20TotalSupply;
         uint256 reserveFee;
         uint256 totalFee;
         uint256 deadline;
