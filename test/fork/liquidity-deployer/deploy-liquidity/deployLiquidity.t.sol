@@ -304,8 +304,10 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         uint256 expectedAmount;
         uint256 expectedDeadline;
         bool expectedIsUnwound;
-        uint256 wethBalanceBefore;
-        uint256 wethBalanceAfter;
+        uint256 wethBalanceOfLiquidtyPoolBefore;
+        uint256 wethBalanceOfPairBefore;
+        uint256 wethBalanceOfLiquidtyPoolAfter;
+        uint256 wethBalanceOfPairAfter;
         uint256 rushERC20BalanceOfSenderBefore;
         uint256 rushERC20BalanceOfSenderAfter;
         uint256 reserveFee;
@@ -342,7 +344,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         });
 
         // Deploy the liquidity.
-        vars.wethBalanceBefore = weth.balanceOf({ account: uniV2Pair });
+        vars.wethBalanceOfPairBefore = weth.balanceOf({ account: uniV2Pair });
+        vars.wethBalanceOfLiquidtyPoolBefore = weth.balanceOf({ account: liquidityDeployer.LIQUIDITY_POOL() });
         vars.rushERC20BalanceOfSenderBefore = GoodRushERC20Mock(rushERC20Mock).balanceOf({ account: users.sender });
         liquidityDeployer.deployLiquidity{ value: vars.msgValue }({
             originator: users.sender,
@@ -351,13 +354,23 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             amount: vars.amount,
             duration: vars.duration
         });
-        vars.wethBalanceAfter = weth.balanceOf({ account: uniV2Pair });
+        vars.wethBalanceOfPairAfter = weth.balanceOf({ account: uniV2Pair });
+        vars.wethBalanceOfLiquidtyPoolAfter = weth.balanceOf({ account: liquidityDeployer.LIQUIDITY_POOL() });
         vars.rushERC20BalanceOfSenderAfter = GoodRushERC20Mock(rushERC20Mock).balanceOf({ account: users.sender });
 
         // Assert that the liquidity was deployed.
-        vars.reserveFee = (ud(vars.msgValue) * ud(defaults.RESERVE_FACTOR())).intoUint256();
+        vars.reserveFee = (ud(defaults.FEE_AMOUNT()) * ud(defaults.RESERVE_FACTOR())).intoUint256();
         vars.expectedBalanceDiff = vars.amount + vars.reserveFee;
-        assertEq(vars.wethBalanceAfter - vars.wethBalanceBefore, vars.expectedBalanceDiff, "balanceOf");
+        assertEq(vars.wethBalanceOfPairAfter - vars.wethBalanceOfPairBefore, vars.expectedBalanceDiff, "balanceOf");
+        // Assert that the liquidity pool balance is correct after deployment.
+        // (100% - reserveFactor) of the total fee amount is added back to the liquidity pool as APY.
+        vars.expectedBalanceDiff =
+            vars.amount - (ud(defaults.FEE_AMOUNT()) * ud(1e18 - defaults.RESERVE_FACTOR())).intoUint256();
+        assertEq(
+            vars.wethBalanceOfLiquidtyPoolBefore - vars.wethBalanceOfLiquidtyPoolAfter,
+            vars.expectedBalanceDiff,
+            "balanceOf"
+        );
 
         LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
         (vars.actualRushERC20, vars.actualOriginator, vars.actualAmount, vars.actualDeadline, vars.actualIsUnwound) = (
@@ -385,8 +398,6 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             vars.expectedRushERC20Amount,
             "balanceOf"
         );
-
-        // TODO check the state of LiquidityPool as well.
     }
 
     function test_GivenExcessMsgValueIsGreaterThanZero()
@@ -418,7 +429,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         });
 
         // Deploy the liquidity.
-        vars.wethBalanceBefore = weth.balanceOf({ account: uniV2Pair });
+        vars.wethBalanceOfPairBefore = weth.balanceOf({ account: uniV2Pair });
+        vars.wethBalanceOfLiquidtyPoolBefore = weth.balanceOf({ account: liquidityDeployer.LIQUIDITY_POOL() });
         vars.rushERC20BalanceOfSenderBefore = GoodRushERC20Mock(rushERC20Mock).balanceOf({ account: users.sender });
         liquidityDeployer.deployLiquidity{ value: vars.msgValue }({
             originator: users.sender,
@@ -427,13 +439,23 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             amount: vars.amount,
             duration: vars.duration
         });
-        vars.wethBalanceAfter = weth.balanceOf({ account: uniV2Pair });
+        vars.wethBalanceOfPairAfter = weth.balanceOf({ account: uniV2Pair });
+        vars.wethBalanceOfLiquidtyPoolAfter = weth.balanceOf({ account: liquidityDeployer.LIQUIDITY_POOL() });
         vars.rushERC20BalanceOfSenderAfter = GoodRushERC20Mock(rushERC20Mock).balanceOf({ account: users.sender });
 
         // Assert that the liquidity was deployed.
         vars.reserveFee = (ud(defaults.FEE_AMOUNT()) * ud(defaults.RESERVE_FACTOR())).intoUint256();
         vars.expectedBalanceDiff = vars.amount + defaults.FEE_EXCESS_AMOUNT() + vars.reserveFee;
-        assertEq(vars.wethBalanceAfter - vars.wethBalanceBefore, vars.expectedBalanceDiff, "balanceOf");
+        assertEq(vars.wethBalanceOfPairAfter - vars.wethBalanceOfPairBefore, vars.expectedBalanceDiff, "balanceOf");
+        // Assert that the liquidity pool balance is correct after deployment.
+        // (100% - reserveFactor) of the total fee amount is added back to the liquidity pool as APY.
+        vars.expectedBalanceDiff =
+            vars.amount - (ud(defaults.FEE_AMOUNT()) * ud(1e18 - defaults.RESERVE_FACTOR())).intoUint256();
+        assertEq(
+            vars.wethBalanceOfLiquidtyPoolBefore - vars.wethBalanceOfLiquidtyPoolAfter,
+            vars.expectedBalanceDiff,
+            "balanceOf"
+        );
 
         LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
         (vars.actualRushERC20, vars.actualOriginator, vars.actualAmount, vars.actualDeadline, vars.actualIsUnwound) = (
