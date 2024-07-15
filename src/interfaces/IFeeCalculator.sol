@@ -29,7 +29,7 @@ interface IFeeCalculator {
     function OPTIMAL_UTILIZATION_RATIO() external view returns (uint256);
 
     /**
-     * @notice The slope of the interest rate curve when U > 0% and <= U_optimal.
+     * @notice The slope of the interest rate curve when U >= 0% and <= U_optimal.
      * @dev Expressed as a per-second rate in 18 decimals.
      */
     function RATE_SLOPE1() external view returns (uint256);
