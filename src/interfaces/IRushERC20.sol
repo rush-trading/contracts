@@ -6,11 +6,19 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 
 /**
  * @title IRushERC20
- * @notice An ERC20 token interface for rush.trading.
+ * @notice The rush.trading ERC20 token.
  */
 interface IRushERC20 is IERC165, IERC20Metadata {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
+    /**
+     * @notice Emitted when the token contract is initialized.
+     * @param name The name of the token.
+     * @param symbol The symbol of the token.
+     * @param maxSupply The maximum supply of the token.
+     * @param recipient The recipient of the minted tokens.
+     * @param data Additional data for the token initialization.
+     */
     event Initialize(
         string indexed name, string indexed symbol, uint256 maxSupply, address indexed recipient, bytes data
     );
@@ -34,7 +42,7 @@ interface IRushERC20 is IERC165, IERC20Metadata {
      * @param name The name of the token.
      * @param symbol The symbol of the token.
      * @param maxSupply The maximum supply of the token.
-     * @param recipient The recipient of the maximum supply.
+     * @param recipient The recipient of the minted tokens.
      * @param data Additional data for the token initialization.
      */
     function initialize(

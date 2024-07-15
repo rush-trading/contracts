@@ -10,7 +10,7 @@ import { LD } from "src/types/DataTypes.sol";
 
 /**
  * @title ILiquidityDeployer
- * @notice A permissioned contract for deploying WETH-backed liquidity to Uniswap V2 pairs.
+ * @notice A permissioned contract for deploying WETH-backed liquidity to Uniswap V2 pairs over a specified duration.
  */
 interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IAccessControl {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
@@ -19,9 +19,9 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IA
      * @notice Emitted when liquidity is deployed to a pair.
      * @param originator The address that originated the request (i.e., the user).
      * @param rushERC20 The address of the RushERC20 token.
-     * @param uniV2Pair The address of the Uniswap V2 pair that will receive liquidity.
+     * @param uniV2Pair The address of the Uniswap V2 pair that received liquidity.
      * @param amount The amount of base asset liquidity deployed.
-     * @param deadline The deadline timestamp by which the liquidity must be unwound.
+     * @param deadline The timestamp after which the liquidity can be unwound.
      */
     event DeployLiquidity(
         address indexed originator,
@@ -62,13 +62,13 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IA
     /// @notice The address of the LiquidityPool contract.
     function LIQUIDITY_POOL() external view returns (address);
 
-    /// @notice The maximum amount that can be deployed as liquidity.
+    /// @notice The maximum amount of base asset liquidity that can be deployed.
     function MAX_DEPLOYMENT_AMOUNT() external view returns (uint256);
 
     /// @notice The maximum duration for liquidity deployment.
     function MAX_DURATION() external view returns (uint256);
 
-    /// @notice The minimum amount that can be deployed as liquidity.
+    /// @notice The minimum amount of base asset liquidity that can be deployed.
     function MIN_DEPLOYMENT_AMOUNT() external view returns (uint256);
 
     /// @notice The minimum duration for liquidity deployment.
@@ -78,7 +78,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IA
     function RESERVE() external view returns (address);
 
     /**
-     * @notice The reserve factor used to calculate the fee.
+     * @notice The reserve factor used for calculating fees.
      * @dev Represented in 18 decimals (e.g., 1e18 = 100%).
      */
     function RESERVE_FACTOR() external view returns (uint256);
@@ -104,23 +104,23 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IA
      * - Contract must not be paused.
      * - Pair must not have received liquidity before.
      * - Total supply of the RushERC20 must be greater than 0.
-     * - Pair should contain entire supply of the RushERC20 token.
+     * - Pair should hold entire supply of the RushERC20 token.
      * - Amount to deploy must not be less than minimum limit.
      * - Amount to deploy must not be greater than maximum limit.
      * - Duration must not be less than minimum limit.
      * - Duration must not be greater than maximum limit.
-     * - `msg.value` must be at least the liquidity deployment fee.
+     * - `msg.value` must be greater than or equal to the liquidity deployment fee.
      *
      * Actions:
-     * 1. Store the liquidity deployment.
-     * 2. Dispatch asset from LiquidityPool to the pair.
+     * 1. Store the liquidity deployment entity.
+     * 2. Dispatch asset from LiquidityPool to the Uniswap V2 pair.
      * 3. Swap any excess `msg.value` for RushERC20 tokens and return them to the originator.
      *
      * @param originator The address that originated the request (i.e., the user).
      * @param uniV2Pair The address of the Uniswap V2 pair that will receive liquidity.
      * @param rushERC20 The address of the RushERC20 token.
-     * @param amount The amount of base asset liquidity to deploy.
-     * @param duration The duration for which the liquidity will be deployed (in seconds).
+     * @param amount The amount of base asset (i.e., WETH) liquidity to deploy.
+     * @param duration The duration over which the liquidity will be deployed (in seconds).
      */
     function deployLiquidity(
         address originator,
@@ -149,13 +149,13 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IA
     function unpause() external;
 
     /**
-     * @notice An emergency function to unwind liquidity from given pairs and return it to the LiquidityPool.
+     * @notice An emergency function to unwind liquidity from given Uniswap V2 pairs and return it to the LiquidityPool.
      *
      * Requirements:
      * - Can only be called by the default admin role.
      * - Contract must be paused.
-     * - Pair must have received liquidity before.
-     * - Pair must not have been unwound before.
+     * - Pairs must have received liquidity before.
+     * - Pairs must not have been unwound before.
      *
      * @param uniV2Pairs The addresses of the Uniswap V2 pairs that liquidity will be unwound from.
      */

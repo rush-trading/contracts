@@ -150,7 +150,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
         if (vars.totalSupply == 0) {
             revert Errors.LiquidityDeployer_TotalSupplyZero({ rushERC20: rushERC20, uniV2Pair: uniV2Pair });
         }
-        // Checks: Pair should contain entire supply of the RushERC20 token.
+        // Checks: Pair should hold entire supply of the RushERC20 token.
         vars.rushERC20BalanceOfPair = IERC20(rushERC20).balanceOf(uniV2Pair);
         if (vars.rushERC20BalanceOfPair != vars.totalSupply) {
             revert Errors.LiquidityDeployer_PairSupplyDiscrepancy({

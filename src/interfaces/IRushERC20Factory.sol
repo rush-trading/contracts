@@ -58,7 +58,7 @@ interface IRushERC20Factory is IAccessControl {
      *
      * Requirements:
      * - The caller must have the default admin role.
-     * - The implementation must support the required interface.
+     * - The token implementation must support the required interface.
      *
      * Actions:
      * - Adds given token template to the factory.
@@ -73,13 +73,14 @@ interface IRushERC20Factory is IAccessControl {
      *
      * Requirements:
      * - The caller must have the rush creator role.
-     * - An implementation must be registered for the given kind.
+     * - A token implementation must be registered for the given kind.
      *
      * Actions:
      * - Creates a new ERC20 token with given kind.
      *
      * @param kind The kind of token to create.
      * @param originator The address of the originator of creation request.
+     * @return rushERC20 The address of the new RushERC20 token.
      */
     function createRushERC20(bytes32 kind, address originator) external returns (address rushERC20);
 

@@ -11,9 +11,9 @@ deployLiquidity.t.sol
             ├── given total supply of RushERC20 is zero
             │   └── it should revert
             └── given total supply of RushERC20 is not zero
-                ├── given pair does not contain entire supply of RushERC20
+                ├── given pair does not hold entire supply of RushERC20
                 │   └── it should revert
-                └── given pair contains entire supply of RushERC20
+                └── given pair holds entire supply of RushERC20
                     ├── given amount to deploy is less than minimum amount
                     │   └── it should revert
                     └── given amount to deploy is greater than or equal to minimum amount

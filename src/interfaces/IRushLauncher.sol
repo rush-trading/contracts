@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25;
 
-import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
-import { IRushERC20Factory } from "src/RushERC20Factory.sol";
 import { RL } from "src/types/DataTypes.sol";
 
 /**
@@ -17,7 +15,7 @@ interface IRushLauncher {
      * @param rushERC20 The address of the RushERC20 token.
      * @param kind The kind of the ERC20 token template.
      * @param uniV2Pair The address of the Uniswap V2 pair.
-     * @param maxSupply The minted maximum supply of the ERC20 token.
+     * @param maxSupply The maximum supply of the ERC20 token.
      * @param liquidityAmount The amount of base asset liquidity deployed.
      * @param liquidityDuration The duration of the liquidity deployment.
      */
@@ -34,16 +32,16 @@ interface IRushLauncher {
 
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
-    /// @notice The address of the base asset for liquidity.
+    /// @notice The address of the base asset for liquidity deployment.
     function BASE_ASSET() external view returns (address);
 
     /// @notice The address of the LiquidityDeployer.
     function LIQUIDITY_DEPLOYER() external view returns (address);
 
-    /// @notice The maximum minted supply of the ERC20 token.
+    /// @notice The maximum supply limit of the ERC20 token.
     function MAX_SUPPLY_LIMIT() external view returns (uint256);
 
-    /// @notice The minimum minted supply of the ERC20 token.
+    /// @notice The minimum supply limit of the ERC20 token.
     function MIN_SUPPLY_LIMIT() external view returns (uint256);
 
     /// @notice The address of the RushERC20Factory.
@@ -59,6 +57,8 @@ interface IRushLauncher {
     /**
      * @notice Launches a new ERC20 token market.
      * @param params The launch parameters.
+     * @return rushERC20 The address of the RushERC20 token launched.
+     * @return uniV2Pair The address of the Uniswap V2 pair created for the market.
      */
     function launch(RL.LaunchParams calldata params) external payable returns (address rushERC20, address uniV2Pair);
 

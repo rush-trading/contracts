@@ -118,7 +118,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         _;
     }
 
-    function test_RevertGiven_PairDoesNotContainEntireSupplyOfRushERC20()
+    function test_RevertGiven_PairDoesNotHoldEntireSupplyOfRushERC20()
         external
         whenCallerHasLiquidityDeployerRole
         whenContractIsNotPaused
@@ -149,7 +149,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         });
     }
 
-    modifier givenPairContainsEntireSupplyOfRushERC20() {
+    modifier givenPairHoldsEntireSupplyOfRushERC20() {
         GoodRushERC20Mock(rushERC20Mock).mint({ account: uniV2Pair, amount: defaults.RUSH_ERC20_MAX_SUPPLY() });
         _;
     }
@@ -160,7 +160,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
-        givenPairContainsEntireSupplyOfRushERC20
+        givenPairHoldsEntireSupplyOfRushERC20
     {
         // Run the test.
         uint256 amount = defaults.MIN_LIQUIDITY_AMOUNT() - 1;
@@ -185,7 +185,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
-        givenPairContainsEntireSupplyOfRushERC20
+        givenPairHoldsEntireSupplyOfRushERC20
         givenAmountToDeployIsGreaterThanOrEqualToMinimumAmount
     {
         // Run the test.
@@ -211,7 +211,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
-        givenPairContainsEntireSupplyOfRushERC20
+        givenPairHoldsEntireSupplyOfRushERC20
         givenAmountToDeployIsGreaterThanOrEqualToMinimumAmount
         givenAmountToDeployIsLessThanOrEqualToMaximumAmount
     {
@@ -238,7 +238,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
-        givenPairContainsEntireSupplyOfRushERC20
+        givenPairHoldsEntireSupplyOfRushERC20
         givenAmountToDeployIsGreaterThanOrEqualToMinimumAmount
         givenAmountToDeployIsLessThanOrEqualToMaximumAmount
         givenDurationOfDeploymentIsGreaterThanOrEqualToMinimumDuration
@@ -266,7 +266,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
-        givenPairContainsEntireSupplyOfRushERC20
+        givenPairHoldsEntireSupplyOfRushERC20
         givenAmountToDeployIsGreaterThanOrEqualToMinimumAmount
         givenAmountToDeployIsLessThanOrEqualToMaximumAmount
         givenDurationOfDeploymentIsGreaterThanOrEqualToMinimumDuration
@@ -319,7 +319,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
-        givenPairContainsEntireSupplyOfRushERC20
+        givenPairHoldsEntireSupplyOfRushERC20
         givenAmountToDeployIsGreaterThanOrEqualToMinimumAmount
         givenAmountToDeployIsLessThanOrEqualToMaximumAmount
         givenDurationOfDeploymentIsGreaterThanOrEqualToMinimumDuration
@@ -395,7 +395,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
-        givenPairContainsEntireSupplyOfRushERC20
+        givenPairHoldsEntireSupplyOfRushERC20
         givenAmountToDeployIsGreaterThanOrEqualToMinimumAmount
         givenAmountToDeployIsLessThanOrEqualToMaximumAmount
         givenDurationOfDeploymentIsGreaterThanOrEqualToMinimumDuration

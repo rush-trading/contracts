@@ -11,13 +11,13 @@ interface IFeeCalculator {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /**
-     * @notice The base fee rate when the utilization ratio is 0.
+     * @notice The base fee rate when U (the utilization ratio) is 0%.
      * @dev Expressed as a per-second rate in 18 decimals.
      */
     function BASE_FEE_RATE() external view returns (uint256);
 
     /**
-     * @dev The excess utilization ratio above the optimal, equal to `100% - OPTIMAL_UTILIZATION_RATIO`.
+     * @dev The excess utilization ratio above the optimal (i.e., 100% - U_optimal).
      * @dev Expressed in 18 decimals.
      */
     function MAX_EXCESS_UTILIZATION_RATIO() external view returns (uint256);
@@ -29,13 +29,13 @@ interface IFeeCalculator {
     function OPTIMAL_UTILIZATION_RATIO() external view returns (uint256);
 
     /**
-     * @notice The slope of the interest rate curve when utilization ratio is > 0 and <= OPTIMAL_UTILIZATION_RATIO.
+     * @notice The slope of the interest rate curve when U > 0% and <= U_optimal.
      * @dev Expressed as a per-second rate in 18 decimals.
      */
     function RATE_SLOPE1() external view returns (uint256);
 
     /**
-     * @notice The slope of the interest rate curve when utilization ratio is > OPTIMAL_UTILIZATION_RATIO.
+     * @notice The slope of the interest rate curve when U > U_optimal.
      * @dev Expressed as a per-second rate in 18 decimals.
      */
     function RATE_SLOPE2() external view returns (uint256);

@@ -45,10 +45,11 @@ interface ILiquidityPool is IERC4626, IAccessControl {
      * @notice Dispatches assets to a recipient.
      *
      * Requirements:
-     * - The caller must have the `ASSET_MANAGER_ROLE`.
+     * - The caller must have the asset manager role.
+     * - The caller must implement the IDispatchAssetCallback interface.
      * - The `to` address must not be the zero address.
      * - The `to` address must not be the contract address itself.
-     * - The `amount` must be greater than zero.
+     * - The asset amount must be greater than zero.
      *
      * Actions:
      * - Increases the total amount of outstanding assets.
@@ -65,10 +66,11 @@ interface ILiquidityPool is IERC4626, IAccessControl {
      * @notice Returns assets from a sender.
      *
      * Requirements:
-     * - The caller must have the `ASSET_MANAGER_ROLE`.
+     * - The caller must have the asset manager role.
+     * - The caller must implement the IReturnAssetCallback interface.
      * - The `from` address must not be the zero address.
      * - The `from` address must not be the contract address itself.
-     * - The `amount` must be greater than zero.
+     * - The asset amount must be greater than zero.
      *
      * Actions:
      * - Decreases the total amount of outstanding assets.

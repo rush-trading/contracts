@@ -11,7 +11,7 @@ library FC {
 
     /**
      * @dev The parameters to calculate the liquidity deployment fee.
-     * @param duration The duration of liquidity deployment.
+     * @param duration The duration of liquidity deployment (in seconds).
      * @param newLiquidity The liquidity to be deployed.
      * @param outstandingLiquidity The liquidity already deployed.
      * @param reserveFactor The reserve factor of the pool.
