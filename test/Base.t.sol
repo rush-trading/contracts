@@ -20,7 +20,7 @@ import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
-import { WETHMock } from "test/mocks/WethMock.sol";
+import { WETHMock } from "test/mocks/WETHMock.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
 abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Precompiles {
