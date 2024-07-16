@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
+// solhint-disable max-line-length
 pragma solidity >=0.8.25;
 
 abstract contract Calculations {
