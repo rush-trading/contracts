@@ -23,10 +23,10 @@ contract TotalAssets_Integration_Concrete_Test is LiquidityPool_Integration_Conc
 
     function test_GivenPoolHasReceivedDepositsAndDispatches() external givenPoolHasReceivedDeposits {
         resetPrank({ msgSender: address(dispatchAssetCaller) });
-        liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.DISPATCH_AMOUNT(), data: "" });
+        liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.LIQUIDITY_AMOUNT(), data: "" });
 
         uint256 actualTotalAssets = liquidityPool.totalAssets();
-        uint256 expectedTotalAssets = defaults.DISPATCH_AMOUNT() + wethMock.balanceOf(address(liquidityPool));
+        uint256 expectedTotalAssets = defaults.LIQUIDITY_AMOUNT() + wethMock.balanceOf(address(liquidityPool));
         assertEq(actualTotalAssets, expectedTotalAssets, "totalAssets");
     }
 

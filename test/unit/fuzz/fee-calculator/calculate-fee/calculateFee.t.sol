@@ -23,7 +23,7 @@ contract CalculateFee_Unit_Fuzz_Test is FeeCalculator_Unit_Shared_Test {
         view
     {
         duration = bound(duration, 0, defaults.MAX_LIQUIDITY_DURATION());
-        utilizationRatio = bound(utilizationRatio, feeCalculator.OPTIMAL_UTILIZATION_RATIO() + 1, defaults.MAX_RATIO());
+        utilizationRatio = bound(utilizationRatio, feeCalculator.OPTIMAL_UTILIZATION_RATIO() + 1, 1e18);
         totalLiquidity = bound(totalLiquidity, defaults.MIN_LIQUIDITY_AMOUNT(), defaults.MAX_LIQUIDITY_AMOUNT());
 
         // Calculate new outstanding liquidity (after adding new liquidity).
@@ -31,7 +31,7 @@ contract CalculateFee_Unit_Fuzz_Test is FeeCalculator_Unit_Shared_Test {
 
         // Bound the current outstanding liquidity.
         outstandingLiquidity = bound(outstandingLiquidity, 0, outstandingPlusNewLiquidity);
-        reserveFactor = bound(reserveFactor, 0, defaults.MAX_RATIO());
+        reserveFactor = bound(reserveFactor, 0, 1e18);
         // Calculate the new liquidity to be added.
         uint256 newLiquidity = outstandingPlusNewLiquidity - outstandingLiquidity;
 
@@ -87,7 +87,7 @@ contract CalculateFee_Unit_Fuzz_Test is FeeCalculator_Unit_Shared_Test {
 
         // Bound the current outstanding liquidity.
         outstandingLiquidity = bound(outstandingLiquidity, 0, outstandingPlusNewLiquidity);
-        reserveFactor = bound(reserveFactor, 0, defaults.MAX_RATIO());
+        reserveFactor = bound(reserveFactor, 0, 1e18);
         // Calculate the new liquidity to be added.
         uint256 newLiquidity = outstandingPlusNewLiquidity - outstandingLiquidity;
 

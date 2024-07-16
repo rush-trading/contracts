@@ -10,7 +10,7 @@ contract OnDispatchAsset_Fork_Test is LiquidityDeployer_Fork_Test {
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityDeployer_InvalidCallbackSender.selector, users.eve));
         liquidityDeployer.onDispatchAsset(users.eve, amount, "");
     }

@@ -2,6 +2,7 @@
 pragma solidity >=0.8.25 <0.9.0;
 
 import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
+import { FC } from "src/types/DataTypes.sol";
 import { Fork_Test } from "test/fork/Fork.t.sol";
 import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 
@@ -57,6 +58,19 @@ contract LiquidityDeployer_Fork_Test is Fork_Test {
         });
         IUniswapV2Pair(uniV2Pair_).sync();
         resetPrank({ msgSender: caller });
+    }
+
+    /// @dev Gets the fee amount needed to deploy liquidity.
+    function getDeployLiquidityFee(uint256 amount, uint256 duration) internal view returns (uint256 feeAmount) {
+        (feeAmount,) = feeCalculator.calculateFee(
+            FC.CalculateFeeParams({
+                duration: duration,
+                newLiquidity: amount,
+                outstandingLiquidity: liquidityPool.outstandingAssets(),
+                reserveFactor: liquidityDeployer.RESERVE_FACTOR(),
+                totalLiquidity: liquidityPool.totalAssets()
+            })
+        );
     }
 
     /// @dev Pauses the contract.

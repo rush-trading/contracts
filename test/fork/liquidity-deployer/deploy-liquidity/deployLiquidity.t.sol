@@ -13,7 +13,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         uint256 duration = defaults.LIQUIDITY_DURATION();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, LIQUIDITY_DEPLOYER_ROLE)
@@ -38,7 +38,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         pause();
 
         // Run the test.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         uint256 duration = defaults.LIQUIDITY_DURATION();
         vm.expectRevert(abi.encodeWithSelector(Errors.EnforcedPause.selector));
         liquidityDeployer.deployLiquidity({
@@ -59,9 +59,9 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         whenCallerHasLiquidityDeployerRole
         whenContractIsNotPaused
     {
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         uint256 duration = defaults.LIQUIDITY_DURATION();
-        uint256 msgValue = defaults.FEE_AMOUNT();
+        uint256 feeAmount = getDeployLiquidityFee({ amount: amount, duration: duration });
 
         // Deploy the liquidity.
         deployLiquidity({
@@ -71,7 +71,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             rushERC20Amount_: defaults.RUSH_ERC20_MAX_SUPPLY(),
             wethAmount_: amount,
             duration_: duration,
-            feeAmount_: msgValue
+            feeAmount_: feeAmount
         });
 
         // Run the test.
@@ -80,7 +80,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
                 Errors.LiquidityDeployer_PairAlreadyReceivedLiquidity.selector, rushERC20Mock, uniV2Pair
             )
         );
-        liquidityDeployer.deployLiquidity{ value: msgValue }({
+        liquidityDeployer.deployLiquidity{ value: feeAmount }({
             originator: users.sender,
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
@@ -100,7 +100,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenPairHasNotReceivedLiquidity
     {
         // Run the test.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         uint256 duration = defaults.LIQUIDITY_DURATION();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.LiquidityDeployer_TotalSupplyZero.selector, rushERC20Mock, uniV2Pair)
@@ -129,7 +129,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         GoodRushERC20Mock(rushERC20Mock).mint({ account: users.recipient, amount: defaults.RUSH_ERC20_MAX_SUPPLY() });
 
         // Run the test.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         uint256 duration = defaults.LIQUIDITY_DURATION();
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -216,7 +216,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenAmountToDeployIsLessThanOrEqualToMaximumAmount
     {
         // Run the test.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         uint256 duration = defaults.MIN_LIQUIDITY_DURATION() - 1;
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityDeployer_MinDuration.selector, duration));
         liquidityDeployer.deployLiquidity({
@@ -244,7 +244,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenDurationOfDeploymentIsGreaterThanOrEqualToMinimumDuration
     {
         // Run the test.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         uint256 duration = defaults.MAX_LIQUIDITY_DURATION() + 1;
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityDeployer_MaxDuration.selector, duration));
         liquidityDeployer.deployLiquidity({
@@ -273,10 +273,11 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenDurationOfDeploymentIsLessThanOrEqualToMaximumDuration
     {
         // Run the test.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         uint256 duration = defaults.LIQUIDITY_DURATION();
         uint256 msgValue = 0;
-        vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityDeployer_FeeMismatch.selector, defaults.FEE_AMOUNT(), 0));
+        uint256 feeAmount = getDeployLiquidityFee({ amount: amount, duration: duration });
+        vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityDeployer_FeeMismatch.selector, feeAmount, 0));
         liquidityDeployer.deployLiquidity{ value: msgValue }({
             originator: users.sender,
             uniV2Pair: uniV2Pair,
@@ -293,6 +294,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
     struct Vars {
         uint256 amount;
         uint256 duration;
+        uint256 feeAmount;
+        uint256 feeExcessAmount;
         uint256 msgValue;
         address actualRushERC20;
         address actualOriginator;
@@ -329,9 +332,10 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenPassedMsgValueIsGreaterThanOrEqualToDeploymentFee
     {
         Vars memory vars;
-        vars.amount = defaults.DISPATCH_AMOUNT();
+        vars.amount = defaults.LIQUIDITY_AMOUNT();
         vars.duration = defaults.LIQUIDITY_DURATION();
-        vars.msgValue = defaults.FEE_AMOUNT();
+        vars.feeAmount = getDeployLiquidityFee({ amount: vars.amount, duration: vars.duration });
+        vars.msgValue = vars.feeAmount;
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(liquidityDeployer) });
@@ -359,13 +363,13 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vars.rushERC20BalanceOfSenderAfter = GoodRushERC20Mock(rushERC20Mock).balanceOf({ account: users.sender });
 
         // Assert that the liquidity was deployed.
-        vars.reserveFee = (ud(defaults.FEE_AMOUNT()) * ud(defaults.RESERVE_FACTOR())).intoUint256();
+        vars.reserveFee = (ud(vars.feeAmount) * ud(defaults.RESERVE_FACTOR())).intoUint256();
         vars.expectedBalanceDiff = vars.amount + vars.reserveFee;
         assertEq(vars.wethBalanceOfPairAfter - vars.wethBalanceOfPairBefore, vars.expectedBalanceDiff, "balanceOf");
         // Assert that the liquidity pool balance is correct after deployment.
         // (100% - reserveFactor) of the total fee amount is added back to the liquidity pool as APY.
         vars.expectedBalanceDiff =
-            vars.amount - (ud(defaults.FEE_AMOUNT()) * ud(1e18 - defaults.RESERVE_FACTOR())).intoUint256();
+            vars.amount - (ud(vars.feeAmount) * ud(1e18 - defaults.RESERVE_FACTOR())).intoUint256();
         assertEq(
             vars.wethBalanceOfLiquidtyPoolBefore - vars.wethBalanceOfLiquidtyPoolAfter,
             vars.expectedBalanceDiff,
@@ -414,9 +418,11 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenPassedMsgValueIsGreaterThanOrEqualToDeploymentFee
     {
         Vars memory vars;
-        vars.amount = defaults.DISPATCH_AMOUNT();
+        vars.amount = defaults.LIQUIDITY_AMOUNT();
         vars.duration = defaults.LIQUIDITY_DURATION();
-        vars.msgValue = defaults.FEE_AMOUNT() + defaults.FEE_EXCESS_AMOUNT();
+        vars.feeAmount = getDeployLiquidityFee({ amount: vars.amount, duration: vars.duration });
+        vars.feeExcessAmount = 0.00042 ether;
+        vars.msgValue = vars.feeAmount + vars.feeExcessAmount;
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(liquidityDeployer) });
@@ -444,13 +450,13 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vars.rushERC20BalanceOfSenderAfter = GoodRushERC20Mock(rushERC20Mock).balanceOf({ account: users.sender });
 
         // Assert that the liquidity was deployed.
-        vars.reserveFee = (ud(defaults.FEE_AMOUNT()) * ud(defaults.RESERVE_FACTOR())).intoUint256();
-        vars.expectedBalanceDiff = vars.amount + defaults.FEE_EXCESS_AMOUNT() + vars.reserveFee;
+        vars.reserveFee = (ud(vars.feeAmount) * ud(defaults.RESERVE_FACTOR())).intoUint256();
+        vars.expectedBalanceDiff = vars.amount + vars.feeExcessAmount + vars.reserveFee;
         assertEq(vars.wethBalanceOfPairAfter - vars.wethBalanceOfPairBefore, vars.expectedBalanceDiff, "balanceOf");
         // Assert that the liquidity pool balance is correct after deployment.
         // (100% - reserveFactor) of the total fee amount is added back to the liquidity pool as APY.
         vars.expectedBalanceDiff =
-            vars.amount - (ud(defaults.FEE_AMOUNT()) * ud(1e18 - defaults.RESERVE_FACTOR())).intoUint256();
+            vars.amount - (ud(vars.feeAmount) * ud(1e18 - defaults.RESERVE_FACTOR())).intoUint256();
         assertEq(
             vars.wethBalanceOfLiquidtyPoolBefore - vars.wethBalanceOfLiquidtyPoolAfter,
             vars.expectedBalanceDiff,
@@ -478,8 +484,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
         // Assert that the original caller received a RushERC20 amount equivalent to the excess msg value.
         vars.expectedRushERC20Amount = calculateExactAmountOut({
-            amountIn: defaults.FEE_EXCESS_AMOUNT(),
-            reserveIn: defaults.DISPATCH_AMOUNT() + vars.reserveFee,
+            amountIn: vars.feeExcessAmount,
+            reserveIn: defaults.LIQUIDITY_AMOUNT() + vars.reserveFee,
             reserveOut: defaults.RUSH_ERC20_MAX_SUPPLY()
         });
         assertEq(

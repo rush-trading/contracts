@@ -15,9 +15,9 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
     }
 
     modifier givenPairHasReceivedLiquidity() {
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         uint256 duration = defaults.LIQUIDITY_DURATION();
-        uint256 feeAmount = defaults.FEE_AMOUNT();
+        uint256 feeAmount = getDeployLiquidityFee({ amount: amount, duration: duration });
 
         // Deploy the liquidity.
         deployLiquidity({
@@ -56,7 +56,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
     {
         LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
         uint256 currentReserve = IERC20(weth).balanceOf(uniV2Pair);
-        uint256 targetReserve = defaults.DISPATCH_AMOUNT() + liquidityDeployer.EARLY_UNWIND_THRESHOLD();
+        uint256 targetReserve = defaults.LIQUIDITY_AMOUNT() + liquidityDeployer.EARLY_UNWIND_THRESHOLD();
 
         // Run the test.
         vm.expectRevert(
@@ -80,13 +80,13 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         deal({
             token: address(weth),
             to: uniV2Pair,
-            give: defaults.DISPATCH_AMOUNT() + liquidityDeployer.EARLY_UNWIND_THRESHOLD()
+            give: defaults.LIQUIDITY_AMOUNT() + liquidityDeployer.EARLY_UNWIND_THRESHOLD()
         });
         IUniswapV2Pair(uniV2Pair).sync();
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(liquidityDeployer) });
-        emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: users.sender, amount: defaults.DISPATCH_AMOUNT() });
+        emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: users.sender, amount: defaults.LIQUIDITY_AMOUNT() });
 
         // Unwind the liquidity.
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
@@ -96,7 +96,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         uint256 reserveWETHBalanceAfter = weth.balanceOf(users.reserve);
 
         // Assert that the liquidity was unwound.
-        uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.DISPATCH_AMOUNT();
+        uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.LIQUIDITY_AMOUNT();
         vm.assertEq(
             liquidityPoolWETHBalanceAfter - liquidityPoolWETHBalanceBefore,
             expectedLiquidtyPoolWETHBalanceDiff,
@@ -117,7 +117,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(liquidityDeployer) });
-        emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: users.sender, amount: defaults.DISPATCH_AMOUNT() });
+        emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: users.sender, amount: defaults.LIQUIDITY_AMOUNT() });
 
         // Unwind the liquidity.
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
@@ -125,7 +125,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
 
         // Assert that the liquidity was unwound.
-        uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.DISPATCH_AMOUNT();
+        uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.LIQUIDITY_AMOUNT();
         vm.assertEq(
             liquidityPoolWETHBalanceAfter - liquidityPoolWETHBalanceBefore,
             expectedLiquidtyPoolWETHBalanceDiff,
@@ -146,13 +146,13 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         deal({
             token: address(weth),
             to: uniV2Pair,
-            give: defaults.DISPATCH_AMOUNT() + liquidityDeployer.EARLY_UNWIND_THRESHOLD()
+            give: defaults.LIQUIDITY_AMOUNT() + liquidityDeployer.EARLY_UNWIND_THRESHOLD()
         });
         IUniswapV2Pair(uniV2Pair).sync();
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(liquidityDeployer) });
-        emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: users.sender, amount: defaults.DISPATCH_AMOUNT() });
+        emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: users.sender, amount: defaults.LIQUIDITY_AMOUNT() });
 
         // Unwind the liquidity.
         uint256 address1LPBalanceBefore = IERC20(uniV2Pair).balanceOf(address(1));
@@ -162,7 +162,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
 
         // Assert that the liquidity was unwound.
-        uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.DISPATCH_AMOUNT();
+        uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.LIQUIDITY_AMOUNT();
         vm.assertEq(
             liquidityPoolWETHBalanceAfter - liquidityPoolWETHBalanceBefore,
             expectedLiquidtyPoolWETHBalanceDiff,

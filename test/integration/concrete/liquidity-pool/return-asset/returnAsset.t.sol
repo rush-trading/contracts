@@ -10,7 +10,7 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, ASSET_MANAGER_ROLE)
         );
@@ -25,7 +25,7 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
 
     function test_RevertWhen_AssetSenderIsZeroAddress() external whenCallerHasAssetManagerRole {
         // Run the test.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityPool_ZeroAddress.selector));
         liquidityPool.returnAsset({ from: address(0), amount: amount, data: "" });
     }
@@ -40,7 +40,7 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         whenAssetSenderIsNotZeroAddress
     {
         // Run the test.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityPool_SelfReturn.selector));
         liquidityPool.returnAsset({ from: address(liquidityPool), amount: amount, data: "" });
     }
@@ -71,7 +71,7 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         deposit({ asset: address(wethMock), amount: defaults.DEPOSIT_AMOUNT() });
 
         // Dispatch the asset.
-        uint256 amount = defaults.DISPATCH_AMOUNT();
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
         dispatchAsset(amount);
 
         // Supply the asset to the Sender.

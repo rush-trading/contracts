@@ -24,7 +24,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
     function test_RevertWhen_TokenMaxSupplyIsLessThanMinimumLimit() external {
         // Run the test.
         uint256 maxSupply = defaults.RUSH_ERC20_MIN_SUPPLY() - 1;
-        uint256 liquidityAmount = defaults.DISPATCH_AMOUNT();
+        uint256 liquidityAmount = defaults.LIQUIDITY_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
         string memory description = rushERC20.description();
         vm.expectRevert(abi.encodeWithSelector(Errors.RushLauncher_LowMaxSupply.selector, maxSupply));
@@ -51,7 +51,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
     {
         // Run the test.
         uint256 maxSupply = defaults.RUSH_ERC20_MAX_SUPPLY() + 1;
-        uint256 liquidityAmount = defaults.DISPATCH_AMOUNT();
+        uint256 liquidityAmount = defaults.LIQUIDITY_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
         string memory description = rushERC20.description();
         vm.expectRevert(abi.encodeWithSelector(Errors.RushLauncher_HighMaxSupply.selector, maxSupply));
@@ -73,7 +73,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         whenTokenMaxSupplyIsNotLessThanMinimumLimit
     {
         uint256 maxSupply = defaults.RUSH_ERC20_MAX_SUPPLY();
-        uint256 liquidityAmount = defaults.DISPATCH_AMOUNT();
+        uint256 liquidityAmount = defaults.LIQUIDITY_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
         string memory description = rushERC20.description();
         (uint256 fee,) = feeCalculator.calculateFee(
