@@ -102,8 +102,10 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployer_Fork_Test {
         address[] memory uniV2Pairs = new address[](1);
         uniV2Pairs[0] = uniV2Pair;
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
+        uint256 reserveWETHBalanceBefore = weth.balanceOf(users.reserve);
         liquidityDeployer.unwindLiquidityEMERGENCY({ uniV2Pairs: uniV2Pairs });
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
+        uint256 reserveWETHBalanceAfter = weth.balanceOf(users.reserve);
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.DISPATCH_AMOUNT();
@@ -112,8 +114,7 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployer_Fork_Test {
             expectedLiquidtyPoolWETHBalanceDiff,
             "balanceOf"
         );
-
-        // TODO: assert that the reserve fee was paid in all successful tests.
-        // TODO: assert that excess liquidity was re-added to the pair in relevant successful tests.
+        // Assert that the reserve received some WETH (fees).
+        vm.assertGt(reserveWETHBalanceAfter, reserveWETHBalanceBefore, "balanceOf");
     }
 }

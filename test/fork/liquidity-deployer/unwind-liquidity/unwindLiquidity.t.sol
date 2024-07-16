@@ -90,8 +90,10 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
         // Unwind the liquidity.
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
+        uint256 reserveWETHBalanceBefore = weth.balanceOf(users.reserve);
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
+        uint256 reserveWETHBalanceAfter = weth.balanceOf(users.reserve);
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.DISPATCH_AMOUNT();
@@ -100,9 +102,8 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             expectedLiquidtyPoolWETHBalanceDiff,
             "balanceOf"
         );
-
-        // TODO: assert that the reserve fee was paid in all successful tests.
-        // TODO: assert that excess liquidity was re-added to the pair in relevant successful tests.
+        // Assert that the reserve received some WETH (fees).
+        vm.assertGt(reserveWETHBalanceAfter, reserveWETHBalanceBefore, "balanceOf");
     }
 
     function test_GivenDeadlineHasPassedButEarlyUnwindThresholdIsNotReached()
@@ -154,8 +155,10 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: users.sender, amount: defaults.DISPATCH_AMOUNT() });
 
         // Unwind the liquidity.
+        uint256 address1LPBalanceBefore = IERC20(uniV2Pair).balanceOf(address(1));
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
+        uint256 address1LPBalanceAfter = IERC20(uniV2Pair).balanceOf(address(1));
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
 
         // Assert that the liquidity was unwound.
@@ -165,5 +168,8 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             expectedLiquidtyPoolWETHBalanceDiff,
             "balanceOf"
         );
+        // Assert that excess liquidity was re-added to the pair.
+        vm.assertEq(address1LPBalanceBefore, 0, "balanceOf");
+        vm.assertGt(address1LPBalanceAfter, 0, "balanceOf");
     }
 }
