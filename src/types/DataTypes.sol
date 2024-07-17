@@ -49,20 +49,20 @@ library LD {
 
     /**
      * @dev The liquidity deployment entity.
-     * @param rushERC20 The address of the RushERC20 token.
-     * @param originator The address that originated the request (i.e., the user).
      * @param amount The amount of base asset liquidity deployed.
-     * @param subsidyAmount The amount of base asset liquidity subsidized by the protocol.
      * @param deadline The deadline timestamp by which the liquidity must be unwound.
      * @param isUnwound A flag indicating whether the liquidity has been unwound.
+     * @param subsidyAmount The amount of base asset liquidity subsidized by the protocol.
+     * @param rushERC20 The address of the RushERC20 token.
+     * @param originator The address that originated the request (i.e., the user).
      */
     struct LiquidityDeployment {
+        uint208 amount;
+        uint40 deadline;
+        bool isUnwound;
+        uint96 subsidyAmount;
         address rushERC20;
         address originator;
-        uint256 amount;
-        uint256 subsidyAmount;
-        uint256 deadline;
-        bool isUnwound;
     }
 
     /// @dev The local variables used in `onReturnAsset`.

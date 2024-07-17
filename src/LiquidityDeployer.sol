@@ -3,6 +3,7 @@ pragma solidity >=0.8.25;
 
 import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
@@ -23,6 +24,7 @@ import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
  * @notice See the documentation in {ILiquidityDeployer}.
  */
 contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
+    using SafeCast for uint256;
     using SafeERC20 for IERC20;
 
     // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
@@ -193,12 +195,12 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
         // Effects: Store the liquidity deployment.
         vars.deadline = block.timestamp + duration;
         _liquidityDeployments[uniV2Pair] = LD.LiquidityDeployment({
+            amount: amount.toUint208(),
+            deadline: vars.deadline.toUint40(),
+            isUnwound: false,
+            subsidyAmount: vars.reserveFee.toUint96(),
             rushERC20: rushERC20,
-            originator: originator,
-            amount: amount,
-            subsidyAmount: vars.reserveFee,
-            deadline: vars.deadline,
-            isUnwound: false
+            originator: originator
         });
 
         // Interactions: Dispatch asset from LiquidityPool to the pair.
