@@ -57,11 +57,11 @@ library LD {
      * @param originator The address that originated the request (i.e., the user).
      */
     struct LiquidityDeployment {
-        uint208 amount;
-        uint40 deadline;
-        bool isUnwound;
-        uint96 subsidyAmount;
-        address rushERC20;
+        uint208 amount; // ─┐
+        uint40 deadline; // │
+        bool isUnwound; // ─┘
+        uint96 subsidyAmount; // ─┐
+        address rushERC20; // ────┘
         address originator;
     }
 
