@@ -72,12 +72,13 @@ To make it easier to perform some tasks within the repo, a few scripts are avail
 
 ### Test Scripts
 
-| Script                         | Description                                                  |
-| ------------------------------ | ------------------------------------------------------------ |
-| `bun run gas:report`           | Generate gas report from all tests except those that revert. |
-| `bun run test`                 | Run all Foundry tests.                                       |
-| `bun run test:coverage`        | Run all Foundry tests and output coverage.                   |
-| `bun run test:coverage:report` | Run all Foundry tests and generate coverage report.          |
+| Script                         | Description                                                         |
+| ------------------------------ | ------------------------------------------------------------------- |
+| `bun run gas:report`           | Output gas report from all tests except those that revert.          |
+| `bun run gas:snapshot`         | Generate gas snapshot file from all tests except those that revert. |
+| `bun run test`                 | Run all Foundry tests.                                              |
+| `bun run test:coverage`        | Run all Foundry tests and output coverage.                          |
+| `bun run test:coverage:report` | Run all Foundry tests and generate coverage report.                 |
 
 Specific tests can be run using `forge test` conventions, specified in more detail in the Foundry
 [Book](https://book.getfoundry.sh/reference/forge/forge-test#test-options).
