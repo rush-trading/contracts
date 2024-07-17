@@ -20,8 +20,8 @@
   "scripts": {
     "build": "forge build",
     "clean": "rm -rf cache out",
-    "gas:report": "forge test --gas-report --no-match-test \"test(Fuzz)?_RevertWhen_\"",
-    "gas:snapshot": "forge snapshot --no-match-test \"test(Fuzz)?_RevertWhen_\"",
+    "gas:report": "forge test --gas-report --no-match-test \"test(Fuzz)?_Revert\"",
+    "gas:snapshot": "forge snapshot --no-match-test \"test(Fuzz)?_Revert\"",
     "lint": "bun run lint:sol && bun run prettier:check",
     "lint:sol": "forge fmt --check && bun solhint {script,src,test}/**/*.sol",
     "prettier:check": "prettier --check \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
