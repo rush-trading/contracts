@@ -407,9 +407,14 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
             IERC20(WETH).safeTransfer(vars.uniV2Pair, vars.wethToLock);
             // Interactions: Transfer the RushERC20 to lock to the pair.
             IERC20(vars.rushERC20).safeTransfer(vars.uniV2Pair, vars.rushERC20ToLock);
-            // TODO: Calling `IUniswapV2Pair.mint` could potentially revert if resulting liquidity is 0.
             // Interactions: Mint LP tokens send them to a burn address to lock them.
-            IUniswapV2Pair(vars.uniV2Pair).mint(address(1));
+            // Calling `IUniswapV2Pair.mint` here could potentially revert if resulting liquidity is 0, which makes this
+            // function susceptible to griefing attacks if error was not handled.
+            try IUniswapV2Pair(vars.uniV2Pair).mint(address(1)) { }
+            catch {
+                // If minting fails, gracefully recover by syncing the pair without minting LP tokens.
+                IUniswapV2Pair(vars.uniV2Pair).sync();
+            }
         } else {
             // Calculate the total reserve fee.
             vars.totalReserveFee = vars.wethBalance - amount;
