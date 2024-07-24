@@ -6,9 +6,6 @@ pragma solidity >=0.8.25;
 library Errors {
     // #region -----------------------------------=|+ GENERICS +|=----------------------------------- //
 
-    /// @notice Thrown when the account is missing a role.
-    error AccessControlUnauthorizedAccount(address account, bytes32 neededRole);
-
     /// @notice Thrown when the contract is paused.
     error EnforcedPause();
 
@@ -17,6 +14,22 @@ library Errors {
 
     /// @notice Thrown when the contract is already initialized.
     error InvalidInitialization();
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ------------------------------------=|+ ROLES +|=------------------------------------- //
+
+    /// @notice Thrown when the account is missing the admin role.
+    error OnlyAdminRole(address account);
+
+    /// @notice Thrown when the account is missing the asset manager role.
+    error OnlyAssetManagerRole(address account);
+
+    /// @notice Thrown when the account is missing the liquidity deployer role.
+    error OnlyLiquidityDeployerRole(address account);
+
+    /// @notice Thrown when the account is missing the rush creator role.
+    error OnlyRushCreatorRole(address account);
 
     // #endregion ----------------------------------------------------------------------------------- //
 

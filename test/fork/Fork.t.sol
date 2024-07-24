@@ -24,7 +24,7 @@ abstract contract Fork_Test is Base_Test {
         Base_Test.setUp();
 
         // Deploy the LiquidityPool.
-        liquidityPool = new LiquidityPool({ admin_: users.admin, asset_: address(weth) });
+        liquidityPool = new LiquidityPool({ aclManager_: address(aclManager), asset_: address(weth) });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
 
         // Deploy the core contracts.

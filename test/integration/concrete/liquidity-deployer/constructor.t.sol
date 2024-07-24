@@ -6,8 +6,8 @@ import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { Integration_Test } from "test/integration/Integration.t.sol";
 
 struct Vars {
-    bool actualHasRole;
-    bool expectedHasRole;
+    address actualACLManager;
+    address expectedACLManager;
     uint256 actualEarlyUnwindThreshold;
     uint256 expectedEarlyUnwindThreshold;
     address actualFeeCalculator;
@@ -34,13 +34,9 @@ contract Constructor_LiquidityDeployer_Integration_Concrete_Test is Integration_
         // Make Sender the caller in this test.
         resetPrank({ msgSender: users.sender });
 
-        // Expect the relevant event to be emitted.
-        vm.expectEmit();
-        emit RoleGranted({ role: DEFAULT_ADMIN_ROLE, account: users.admin, sender: users.sender });
-
         // Construct the contract.
         LiquidityDeployer constructedLiquidityDeployer = new LiquidityDeployer({
-            admin_: users.admin,
+            aclManager_: address(aclManager),
             earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
             feeCalculator_: address(feeCalculator),
             liquidityPool_: address(liquidityPool),
@@ -52,12 +48,11 @@ contract Constructor_LiquidityDeployer_Integration_Concrete_Test is Integration_
             reserveFactor_: defaults.RESERVE_FACTOR()
         });
 
-        // Assert that the admin has been initialized.
-        vars.actualHasRole = constructedLiquidityDeployer.hasRole({ role: DEFAULT_ADMIN_ROLE, account: users.admin });
-        vars.expectedHasRole = true;
-        assertEq(vars.actualHasRole, vars.expectedHasRole, "DEFAULT_ADMIN_ROLE");
-
         // Assert that the values were set correctly.
+        vars.actualACLManager = constructedLiquidityDeployer.ACL_MANAGER();
+        vars.expectedACLManager = address(aclManager);
+        assertEq(vars.actualACLManager, vars.expectedACLManager, "ACL_MANAGER");
+
         vars.actualEarlyUnwindThreshold = constructedLiquidityDeployer.EARLY_UNWIND_THRESHOLD();
         vars.expectedEarlyUnwindThreshold = defaults.EARLY_UNWIND_THRESHOLD();
         assertEq(vars.actualEarlyUnwindThreshold, vars.expectedEarlyUnwindThreshold, "EARLY_UNWIND_THRESHOLD");

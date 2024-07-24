@@ -10,16 +10,12 @@ contract Constructor_RushERC20Factory_Integration_Concrete_Test is Base_Test {
         // Make Sender the caller in this test.
         resetPrank({ msgSender: users.sender });
 
-        // Expect the relevant event to be emitted.
-        vm.expectEmit();
-        emit RoleGranted({ role: DEFAULT_ADMIN_ROLE, account: users.admin, sender: users.sender });
-
         // Construct the contract.
-        RushERC20Factory constructedRushERC20Factory = new RushERC20Factory({ admin_: users.admin });
+        RushERC20Factory constructedRushERC20Factory = new RushERC20Factory({ aclManager_: address(aclManager) });
 
-        // Assert that the admin has been initialized.
-        bool actualHasRole = constructedRushERC20Factory.hasRole({ role: DEFAULT_ADMIN_ROLE, account: users.admin });
-        bool expectedHasRole = true;
-        assertEq(actualHasRole, expectedHasRole, "DEFAULT_ADMIN_ROLE");
+        // Assert that the values were set correctly.
+        address actualACLManager = constructedRushERC20Factory.ACL_MANAGER();
+        address expectedACLManager = address(aclManager);
+        assertEq(actualACLManager, expectedACLManager, "ACL_MANAGER");
     }
 }

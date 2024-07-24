@@ -11,9 +11,7 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
 
         // Run the test.
         uint256 amount = defaults.LIQUIDITY_AMOUNT();
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, ASSET_MANAGER_ROLE)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyAssetManagerRole.selector, users.eve));
         liquidityPool.returnAsset({ from: users.recipient, amount: amount, data: "" });
     }
 

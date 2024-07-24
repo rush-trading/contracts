@@ -7,7 +7,7 @@ import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployRushERC20Factory is BaseScript {
-    function run(address admin) public virtual broadcast returns (IRushERC20Factory rushERC20Factory) {
-        rushERC20Factory = new RushERC20Factory({ admin_: admin });
+    function run(address aclManager) public virtual broadcast returns (IRushERC20Factory rushERC20Factory) {
+        rushERC20Factory = new RushERC20Factory({ aclManager_: aclManager });
     }
 }

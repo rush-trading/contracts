@@ -2,9 +2,9 @@
 pragma solidity >=0.8.25;
 
 import { ERC4626, IERC4626 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
-import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { ERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { ACLRoles } from "src/configuration/ACLRoles.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
 import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
@@ -14,15 +14,8 @@ import { Errors } from "src/libraries/Errors.sol";
  * @title LiquidityPool
  * @notice See the documentation in {ILiquidityPool}.
  */
-contract LiquidityPool is ILiquidityPool, ERC4626, AccessControl {
+contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
     using SafeERC20 for IERC20;
-
-    // #region --------------------------------=|+ ROLE CONSTANTS +|=-------------------------------- //
-
-    /// @inheritdoc ILiquidityPool
-    bytes32 public constant override ASSET_MANAGER_ROLE = keccak256("ASSET_MANAGER_ROLE");
-
-    // #endregion ----------------------------------------------------------------------------------- //
 
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
@@ -35,21 +28,20 @@ contract LiquidityPool is ILiquidityPool, ERC4626, AccessControl {
 
     /**
      * @dev Constructor
-     * @param admin_ The address to grant the admin role.
+     * @param aclManager_ The address of the ACLManager contract.
      * @param asset_ The address of the base asset.
      */
     constructor(
-        address admin_,
+        address aclManager_,
         address asset_
     )
+        ACLRoles(aclManager_)
         ERC4626(ERC20(asset_))
         ERC20(
             string(abi.encodePacked("Rush ", ERC20(asset_).name(), " Liquidity Pool")),
             string(abi.encodePacked("r", ERC20(asset_).symbol()))
         )
-    {
-        _grantRole({ role: DEFAULT_ADMIN_ROLE, account: admin_ });
-    }
+    { }
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -65,15 +57,7 @@ contract LiquidityPool is ILiquidityPool, ERC4626, AccessControl {
     // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc ILiquidityPool
-    function dispatchAsset(
-        address to,
-        uint256 amount,
-        bytes calldata data
-    )
-        external
-        override
-        onlyRole(ASSET_MANAGER_ROLE)
-    {
+    function dispatchAsset(address to, uint256 amount, bytes calldata data) external override onlyAssetManagerRole {
         // Checks: `to` must not be the zero address.
         if (to == address(0)) {
             revert Errors.LiquidityPool_ZeroAddress();
@@ -100,15 +84,7 @@ contract LiquidityPool is ILiquidityPool, ERC4626, AccessControl {
     }
 
     /// @inheritdoc ILiquidityPool
-    function returnAsset(
-        address from,
-        uint256 amount,
-        bytes calldata data
-    )
-        external
-        override
-        onlyRole(ASSET_MANAGER_ROLE)
-    {
+    function returnAsset(address from, uint256 amount, bytes calldata data) external override onlyAssetManagerRole {
         // Checks: `from` must not be the zero address.
         if (from == address(0)) {
             revert Errors.LiquidityPool_ZeroAddress();

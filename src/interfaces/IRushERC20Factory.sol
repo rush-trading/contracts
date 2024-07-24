@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25;
 
-import { IAccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { CloneTemplate } from "src/libraries/CloneTemplate.sol";
 
 /**
  * @title IRushERC20Factory
  * @notice A permissioned factory for deploying ERC20 tokens using predefined templates.
  */
-interface IRushERC20Factory is IAccessControl {
+interface IRushERC20Factory {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
@@ -38,12 +37,6 @@ interface IRushERC20Factory is IAccessControl {
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
-
-    /// @notice The liquidity deployer role.
-    function LIQUIDITY_DEPLOYER_ROLE() external view returns (bytes32);
-
-    /// @notice The rush creator role.
-    function RUSH_CREATOR_ROLE() external view returns (bytes32);
 
     /// @notice Retrieves the template entity.
     function getTemplate(bytes32 kind) external view returns (CloneTemplate.Data memory template);

@@ -12,7 +12,7 @@ abstract contract Integration_Test is Base_Test {
         Base_Test.setUp();
 
         // Deploy the LiquidityPool.
-        liquidityPool = new LiquidityPool({ admin_: users.admin, asset_: address(wethMock) });
+        liquidityPool = new LiquidityPool({ aclManager_: address(aclManager), asset_: address(wethMock) });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
 
         // Deploy the core contracts.

@@ -39,7 +39,7 @@ contract RushERC20Factory_Invariant_Test is Invariant_Test {
 
     /// @dev Deploys the contract.
     function deploy() internal {
-        rushERC20Factory = new RushERC20Factory({ admin_: users.admin });
+        rushERC20Factory = new RushERC20Factory({ aclManager_: address(aclManager) });
         vm.label({ account: address(rushERC20Factory), newLabel: "RushERC20Factory" });
         rushERC20FactoryStore = new RushERC20FactoryStore();
         vm.label({ account: address(rushERC20FactoryStore), newLabel: "RushERC20FactoryStore" });
@@ -54,7 +54,7 @@ contract RushERC20Factory_Invariant_Test is Invariant_Test {
     function grantRoles() internal {
         (, address caller,) = vm.readCallers();
         resetPrank(users.admin);
-        rushERC20Factory.grantRole({ role: DEFAULT_ADMIN_ROLE, account: address(rushERC20FactoryHandler) });
+        aclManager.addAdmin({ account: address(rushERC20FactoryHandler) });
         resetPrank(caller);
     }
 

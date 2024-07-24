@@ -38,7 +38,7 @@ contract LiquidityPool_Invariant_Test is Invariant_Test {
 
     /// @dev Deploys the contract.
     function deploy() internal {
-        liquidityPool = new LiquidityPool({ admin_: users.admin, asset_: address(wethMock) });
+        liquidityPool = new LiquidityPool({ aclManager_: address(aclManager), asset_: address(wethMock) });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
         liquidityPoolStore = new LiquidityPoolStore();
         vm.label({ account: address(liquidityPoolStore), newLabel: "LiquidityPoolStore" });
@@ -51,7 +51,7 @@ contract LiquidityPool_Invariant_Test is Invariant_Test {
     function grantRoles() internal {
         (, address caller,) = vm.readCallers();
         resetPrank(users.admin);
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityPoolHandler) });
+        aclManager.addAssetManager({ account: address(liquidityPoolHandler) });
         resetPrank(caller);
     }
 

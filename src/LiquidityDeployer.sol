@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25;
 
-import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
+import { ACLRoles } from "src/configuration/ACLRoles.sol";
 import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
 import { IWETH } from "src/external/IWETH.sol";
 import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
@@ -23,7 +23,7 @@ import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
  * @title LiquidityDeployer
  * @notice See the documentation in {ILiquidityDeployer}.
  */
-contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
+contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     using SafeCast for uint256;
     using SafeERC20 for IERC20;
 
@@ -61,13 +61,6 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region --------------------------------=|+ ROLE CONSTANTS +|=-------------------------------- //
-
-    /// @inheritdoc ILiquidityDeployer
-    bytes32 public constant override LIQUIDITY_DEPLOYER_ROLE = keccak256("LIQUIDITY_DEPLOYER_ROLE");
-
-    // #endregion ----------------------------------------------------------------------------------- //
-
     // #region -------------------------------=|+ INTERNAL STORAGE +|=------------------------------- //
 
     /// @dev A mapping of liquidity deployments.
@@ -79,7 +72,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
 
     /**
      * @dev Constructor
-     * @param admin_ The address to grant the admin role.
+     * @param aclManager_ The address of the ACLManager contract.
      * @param earlyUnwindThreshold_ The level of asset liquidity in pair at which early unwinding is allowed.
      * @param feeCalculator_ The address of the FeeCalculator contract.
      * @param liquidityPool_ The address of the LiquidityPool contract.
@@ -91,7 +84,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
      * @param reserveFactor_ The reserve factor for collected fees.
      */
     constructor(
-        address admin_,
+        address aclManager_,
         uint256 earlyUnwindThreshold_,
         address feeCalculator_,
         address liquidityPool_,
@@ -101,7 +94,9 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
         uint256 minDuration_,
         address reserve_,
         uint256 reserveFactor_
-    ) {
+    )
+        ACLRoles(aclManager_)
+    {
         EARLY_UNWIND_THRESHOLD = earlyUnwindThreshold_;
         FEE_CALCULATOR = feeCalculator_;
         LIQUIDITY_POOL = liquidityPool_;
@@ -112,7 +107,6 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
         RESERVE = reserve_;
         RESERVE_FACTOR = reserveFactor_;
         WETH = ILiquidityPool(liquidityPool_).asset();
-        _grantRole({ role: DEFAULT_ADMIN_ROLE, account: admin_ });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -139,7 +133,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
         external
         payable
         override
-        onlyRole(LIQUIDITY_DEPLOYER_ROLE)
+        onlyLiquidityDeployerRole
         whenNotPaused
     {
         LD.DeployLiquidityLocalVars memory vars;
@@ -247,7 +241,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
     }
 
     /// @inheritdoc ILiquidityDeployer
-    function pause() external override onlyRole(DEFAULT_ADMIN_ROLE) {
+    function pause() external override onlyAdminRole {
         _pause();
 
         // Emit an event.
@@ -255,7 +249,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
     }
 
     /// @inheritdoc ILiquidityDeployer
-    function unpause() external override onlyRole(DEFAULT_ADMIN_ROLE) {
+    function unpause() external override onlyAdminRole {
         _unpause();
 
         // Emit an event.
@@ -263,12 +257,7 @@ contract LiquidityDeployer is ILiquidityDeployer, AccessControl, Pausable {
     }
 
     /// @inheritdoc ILiquidityDeployer
-    function unwindLiquidityEMERGENCY(address[] calldata uniV2Pairs)
-        external
-        override
-        onlyRole(DEFAULT_ADMIN_ROLE)
-        whenPaused
-    {
+    function unwindLiquidityEMERGENCY(address[] calldata uniV2Pairs) external override onlyAdminRole whenPaused {
         for (uint256 i = 0; i < uniV2Pairs.length; i++) {
             address uniV2Pair = uniV2Pairs[i];
             LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];

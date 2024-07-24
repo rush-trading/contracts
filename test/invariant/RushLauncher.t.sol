@@ -63,11 +63,11 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         });
         vm.label({ account: address(feeCalculator), newLabel: "FeeCalculator" });
 
-        liquidityPool = new LiquidityPool({ admin_: users.admin, asset_: address(wethMock) });
+        liquidityPool = new LiquidityPool({ aclManager_: address(aclManager), asset_: address(wethMock) });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
 
         liquidityDeployer = new LiquidityDeployer({
-            admin_: users.admin,
+            aclManager_: address(aclManager),
             earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
             feeCalculator_: address(feeCalculator),
             liquidityPool_: address(liquidityPool),
@@ -80,7 +80,7 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         });
         vm.label({ account: address(liquidityDeployer), newLabel: "LiquidityDeployer" });
 
-        rushERC20Factory = new RushERC20Factory({ admin_: users.admin });
+        rushERC20Factory = new RushERC20Factory({ aclManager_: address(aclManager) });
         vm.label({ account: address(rushERC20Factory), newLabel: "RushERC20Factory" });
 
         uniswapV2Factory = IUniswapV2Factory(deployUniswapV2Factory(users.recipient));
@@ -108,9 +108,9 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
     function grantRoles() internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
-        rushERC20Factory.grantRole({ role: RUSH_CREATOR_ROLE, account: address(rushLauncher) });
-        liquidityDeployer.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: address(rushLauncher) });
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityDeployer) });
+        aclManager.addRushCreator({ account: address(rushLauncher) });
+        aclManager.addLiquidityDeployer({ account: address(rushLauncher) });
+        aclManager.addAssetManager({ account: address(liquidityDeployer) });
         resetPrank({ msgSender: caller });
     }
 

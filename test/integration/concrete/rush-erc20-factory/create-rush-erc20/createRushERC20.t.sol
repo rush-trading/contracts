@@ -13,9 +13,7 @@ contract CreateRushERC20_Integration_Concrete_Test is RushERC20Factory_Integrati
 
         // Run the test.
         bytes32 kind = defaults.TEMPLATE_KIND();
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, RUSH_CREATOR_ROLE)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyRushCreatorRole.selector, users.eve));
         rushERC20Factory.createRushERC20({ kind: kind, originator: users.sender });
     }
 

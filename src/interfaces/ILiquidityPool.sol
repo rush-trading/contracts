@@ -2,13 +2,12 @@
 pragma solidity >=0.8.25;
 
 import { IERC4626 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
-import { IAccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
  * @title ILiquidityPool
  * @notice A permissioned ERC4626-based liquidity pool contract.
  */
-interface ILiquidityPool is IERC4626, IAccessControl {
+interface ILiquidityPool is IERC4626 {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
@@ -30,9 +29,6 @@ interface ILiquidityPool is IERC4626, IAccessControl {
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
-
-    /// @notice The asset manager role.
-    function ASSET_MANAGER_ROLE() external view returns (bytes32);
 
     /// @notice The total amount of outstanding assets.
     function outstandingAssets() external view returns (uint256);
