@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25;
 
-import { IAccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
 import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
@@ -12,7 +11,7 @@ import { LD } from "src/types/DataTypes.sol";
  * @title ILiquidityDeployer
  * @notice A permissioned contract for deploying WETH-backed liquidity to Uniswap V2 pairs over a specified duration.
  */
-interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IAccessControl {
+interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
@@ -85,9 +84,6 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IA
 
     /// @notice The WETH contract address.
     function WETH() external view returns (address);
-
-    /// @notice The liquidity deployer role.
-    function LIQUIDITY_DEPLOYER_ROLE() external view returns (bytes32);
 
     /// @notice Retrieves the liquidity deployment entity.
     function getLiquidityDeployment(address uniV2Pair) external view returns (LD.LiquidityDeployment memory);

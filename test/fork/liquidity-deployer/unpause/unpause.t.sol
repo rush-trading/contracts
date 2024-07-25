@@ -10,9 +10,7 @@ contract Unpause_Fork_Test is LiquidityDeployer_Fork_Test {
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, DEFAULT_ADMIN_ROLE)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyAdminRole.selector, users.eve));
         liquidityDeployer.unpause();
     }
 

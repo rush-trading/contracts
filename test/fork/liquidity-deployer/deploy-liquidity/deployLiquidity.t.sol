@@ -15,9 +15,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         // Run the test.
         uint256 amount = defaults.LIQUIDITY_AMOUNT();
         uint256 duration = defaults.LIQUIDITY_DURATION();
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, LIQUIDITY_DEPLOYER_ROLE)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyLiquidityDeployerRole.selector, users.eve));
         liquidityDeployer.deployLiquidity({
             originator: users.sender,
             uniV2Pair: uniV2Pair,

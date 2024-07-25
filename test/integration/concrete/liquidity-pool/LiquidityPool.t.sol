@@ -48,8 +48,8 @@ contract LiquidityPool_Integration_Concrete_Test is Integration_Test {
     function grantRoles() internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(dispatchAssetCaller) });
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(returnAssetCaller) });
+        aclManager.addAssetManager({ account: address(dispatchAssetCaller) });
+        aclManager.addAssetManager({ account: address(returnAssetCaller) });
         resetPrank({ msgSender: caller });
     }
 

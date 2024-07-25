@@ -11,9 +11,7 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
 
         // Run the test.
         bytes32 kind = defaults.TEMPLATE_KIND();
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, DEFAULT_ADMIN_ROLE)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyAdminRole.selector, users.eve));
         rushERC20Factory.removeTemplate({ kind: kind });
     }
 

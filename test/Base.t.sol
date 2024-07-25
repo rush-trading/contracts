@@ -12,10 +12,12 @@ import { Events } from "./utils/Events.sol";
 import { Precompiles } from "./utils/Precompiles.sol";
 
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
+import { ACLManager } from "src/configuration/ACLManager.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
+import { IACLManager } from "src/interfaces/IACLManager.sol";
 import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
@@ -32,6 +34,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
 
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
 
+    IACLManager internal aclManager;
     Defaults internal defaults;
     IFeeCalculator internal feeCalculator;
     ILiquidityDeployer internal liquidityDeployer;
@@ -61,6 +64,10 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
             rushCreator: createUser("RushCreator"),
             sender: createUser("Sender")
         });
+
+        // Deploy the ACLManager.
+        aclManager = new ACLManager({ admin_: users.admin });
+        vm.label({ account: address(aclManager), newLabel: "ACLManager" });
 
         // Deploy the defaults contract.
         defaults = new Defaults();
@@ -102,7 +109,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
 
     /// @dev Deploys the core contracts.
     function deployCore() internal {
-        rushERC20Factory = new RushERC20Factory({ admin_: users.admin });
+        rushERC20Factory = new RushERC20Factory({ aclManager_: address(aclManager) });
         vm.label({ account: address(rushERC20Factory), newLabel: "RushERC20Factory" });
         feeCalculator = new FeeCalculator({
             baseFeeRate: defaults.BASE_FEE_RATE(),
@@ -112,7 +119,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         });
         vm.label({ account: address(feeCalculator), newLabel: "FeeCalculator" });
         liquidityDeployer = new LiquidityDeployer({
-            admin_: users.admin,
+            aclManager_: address(aclManager),
             earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
             feeCalculator_: address(feeCalculator),
             liquidityPool_: address(liquidityPool),
@@ -140,9 +147,9 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
     function grantRolesCore() internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
-        liquidityPool.grantRole({ role: ASSET_MANAGER_ROLE, account: address(liquidityDeployer) });
-        rushERC20Factory.grantRole({ role: RUSH_CREATOR_ROLE, account: users.rushCreator });
-        liquidityDeployer.grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: users.liquidityDeployer });
+        aclManager.addAssetManager({ account: address(liquidityDeployer) });
+        aclManager.addRushCreator({ account: users.rushCreator });
+        aclManager.addLiquidityDeployer({ account: users.liquidityDeployer });
         resetPrank({ msgSender: caller });
     }
 

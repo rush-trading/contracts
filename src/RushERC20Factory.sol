@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25;
 
-import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import { ACLRoles } from "src/abstracts/ACLRoles.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { CloneTemplate } from "src/libraries/CloneTemplate.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -13,19 +13,9 @@ import { Errors } from "src/libraries/Errors.sol";
  * @title RushERC20Factory
  * @notice See the documentation in {IRushERC20Factory}.
  */
-contract RushERC20Factory is IRushERC20Factory, AccessControl {
+contract RushERC20Factory is IRushERC20Factory, ACLRoles {
     using Address for address;
     using CloneTemplate for CloneTemplate.Data;
-
-    // #region --------------------------------=|+ ROLE CONSTANTS +|=-------------------------------- //
-
-    /// @notice The liquidity deployer role.
-    bytes32 public constant override LIQUIDITY_DEPLOYER_ROLE = keccak256("LIQUIDITY_DEPLOYER_ROLE");
-
-    /// @notice The rush creator role.
-    bytes32 public constant override RUSH_CREATOR_ROLE = keccak256("RUSH_CREATOR_ROLE");
-
-    // #endregion ----------------------------------------------------------------------------------- //
 
     // #region -------------------------------=|+ INTERNAL STORAGE +|=------------------------------- //
 
@@ -38,12 +28,9 @@ contract RushERC20Factory is IRushERC20Factory, AccessControl {
 
     /**
      * @dev Constructor
-     *
-     * @param admin_ The address to grant the admin role.
+     * @param aclManager_ The address of the ACLManager contract.
      */
-    constructor(address admin_) {
-        _grantRole({ role: DEFAULT_ADMIN_ROLE, account: admin_ });
-    }
+    constructor(address aclManager_) ACLRoles(aclManager_) { }
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -59,7 +46,7 @@ contract RushERC20Factory is IRushERC20Factory, AccessControl {
     // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc IRushERC20Factory
-    function addTemplate(address implementation) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function addTemplate(address implementation) external onlyAdminRole {
         // Checks: Implementation must support the required interface.
         if (!IERC165(implementation).supportsInterface(type(IRushERC20).interfaceId)) {
             revert Errors.RushERC20Factory_InvalidInterfaceId();
@@ -79,7 +66,7 @@ contract RushERC20Factory is IRushERC20Factory, AccessControl {
         address originator
     )
         external
-        onlyRole(RUSH_CREATOR_ROLE)
+        onlyRushCreatorRole
         returns (address rushERC20)
     {
         // Effects: Create a new token using the implementation.
@@ -95,7 +82,7 @@ contract RushERC20Factory is IRushERC20Factory, AccessControl {
     }
 
     /// @inheritdoc IRushERC20Factory
-    function removeTemplate(bytes32 kind) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function removeTemplate(bytes32 kind) external onlyAdminRole {
         // Checks: The given kind must be registered in the factory.
         address implementation = _templates[kind].implementation;
         if (implementation == address(0)) {

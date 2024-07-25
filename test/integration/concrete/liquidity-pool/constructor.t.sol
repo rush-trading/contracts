@@ -10,19 +10,15 @@ contract Constructor_LiquidityPool_Integration_Concrete_Test is Base_Test {
         // Make Sender the caller in this test.
         resetPrank({ msgSender: users.sender });
 
-        // Expect the relevant event to be emitted.
-        vm.expectEmit();
-        emit RoleGranted({ role: DEFAULT_ADMIN_ROLE, account: users.admin, sender: users.sender });
-
         // Construct the contract.
-        LiquidityPool constructedLiquidityPool = new LiquidityPool({ admin_: users.admin, asset_: address(wethMock) });
-
-        // Assert that the admin has been initialized.
-        bool actualHasRole = constructedLiquidityPool.hasRole({ role: DEFAULT_ADMIN_ROLE, account: users.admin });
-        bool expectedHasRole = true;
-        assertEq(actualHasRole, expectedHasRole, "DEFAULT_ADMIN_ROLE");
+        LiquidityPool constructedLiquidityPool =
+            new LiquidityPool({ aclManager_: address(aclManager), asset_: address(wethMock) });
 
         // Assert that the values were set correctly.
+        address actualACLManager = constructedLiquidityPool.ACL_MANAGER();
+        address expectedACLManager = address(aclManager);
+        assertEq(actualACLManager, expectedACLManager, "ACL_MANAGER");
+
         string memory actualName = constructedLiquidityPool.name();
         string memory expectedName = string("Rush Wrapped Ether Liquidity Pool");
         assertEq(actualName, expectedName, "name");

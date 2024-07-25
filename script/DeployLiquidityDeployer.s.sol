@@ -8,7 +8,7 @@ import { BaseScript } from "./Base.s.sol";
 
 contract DeployLiquidityDeployer is BaseScript {
     function run(
-        address admin,
+        address aclManager,
         uint256 earlyUnwindThreshold,
         address feeCalculator,
         address liquidityPool,
@@ -25,7 +25,7 @@ contract DeployLiquidityDeployer is BaseScript {
         returns (ILiquidityDeployer liquidityDeployer)
     {
         liquidityDeployer = new LiquidityDeployer({
-            admin_: admin,
+            aclManager_: aclManager,
             earlyUnwindThreshold_: earlyUnwindThreshold,
             feeCalculator_: feeCalculator,
             liquidityPool_: liquidityPool,

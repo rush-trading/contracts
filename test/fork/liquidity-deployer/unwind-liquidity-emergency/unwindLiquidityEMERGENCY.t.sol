@@ -13,9 +13,7 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployer_Fork_Test {
         // Run the test.
         address[] memory uniV2Pairs = new address[](1);
         uniV2Pairs[0] = uniV2Pair;
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, DEFAULT_ADMIN_ROLE)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyAdminRole.selector, users.eve));
         liquidityDeployer.unwindLiquidityEMERGENCY({ uniV2Pairs: uniV2Pairs });
     }
 

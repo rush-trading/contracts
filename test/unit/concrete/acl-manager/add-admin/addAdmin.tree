@@ -1,0 +1,9 @@
+addAdmin.t.sol
+├── when caller does not have admin role
+│   └── it should revert
+└── when caller has admin role
+    ├── when account already has admin role
+    │   └── it should do nothing
+    └── when account does not have admin role
+        ├── it should grant admin role to account
+        └── it should emit {RoleGranted} event

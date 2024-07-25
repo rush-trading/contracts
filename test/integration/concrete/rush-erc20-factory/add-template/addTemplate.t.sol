@@ -10,9 +10,7 @@ contract AddTemplate_Integration_Concrete_Test is RushERC20Factory_Integration_C
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, DEFAULT_ADMIN_ROLE)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyAdminRole.selector, users.eve));
         rushERC20Factory.addTemplate({ implementation: address(goodRushERC20Mock) });
     }
 
