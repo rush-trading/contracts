@@ -4,7 +4,7 @@ pragma solidity >=0.8.25;
 import { ERC4626, IERC4626 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 import { ERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { ACLRoles } from "src/configuration/ACLRoles.sol";
+import { ACLRoles } from "src/abstracts/ACLRoles.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
 import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
