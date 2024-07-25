@@ -31,8 +31,18 @@ contract CalculateFee_Unit_Concrete_Test is FeeCalculator_Unit_Shared_Test {
             })
         );
 
-        uint256 expectedTotalFee = 83_312_499_995_352_000_000_000;
-        uint256 expectedReserveFee = 8_331_249_999_535_200_000_000;
+        (uint256 expectedTotalFee, uint256 expectedReserveFee) = calculateFee({
+            duration: duration,
+            feeRate: calculateFeeRate({
+                baseFeeRate: defaults.BASE_FEE_RATE(),
+                rateSlope1: defaults.RATE_SLOPE1(),
+                rateSlope2: defaults.RATE_SLOPE2(),
+                utilizationRatio: utilizationRatio,
+                optimalUtilizationRatio: defaults.OPTIMAL_UTILIZATION_RATIO()
+            }),
+            newLiquidity: newLiquidity,
+            reserveFactor: defaults.RESERVE_FACTOR()
+        });
         assertEq(actualTotalFee, expectedTotalFee);
         assertEq(actualReserveFee, expectedReserveFee);
     }
@@ -56,8 +66,18 @@ contract CalculateFee_Unit_Concrete_Test is FeeCalculator_Unit_Shared_Test {
             })
         );
 
-        uint256 expectedTotalFee = 5_007_499_999_725_600_000_000;
-        uint256 expectedReserveFee = 500_749_999_972_560_000_000;
+        (uint256 expectedTotalFee, uint256 expectedReserveFee) = calculateFee({
+            duration: duration,
+            feeRate: calculateFeeRate({
+                baseFeeRate: defaults.BASE_FEE_RATE(),
+                rateSlope1: defaults.RATE_SLOPE1(),
+                rateSlope2: defaults.RATE_SLOPE2(),
+                utilizationRatio: utilizationRatio,
+                optimalUtilizationRatio: defaults.OPTIMAL_UTILIZATION_RATIO()
+            }),
+            newLiquidity: newLiquidity,
+            reserveFactor: defaults.RESERVE_FACTOR()
+        });
         assertEq(actualTotalFee, expectedTotalFee);
         assertEq(actualReserveFee, expectedReserveFee);
     }
