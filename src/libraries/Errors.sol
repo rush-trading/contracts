@@ -6,6 +6,9 @@ pragma solidity >=0.8.25;
 library Errors {
     // #region -----------------------------------=|+ GENERICS +|=----------------------------------- //
 
+    /// @notice Thrown when the account is missing a role.
+    error AccessControlUnauthorizedAccount(address account, bytes32 neededRole);
+
     /// @notice Thrown when the contract is paused.
     error EnforcedPause();
 

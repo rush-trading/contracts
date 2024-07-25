@@ -7,6 +7,8 @@ abstract contract Events {
 
     event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
 
+    event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ----------------------------------=|+ RUSH-ERC20 +|=---------------------------------- //

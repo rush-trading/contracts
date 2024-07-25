@@ -1,0 +1,9 @@
+addRushCreator.t.sol
+├── when caller does not have admin role
+│   └── it should revert
+└── when caller has admin role
+    ├── when account already has rush creator role
+    │   └── it should do nothing
+    └── when account does not have rush creator role
+        ├── it should grant rush creator role to account
+        └── it should emit {RoleGranted} event
