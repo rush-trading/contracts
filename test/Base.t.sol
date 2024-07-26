@@ -12,7 +12,7 @@ import { Events } from "./utils/Events.sol";
 import { Precompiles } from "./utils/Precompiles.sol";
 
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
-import { ACLManager } from "src/configuration/ACLManager.sol";
+import { ACLManager } from "src/ACLManager.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";

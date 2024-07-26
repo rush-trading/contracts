@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25 <0.9.0;
 
-import { ACLManager } from "src/configuration/ACLManager.sol";
+import { ACLManager } from "src/ACLManager.sol";
 import { IACLManager } from "src/interfaces/IACLManager.sol";
 
 import { Base_Test } from "test/Base.t.sol";

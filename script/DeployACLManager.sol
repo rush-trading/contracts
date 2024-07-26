@@ -2,7 +2,7 @@
 pragma solidity >=0.8.25 <0.9.0;
 
 import { IACLManager } from "src/interfaces/IACLManager.sol";
-import { ACLManager } from "src/configuration/ACLManager.sol";
+import { ACLManager } from "src/ACLManager.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
