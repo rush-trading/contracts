@@ -2,17 +2,18 @@
 pragma solidity >=0.8.25;
 
 import { IACLManager } from "src/interfaces/IACLManager.sol";
+import { IACLRoles } from "src/interfaces/IACLRoles.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 /**
  * @title ACLRoles
- * @notice Enforces ACL roles for any inheriting contract.
+ * @notice See the documentation in {IACLRoles}.
  */
-abstract contract ACLRoles {
+abstract contract ACLRoles is IACLRoles {
     // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
 
-    /// @notice The address of the ACLManager contract.
-    address public immutable ACL_MANAGER;
+    /// @inheritdoc IACLRoles
+    address public immutable override ACL_MANAGER;
 
     // #endregion ----------------------------------------------------------------------------------- //
 

@@ -87,7 +87,6 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         vm.label({ account: address(uniswapV2Factory), newLabel: "UniswapV2Factory" });
 
         rushLauncher = new RushLauncher({
-            baseAsset_: address(wethMock),
             liquidityDeployer_: address(liquidityDeployer),
             maxSupplyLimit_: defaults.MAX_RUSH_ERC20_SUPPLY(),
             minSupplyLimit_: defaults.MIN_RUSH_ERC20_SUPPLY(),

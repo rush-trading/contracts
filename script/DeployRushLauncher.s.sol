@@ -8,7 +8,6 @@ import { BaseScript } from "./Base.s.sol";
 
 contract DeployRushLauncher is BaseScript {
     function run(
-        address baseAsset,
         address liquidityDeployer,
         uint256 maxSupplyLimit,
         uint256 minSupplyLimit,
@@ -21,7 +20,6 @@ contract DeployRushLauncher is BaseScript {
         returns (IRushLauncher rushLauncher)
     {
         rushLauncher = new RushLauncher({
-            baseAsset_: baseAsset,
             liquidityDeployer_: liquidityDeployer,
             maxSupplyLimit_: maxSupplyLimit,
             minSupplyLimit_: minSupplyLimit,

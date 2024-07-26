@@ -32,9 +32,6 @@ interface IRushLauncher {
 
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
-    /// @notice The address of the base asset for liquidity deployment.
-    function BASE_ASSET() external view returns (address);
-
     /// @notice The address of the LiquidityDeployer.
     function LIQUIDITY_DEPLOYER() external view returns (address);
 
@@ -49,6 +46,10 @@ interface IRushLauncher {
 
     /// @notice The address of the Uniswap V2 factory.
     function UNISWAP_V2_FACTORY() external view returns (address);
+
+    /// @notice The WETH contract address.
+    /// @dev WETH is used as the base asset for liquidity deployment.
+    function WETH() external view returns (address);
 
     // #endregion ----------------------------------------------------------------------------------- //
 

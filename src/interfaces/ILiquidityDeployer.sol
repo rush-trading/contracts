@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25;
 
+import { IACLRoles } from "src/interfaces/IACLRoles.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
 import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
 import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
@@ -11,7 +12,7 @@ import { LD } from "src/types/DataTypes.sol";
  * @title ILiquidityDeployer
  * @notice A permissioned contract for deploying WETH-backed liquidity to Uniswap V2 pairs over a specified duration.
  */
-interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
+interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IACLRoles {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
@@ -83,6 +84,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback {
     function RESERVE_FACTOR() external view returns (uint256);
 
     /// @notice The WETH contract address.
+    /// @dev WETH is used as the base asset for liquidity deployment.
     function WETH() external view returns (address);
 
     /// @notice Retrieves the liquidity deployment entity.

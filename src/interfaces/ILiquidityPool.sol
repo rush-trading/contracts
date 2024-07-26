@@ -2,12 +2,13 @@
 pragma solidity >=0.8.25;
 
 import { IERC4626 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
+import { IACLRoles } from "src/interfaces/IACLRoles.sol";
 
 /**
  * @title ILiquidityPool
  * @notice A permissioned ERC4626-based liquidity pool contract.
  */
-interface ILiquidityPool is IERC4626 {
+interface ILiquidityPool is IERC4626, IACLRoles {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**

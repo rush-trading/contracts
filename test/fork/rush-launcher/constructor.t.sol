@@ -12,7 +12,6 @@ contract Constructor_RushLauncher_Fork_Test is Fork_Test {
 
         // Construct the contract.
         RushLauncher constructedRushLauncher = new RushLauncher({
-            baseAsset_: address(weth),
             liquidityDeployer_: address(liquidityDeployer),
             maxSupplyLimit_: defaults.MAX_RUSH_ERC20_SUPPLY(),
             minSupplyLimit_: defaults.MIN_RUSH_ERC20_SUPPLY(),
@@ -21,10 +20,6 @@ contract Constructor_RushLauncher_Fork_Test is Fork_Test {
         });
 
         // Assert that the values were set correctly.
-        address actualBaseAsset = constructedRushLauncher.BASE_ASSET();
-        address expectedBaseAsset = address(weth);
-        assertEq(actualBaseAsset, expectedBaseAsset, "BASE_ASSET");
-
         address actualERC20Factory = address(constructedRushLauncher.RUSH_ERC20_FACTORY());
         address expectedERC20Factory = address(rushERC20Factory);
         assertEq(address(actualERC20Factory), address(expectedERC20Factory), "ERC20_FACTORY");

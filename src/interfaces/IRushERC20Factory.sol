@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.25;
 
+import { IACLRoles } from "src/interfaces/IACLRoles.sol";
 import { CloneTemplate } from "src/libraries/CloneTemplate.sol";
 
 /**
  * @title IRushERC20Factory
  * @notice A permissioned factory for deploying ERC20 tokens using predefined templates.
  */
-interface IRushERC20Factory {
+interface IRushERC20Factory is IACLRoles {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
