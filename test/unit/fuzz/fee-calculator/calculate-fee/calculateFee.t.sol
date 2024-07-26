@@ -22,9 +22,9 @@ contract CalculateFee_Unit_Fuzz_Test is FeeCalculator_Unit_Shared_Test {
         external
         view
     {
-        duration = bound(duration, 0, defaults.MAX_LIQUIDITY_DURATION());
+        duration = bound(duration, defaults.MIN_LIQUIDITY_DURATION(), defaults.MAX_LIQUIDITY_DURATION());
         utilizationRatio = bound(utilizationRatio, feeCalculator.OPTIMAL_UTILIZATION_RATIO() + 1, 1e18);
-        totalLiquidity = bound(totalLiquidity, defaults.MIN_LIQUIDITY_AMOUNT(), defaults.MAX_LIQUIDITY_AMOUNT());
+        totalLiquidity = bound(totalLiquidity, defaults.MIN_TOTAL_LIQUIDITY(), defaults.MAX_TOTAL_LIQUIDITY());
 
         // Calculate new outstanding liquidity (after adding new liquidity).
         uint256 outstandingPlusNewLiquidity = (ud(utilizationRatio) * ud(totalLiquidity)).intoUint256();
@@ -78,9 +78,9 @@ contract CalculateFee_Unit_Fuzz_Test is FeeCalculator_Unit_Shared_Test {
         external
         view
     {
-        duration = bound(duration, 0, defaults.MAX_LIQUIDITY_DURATION());
+        duration = bound(duration, defaults.MIN_LIQUIDITY_DURATION(), defaults.MAX_LIQUIDITY_DURATION());
         utilizationRatio = bound(utilizationRatio, 0, feeCalculator.OPTIMAL_UTILIZATION_RATIO());
-        totalLiquidity = bound(totalLiquidity, defaults.MIN_LIQUIDITY_AMOUNT(), defaults.MAX_LIQUIDITY_AMOUNT());
+        totalLiquidity = bound(totalLiquidity, defaults.MIN_TOTAL_LIQUIDITY(), defaults.MAX_TOTAL_LIQUIDITY());
 
         // Calculate new outstanding liquidity (after adding new liquidity).
         uint256 outstandingPlusNewLiquidity = (ud(utilizationRatio) * ud(totalLiquidity)).intoUint256();

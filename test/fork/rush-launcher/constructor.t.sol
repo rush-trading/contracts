@@ -14,8 +14,8 @@ contract Constructor_RushLauncher_Fork_Test is Fork_Test {
         RushLauncher constructedRushLauncher = new RushLauncher({
             baseAsset_: address(weth),
             liquidityDeployer_: address(liquidityDeployer),
-            maxSupplyLimit_: defaults.RUSH_ERC20_MAX_SUPPLY(),
-            minSupplyLimit_: defaults.RUSH_ERC20_MIN_SUPPLY(),
+            maxSupplyLimit_: defaults.MAX_RUSH_ERC20_SUPPLY(),
+            minSupplyLimit_: defaults.MIN_RUSH_ERC20_SUPPLY(),
             rushERC20Factory_: address(rushERC20Factory),
             uniswapV2Factory_: address(uniswapV2Factory)
         });
@@ -34,11 +34,11 @@ contract Constructor_RushLauncher_Fork_Test is Fork_Test {
         assertEq(actualLiquidityDeployer, expectedLiquidityDeployer, "LIQUIDITY_DEPLOYER");
 
         uint256 actualMaxSupplyLimit = constructedRushLauncher.MAX_SUPPLY_LIMIT();
-        uint256 expectedMaxSupplyLimit = defaults.RUSH_ERC20_MAX_SUPPLY();
+        uint256 expectedMaxSupplyLimit = defaults.MAX_RUSH_ERC20_SUPPLY();
         assertEq(actualMaxSupplyLimit, expectedMaxSupplyLimit, "MAX_SUPPLY_LIMIT");
 
         uint256 actualMinSupplyLimit = constructedRushLauncher.MIN_SUPPLY_LIMIT();
-        uint256 expectedMinSupplyLimit = defaults.RUSH_ERC20_MIN_SUPPLY();
+        uint256 expectedMinSupplyLimit = defaults.MIN_RUSH_ERC20_SUPPLY();
         assertEq(actualMinSupplyLimit, expectedMinSupplyLimit, "MIN_SUPPLY_LIMIT");
 
         address actualUniswapV2Factory = constructedRushLauncher.UNISWAP_V2_FACTORY();

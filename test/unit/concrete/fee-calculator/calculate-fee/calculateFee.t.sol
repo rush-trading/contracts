@@ -13,10 +13,10 @@ contract CalculateFee_Unit_Concrete_Test is FeeCalculator_Unit_Shared_Test {
     }
 
     function test_GivenUtilizationIsGreaterThanOptimalUtilization() external view {
-        uint256 duration = 31_536_000; // 1 year
-        uint256 newLiquidity = 50_000e18; // 50K tokens
-        uint256 outstandingLiquidity = 900_000e18; // 900K tokens
-        uint256 totalLiquidity = 1_000_000e18; // 1M tokens
+        uint256 duration = 1 hours; // 1 hour
+        uint256 newLiquidity = 0.1 ether; // 0.1 WETH
+        uint256 outstandingLiquidity = 98.9 ether; // 98.9 WETH
+        uint256 totalLiquidity = 100 ether; // 100 WETH
 
         uint256 utilizationRatio = (ud(outstandingLiquidity + newLiquidity) / ud(totalLiquidity)).intoUint256();
         assertGt(utilizationRatio, defaults.OPTIMAL_UTILIZATION_RATIO(), "utilizationRatio");
@@ -48,10 +48,10 @@ contract CalculateFee_Unit_Concrete_Test is FeeCalculator_Unit_Shared_Test {
     }
 
     function test_GivenUtilizationIsLessThanOrEqOptimalUtilization() external view {
-        uint256 duration = 31_536_000; // 1 year
-        uint256 newLiquidity = 5000e18; // 5K tokens
-        uint256 outstandingLiquidity = 85_000e18; // 85K tokens
-        uint256 totalLiquidity = 1_000_000e18; // 1M tokens
+        uint256 duration = 1 hours; // 1 hour
+        uint256 newLiquidity = 0.1 ether; // 0.1 WETH
+        uint256 outstandingLiquidity = 4.9 ether; // 4.9 WETH
+        uint256 totalLiquidity = 100 ether; // 100 WETH
 
         uint256 utilizationRatio = (ud(outstandingLiquidity + newLiquidity) / ud(totalLiquidity)).intoUint256();
         assertLt(utilizationRatio, defaults.OPTIMAL_UTILIZATION_RATIO(), "utilizationRatio");

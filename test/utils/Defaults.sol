@@ -15,10 +15,14 @@ contract Defaults {
     uint256 public constant FEE_RATE_U_100 = FEE_RATE_U_OPT + RATE_SLOPE2; // U is 100%
     uint256 public constant LIQUIDITY_AMOUNT = 2.75 ether; // 2.75 WETH
     uint256 public constant LIQUIDITY_DURATION = 3 hours;
-    uint256 public constant MAX_LIQUIDITY_AMOUNT = 1000 ether; // 1000 WETH
-    uint256 public constant MAX_LIQUIDITY_DURATION = 1 days;
-    uint256 public constant MIN_LIQUIDITY_AMOUNT = 1 ether; // 1 WETH
-    uint256 public constant MIN_LIQUIDITY_DURATION = 30 minutes;
+    uint256 public constant MAX_LIQUIDITY_AMOUNT = 100_000 ether; // 100k WETH
+    uint256 public constant MAX_LIQUIDITY_DURATION = 365 days; // 1 year
+    uint256 public constant MAX_RUSH_ERC20_SUPPLY = 1_000_000_000_000_000e18; // 1q tokens
+    uint256 public constant MAX_TOTAL_LIQUIDITY = 1_000_000_000 ether; // 1b WETH
+    uint256 public constant MIN_LIQUIDITY_AMOUNT = 0.00001 ether; // 0.00001 WETH
+    uint256 public constant MIN_LIQUIDITY_DURATION = 1 seconds; // 1 seconds
+    uint256 public constant MIN_TOTAL_LIQUIDITY = 1 ether; // 1 WETH
+    uint256 public constant MIN_RUSH_ERC20_SUPPLY = 1e18; // 1 token
     uint256 public constant OPTIMAL_UTILIZATION_RATIO = 0.6e18; // 60%
     uint256 public constant RATE_SLOPE1 = 317_097_919; // ~1% annual
     uint256 public constant RATE_SLOPE2 = 23_782_343_987; // ~75% annual
@@ -27,8 +31,6 @@ contract Defaults {
     uint256 public immutable TEMPLATE_VERSION;
     string public constant RUSH_ERC20_NAME = "GoodRush";
     string public constant RUSH_ERC20_SYMBOL = "GR";
-    uint256 public constant RUSH_ERC20_MAX_SUPPLY = 100_000_000_000e18; // 100B tokens
-    uint256 public constant RUSH_ERC20_MIN_SUPPLY = 100_000e18; // 100k tokens
     bytes4 public constant UNKNOWN_INTERFACE_ID = 0xdeadbeef;
 
     // #endregion ----------------------------------------------------------------------------------- //

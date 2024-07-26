@@ -9,7 +9,7 @@ contract Initialize_Integration_Concrete_Test is RushERC20Basic_Integration_Shar
         // Initialize the contract.
         string memory name = defaults.RUSH_ERC20_NAME();
         string memory symbol = defaults.RUSH_ERC20_SYMBOL();
-        uint256 maxSupply = defaults.RUSH_ERC20_MAX_SUPPLY();
+        uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
         rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: users.recipient, data: "" });
 
         // Run the test.
@@ -22,7 +22,7 @@ contract Initialize_Integration_Concrete_Test is RushERC20Basic_Integration_Shar
         vm.expectEmit({ emitter: address(rushERC20) });
         string memory name = defaults.RUSH_ERC20_NAME();
         string memory symbol = defaults.RUSH_ERC20_SYMBOL();
-        uint256 maxSupply = defaults.RUSH_ERC20_MAX_SUPPLY();
+        uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
         address recipient = users.recipient;
         emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: "" });
 

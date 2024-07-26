@@ -66,7 +66,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             originator_: users.sender,
             uniV2Pair_: uniV2Pair,
             rushERC20_: rushERC20Mock,
-            rushERC20Amount_: defaults.RUSH_ERC20_MAX_SUPPLY(),
+            rushERC20Amount_: defaults.MAX_RUSH_ERC20_SUPPLY(),
             wethAmount_: amount,
             duration_: duration,
             feeAmount_: feeAmount
@@ -124,7 +124,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenTotalSupplyOfRushERC20IsNotZero
     {
         // Mint total supply of RushERC20 to a non-pair address.
-        GoodRushERC20Mock(rushERC20Mock).mint({ account: users.recipient, amount: defaults.RUSH_ERC20_MAX_SUPPLY() });
+        GoodRushERC20Mock(rushERC20Mock).mint({ account: users.recipient, amount: defaults.MAX_RUSH_ERC20_SUPPLY() });
 
         // Run the test.
         uint256 amount = defaults.LIQUIDITY_AMOUNT();
@@ -135,7 +135,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
                 rushERC20Mock,
                 uniV2Pair,
                 0,
-                defaults.RUSH_ERC20_MAX_SUPPLY()
+                defaults.MAX_RUSH_ERC20_SUPPLY()
             )
         );
         liquidityDeployer.deployLiquidity({
@@ -148,7 +148,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
     }
 
     modifier givenPairHoldsEntireSupplyOfRushERC20() {
-        GoodRushERC20Mock(rushERC20Mock).mint({ account: uniV2Pair, amount: defaults.RUSH_ERC20_MAX_SUPPLY() });
+        GoodRushERC20Mock(rushERC20Mock).mint({ account: uniV2Pair, amount: defaults.MAX_RUSH_ERC20_SUPPLY() });
         _;
     }
 
@@ -484,7 +484,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vars.expectedRushERC20Amount = calculateExactAmountOut({
             amountIn: vars.feeExcessAmount,
             reserveIn: defaults.LIQUIDITY_AMOUNT() + vars.reserveFee,
-            reserveOut: defaults.RUSH_ERC20_MAX_SUPPLY()
+            reserveOut: defaults.MAX_RUSH_ERC20_SUPPLY()
         });
         assertEq(
             vars.rushERC20BalanceOfSenderAfter - vars.rushERC20BalanceOfSenderBefore,

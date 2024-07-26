@@ -89,8 +89,8 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         rushLauncher = new RushLauncher({
             baseAsset_: address(wethMock),
             liquidityDeployer_: address(liquidityDeployer),
-            maxSupplyLimit_: defaults.RUSH_ERC20_MAX_SUPPLY(),
-            minSupplyLimit_: defaults.RUSH_ERC20_MIN_SUPPLY(),
+            maxSupplyLimit_: defaults.MAX_RUSH_ERC20_SUPPLY(),
+            minSupplyLimit_: defaults.MIN_RUSH_ERC20_SUPPLY(),
             rushERC20Factory_: address(rushERC20Factory),
             uniswapV2Factory_: address(uniswapV2Factory)
         });

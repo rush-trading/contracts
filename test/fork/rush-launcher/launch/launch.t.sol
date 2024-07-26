@@ -23,7 +23,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
 
     function test_RevertWhen_TokenMaxSupplyIsLessThanMinimumLimit() external {
         // Run the test.
-        uint256 maxSupply = defaults.RUSH_ERC20_MIN_SUPPLY() - 1;
+        uint256 maxSupply = defaults.MIN_RUSH_ERC20_SUPPLY() - 1;
         uint256 liquidityAmount = defaults.LIQUIDITY_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
         string memory description = rushERC20.description();
@@ -50,7 +50,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         whenTokenMaxSupplyIsNotLessThanMinimumLimit
     {
         // Run the test.
-        uint256 maxSupply = defaults.RUSH_ERC20_MAX_SUPPLY() + 1;
+        uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY() + 1;
         uint256 liquidityAmount = defaults.LIQUIDITY_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
         string memory description = rushERC20.description();
@@ -72,7 +72,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         external
         whenTokenMaxSupplyIsNotLessThanMinimumLimit
     {
-        uint256 maxSupply = defaults.RUSH_ERC20_MAX_SUPPLY();
+        uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
         uint256 liquidityAmount = defaults.LIQUIDITY_AMOUNT();
         uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
         string memory description = rushERC20.description();
