@@ -40,8 +40,7 @@ contract RushLauncher_Test is Fork_Test {
     function grantRoles() internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
-        aclManager.addRushCreator({ account: address(rushLauncher) });
-        aclManager.addLiquidityDeployer({ account: address(rushLauncher) });
+        aclManager.addLauncher({ account: address(rushLauncher) });
         resetPrank({ msgSender: caller });
     }
 

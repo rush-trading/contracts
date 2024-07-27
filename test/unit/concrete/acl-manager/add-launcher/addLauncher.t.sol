@@ -12,7 +12,7 @@ contract AddLiquidityDeployer_Unit_Concrete_Test is ACLManager_Unit_Concrete_Tes
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.AccessControlUnauthorizedAccount.selector, users.eve, ADMIN_ROLE));
-        aclManager.addLiquidityDeployer(users.eve);
+        aclManager.addLauncher(users.eve);
     }
 
     modifier whenCallerHasAdminRole() {
@@ -21,33 +21,33 @@ contract AddLiquidityDeployer_Unit_Concrete_Test is ACLManager_Unit_Concrete_Tes
         _;
     }
 
-    function test_WhenAccountAlreadyHasLiquidityDeployerRole() external whenCallerHasAdminRole {
-        // Grant liquidity deployer role to account.
-        aclManager.addLiquidityDeployer(users.eve);
+    function test_WhenAccountAlreadyHasLauncherRole() external whenCallerHasAdminRole {
+        // Grant launcher role to account.
+        aclManager.addLauncher(users.eve);
 
         // Do nothing.
         vm.recordLogs();
-        aclManager.addLiquidityDeployer(users.eve);
+        aclManager.addLauncher(users.eve);
 
         // Expect no events to be emitted.
         Vm.Log[] memory entries = vm.getRecordedLogs();
         assertEq(entries.length, 0);
     }
 
-    function test_WhenAccountDoesNotHaveLiquidityDeployerRole() external whenCallerHasAdminRole {
+    function test_WhenAccountDoesNotHaveLauncherRole() external whenCallerHasAdminRole {
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(aclManager) });
-        emit RoleGranted({ role: LIQUIDITY_DEPLOYER_ROLE, account: users.eve, sender: users.admin });
+        emit RoleGranted({ role: LAUNCHER_ROLE, account: users.eve, sender: users.admin });
 
-        // Assert the account's liquidity deployer status before.
-        bool expectedIsLiquidityDeployerBefore = aclManager.isLiquidityDeployer(users.eve);
-        assertFalse(expectedIsLiquidityDeployerBefore, "isLiquidityDeployerBefore");
+        // Assert the account's launcher status before.
+        bool expectedIsLauncherBefore = aclManager.isLauncher(users.eve);
+        assertFalse(expectedIsLauncherBefore, "isLauncherBefore");
 
-        // Grant liquidity deployer role to account.
-        aclManager.addLiquidityDeployer(users.eve);
+        // Grant launcher role to account.
+        aclManager.addLauncher(users.eve);
 
-        // Assert the account's liquidity deployer status after.
-        bool expectedIsLiquidityDeployerAfter = aclManager.isLiquidityDeployer(users.eve);
-        assertTrue(expectedIsLiquidityDeployerAfter, "isLiquidityDeployerAfter");
+        // Assert the account's launcher status after.
+        bool expectedIsLauncherAfter = aclManager.isLauncher(users.eve);
+        assertTrue(expectedIsLauncherAfter, "isLauncherAfter");
     }
 }

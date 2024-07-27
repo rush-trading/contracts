@@ -98,7 +98,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IA
      * @notice Deploy liquidity to a given pair.
      *
      * Requirements:
-     * - Can only be called by a liquidity deployer role.
+     * - Can only be called by a launcher role.
      * - Contract must not be paused.
      * - Pair must not have received liquidity before.
      * - Total supply of the RushERC20 must be greater than 0.

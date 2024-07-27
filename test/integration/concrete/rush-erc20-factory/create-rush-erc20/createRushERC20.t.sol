@@ -7,30 +7,30 @@ import { Errors } from "src/libraries/Errors.sol";
 import { RushERC20Factory_Integration_Concrete_Test } from "../RushERC20Factory.t.sol";
 
 contract CreateRushERC20_Integration_Concrete_Test is RushERC20Factory_Integration_Concrete_Test {
-    function test_RevertWhen_CallerDoesNotHaveRushCreatorRole() external {
+    function test_RevertWhen_CallerDoesNotHaveLauncherRole() external {
         // Make Eve the caller in this test.
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
         bytes32 kind = defaults.TEMPLATE_KIND();
-        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyRushCreatorRole.selector, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyLauncherRole.selector, users.eve));
         rushERC20Factory.createRushERC20({ kind: kind, originator: users.sender });
     }
 
-    modifier whenCallerHasRushCreatorRole() {
-        // Make RushCreator the caller in this test.
-        resetPrank({ msgSender: users.rushCreator });
+    modifier whenCallerHasLauncherRole() {
+        // Make Launcher the caller in this test.
+        resetPrank({ msgSender: users.launcher });
         _;
     }
 
-    function test_RevertGiven_ImplementationIsNotRegistered() external whenCallerHasRushCreatorRole {
+    function test_RevertGiven_ImplementationIsNotRegistered() external whenCallerHasLauncherRole {
         // Run the test.
         bytes32 kind = defaults.TEMPLATE_KIND();
         vm.expectRevert();
         rushERC20Factory.createRushERC20({ kind: kind, originator: users.sender });
     }
 
-    function test_GivenImplementationIsRegistered() external whenCallerHasRushCreatorRole {
+    function test_GivenImplementationIsRegistered() external whenCallerHasLauncherRole {
         // Add the template.
         addTemplate({ implementation: address(goodRushERC20Mock) });
 

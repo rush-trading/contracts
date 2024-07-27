@@ -58,10 +58,9 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         users = Users({
             admin: createUser("Admin"),
             eve: createUser("Eve"),
-            liquidityDeployer: createUser("LiquidityDeployer"),
+            launcher: createUser("Launcher"),
             recipient: createUser("Recipient"),
             reserve: createUser("Reserve"),
-            rushCreator: createUser("RushCreator"),
             sender: createUser("Sender")
         });
 
@@ -90,7 +89,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
         rushERC20Factory.addTemplate({ implementation: implementation });
-        resetPrank({ msgSender: users.rushCreator });
+        resetPrank({ msgSender: users.launcher });
         address erc20 = rushERC20Factory.createRushERC20({
             originator: users.sender,
             kind: keccak256(abi.encodePacked(IRushERC20(implementation).description()))
@@ -148,8 +147,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
         aclManager.addAssetManager({ account: address(liquidityDeployer) });
-        aclManager.addRushCreator({ account: users.rushCreator });
-        aclManager.addLiquidityDeployer({ account: users.liquidityDeployer });
+        aclManager.addLauncher({ account: users.launcher });
         resetPrank({ msgSender: caller });
     }
 

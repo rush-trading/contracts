@@ -1,9 +1,9 @@
-addRushCreator.t.sol
+addLauncher.t.sol
 ├── when caller does not have admin role
 │   └── it should revert
 └── when caller has admin role
-    ├── when account already has rush creator role
+    ├── when account already has launcher role
     │   └── it should do nothing
-    └── when account does not have rush creator role
-        ├── it should grant rush creator role to account
+    └── when account does not have launcher role
+        ├── it should grant launcher role to account
         └── it should emit {RoleGranted} event

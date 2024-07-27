@@ -6,14 +6,12 @@ struct Users {
     address payable admin;
     // Malicious user.
     address payable eve;
-    // Liquidity deployer.
-    address payable liquidityDeployer;
+    // Launcher.
+    address payable launcher;
     // Liquidity recipient.
     address payable recipient;
     // Reserve to receive fees.
     address payable reserve;
-    // Rush creator.
-    address payable rushCreator;
     // Default message sender.
     address payable sender;
 }

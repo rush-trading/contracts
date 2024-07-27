@@ -133,7 +133,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         external
         payable
         override
-        onlyLiquidityDeployerRole
+        onlyLauncherRole
         whenNotPaused
     {
         LD.DeployLiquidityLocalVars memory vars;

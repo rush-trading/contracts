@@ -8,14 +8,14 @@ import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 import { LiquidityDeployer_Fork_Test } from "../LiquidityDeployer.t.sol";
 
 contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
-    function test_RevertWhen_CallerDoesNotHaveLiquidityDeployerRole() external {
+    function test_RevertWhen_CallerDoesNotHaveLauncherRole() external {
         // Make Eve the caller in this test.
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
         uint256 amount = defaults.LIQUIDITY_AMOUNT();
         uint256 duration = defaults.LIQUIDITY_DURATION();
-        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyLiquidityDeployerRole.selector, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyLauncherRole.selector, users.eve));
         liquidityDeployer.deployLiquidity({
             originator: users.sender,
             uniV2Pair: uniV2Pair,
@@ -25,13 +25,13 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         });
     }
 
-    modifier whenCallerHasLiquidityDeployerRole() {
-        // Make LiquidityDeployer the caller in this test.
-        resetPrank({ msgSender: users.liquidityDeployer });
+    modifier whenCallerHasLauncherRole() {
+        // Make Launcher the caller in this test.
+        resetPrank({ msgSender: users.launcher });
         _;
     }
 
-    function test_RevertWhen_ContractIsPaused() external whenCallerHasLiquidityDeployerRole {
+    function test_RevertWhen_ContractIsPaused() external whenCallerHasLauncherRole {
         // Pause the contract.
         pause();
 
@@ -54,7 +54,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_RevertGiven_PairHasAlreadyReceivedLiquidity()
         external
-        whenCallerHasLiquidityDeployerRole
+        whenCallerHasLauncherRole
         whenContractIsNotPaused
     {
         uint256 amount = defaults.LIQUIDITY_AMOUNT();
@@ -93,7 +93,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_RevertGiven_TotalSupplyOfRushERC20IsZero()
         external
-        whenCallerHasLiquidityDeployerRole
+        whenCallerHasLauncherRole
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
     {
@@ -118,7 +118,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_RevertGiven_PairDoesNotHoldEntireSupplyOfRushERC20()
         external
-        whenCallerHasLiquidityDeployerRole
+        whenCallerHasLauncherRole
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
@@ -154,7 +154,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_RevertGiven_AmountToDeployIsLessThanMinimumAmount()
         external
-        whenCallerHasLiquidityDeployerRole
+        whenCallerHasLauncherRole
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
@@ -179,7 +179,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_RevertGiven_AmountToDeployIsGreaterThanMaximumAmount()
         external
-        whenCallerHasLiquidityDeployerRole
+        whenCallerHasLauncherRole
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
@@ -205,7 +205,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_RevertGiven_DurationOfDeploymentIsLessThanMinimumDuration()
         external
-        whenCallerHasLiquidityDeployerRole
+        whenCallerHasLauncherRole
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
@@ -232,7 +232,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_RevertGiven_DurationOfDeploymentIsGreaterThanMaximumDuration()
         external
-        whenCallerHasLiquidityDeployerRole
+        whenCallerHasLauncherRole
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
@@ -260,7 +260,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_RevertGiven_PassedMsgValueIsLessThanDeploymentFee()
         external
-        whenCallerHasLiquidityDeployerRole
+        whenCallerHasLauncherRole
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
@@ -318,7 +318,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_GivenExcessMsgValueIsEqualToZero()
         external
-        whenCallerHasLiquidityDeployerRole
+        whenCallerHasLauncherRole
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero
@@ -404,7 +404,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_GivenExcessMsgValueIsGreaterThanZero()
         external
-        whenCallerHasLiquidityDeployerRole
+        whenCallerHasLauncherRole
         whenContractIsNotPaused
         givenPairHasNotReceivedLiquidity
         givenTotalSupplyOfRushERC20IsNotZero

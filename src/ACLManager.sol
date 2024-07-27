@@ -18,10 +18,7 @@ contract ACLManager is AccessControl, IACLManager {
     bytes32 public constant override ASSET_MANAGER_ROLE = keccak256("ASSET_MANAGER_ROLE");
 
     /// @inheritdoc IACLManager
-    bytes32 public constant override LIQUIDITY_DEPLOYER_ROLE = keccak256("LIQUIDITY_DEPLOYER_ROLE");
-
-    /// @inheritdoc IACLManager
-    bytes32 public constant override RUSH_CREATOR_ROLE = keccak256("RUSH_CREATOR_ROLE");
+    bytes32 public constant override LAUNCHER_ROLE = keccak256("LAUNCHER_ROLE");
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -50,13 +47,8 @@ contract ACLManager is AccessControl, IACLManager {
     }
 
     /// @inheritdoc IACLManager
-    function isLiquidityDeployer(address account) external view returns (bool) {
-        return hasRole(LIQUIDITY_DEPLOYER_ROLE, account);
-    }
-
-    /// @inheritdoc IACLManager
-    function isRushCreator(address account) external view returns (bool) {
-        return hasRole(RUSH_CREATOR_ROLE, account);
+    function isLauncher(address account) external view returns (bool) {
+        return hasRole(LAUNCHER_ROLE, account);
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -74,13 +66,8 @@ contract ACLManager is AccessControl, IACLManager {
     }
 
     /// @inheritdoc IACLManager
-    function addRushCreator(address account) external onlyRole(ADMIN_ROLE) {
-        _grantRole({ role: RUSH_CREATOR_ROLE, account: account });
-    }
-
-    /// @inheritdoc IACLManager
-    function addLiquidityDeployer(address account) external onlyRole(ADMIN_ROLE) {
-        _grantRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: account });
+    function addLauncher(address account) external onlyRole(ADMIN_ROLE) {
+        _grantRole({ role: LAUNCHER_ROLE, account: account });
     }
 
     /// @inheritdoc IACLManager
@@ -94,13 +81,8 @@ contract ACLManager is AccessControl, IACLManager {
     }
 
     /// @inheritdoc IACLManager
-    function removeLiquidityDeployer(address account) external onlyRole(ADMIN_ROLE) {
-        _revokeRole({ role: LIQUIDITY_DEPLOYER_ROLE, account: account });
-    }
-
-    /// @inheritdoc IACLManager
-    function removeRushCreator(address account) external onlyRole(ADMIN_ROLE) {
-        _revokeRole({ role: RUSH_CREATOR_ROLE, account: account });
+    function removeLauncher(address account) external onlyRole(ADMIN_ROLE) {
+        _revokeRole({ role: LAUNCHER_ROLE, account: account });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

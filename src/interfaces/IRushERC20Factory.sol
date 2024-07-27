@@ -66,7 +66,7 @@ interface IRushERC20Factory is IACLRoles {
      * @dev Created tokens are not initialized.
      *
      * Requirements:
-     * - The caller must have the rush creator role.
+     * - The caller must have the launcher role.
      * - A token implementation must be registered for the given kind.
      *
      * Actions:

@@ -14,11 +14,8 @@ interface IACLManager {
     /// @notice The asset manager role.
     function ASSET_MANAGER_ROLE() external view returns (bytes32);
 
-    /// @notice The liquidity deployer role.
-    function LIQUIDITY_DEPLOYER_ROLE() external view returns (bytes32);
-
-    /// @notice The rush creator role.
-    function RUSH_CREATOR_ROLE() external view returns (bytes32);
+    /// @notice The token and liquidity launcher role.
+    function LAUNCHER_ROLE() external view returns (bytes32);
 
     /**
      * @notice Returns true if the address has the admin role, false otherwise.
@@ -35,18 +32,11 @@ interface IACLManager {
     function isAssetManager(address account) external view returns (bool);
 
     /**
-     * @notice Returns true if the address has the liquidity deployer role, false otherwise.
+     * @notice Returns true if the address has the launcher role, false otherwise.
      * @param account The address to check.
-     * @return True if the given address has the liquidity deployer role, false otherwise.
+     * @return True if the given address has the launcher role, false otherwise.
      */
-    function isLiquidityDeployer(address account) external view returns (bool);
-
-    /**
-     * @notice Returns true if the address has the rush creator role, false otherwise.
-     * @param account The address to check.
-     * @return True if the given address has the rush creator role, false otherwise.
-     */
-    function isRushCreator(address account) external view returns (bool);
+    function isLauncher(address account) external view returns (bool);
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -65,16 +55,10 @@ interface IACLManager {
     function addAssetManager(address account) external;
 
     /**
-     * @notice Adds a new rush creator.
-     * @param account The address to add as a rush creator.
+     * @notice Adds a new launcher.
+     * @param account The address to add as a launcher.
      */
-    function addRushCreator(address account) external;
-
-    /**
-     * @notice Adds a new liquidity deployer.
-     * @param account The address to add as a liquidity deployer.
-     */
-    function addLiquidityDeployer(address account) external;
+    function addLauncher(address account) external;
 
     /**
      * @notice Removes an admin.
@@ -89,16 +73,10 @@ interface IACLManager {
     function removeAssetManager(address account) external;
 
     /**
-     * @notice Removes a liquidity deployer.
-     * @param account The address to remove as a liquidity deployer.
+     * @notice Removes a launcher.
+     * @param account The address to remove as a launcher.
      */
-    function removeLiquidityDeployer(address account) external;
-
-    /**
-     * @notice Removes a rush creator.
-     * @param account The address to remove as a rush creator.
-     */
-    function removeRushCreator(address account) external;
+    function removeLauncher(address account) external;
 
     // #endregion ----------------------------------------------------------------------------------- //
 }

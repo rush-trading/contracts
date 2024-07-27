@@ -1,9 +1,9 @@
-removeRushCreator.t.sol
+removeLauncher.t.sol
 ├── when caller does not have admin role
 │   └── it should revert
 └── when caller has admin role
-    ├── when account does not have rush creator role
+    ├── when account does not have launcher role
     │   └── it should do nothing
-    └── when account has rush creator role
-        ├── it should revoke rush creator role from account
+    └── when account has launcher role
+        ├── it should revoke launcher role from account
         └── it should emit {RoleRevoked} event

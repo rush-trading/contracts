@@ -61,14 +61,7 @@ contract RushERC20Factory is IRushERC20Factory, ACLRoles {
     }
 
     /// @inheritdoc IRushERC20Factory
-    function createRushERC20(
-        bytes32 kind,
-        address originator
-    )
-        external
-        onlyRushCreatorRole
-        returns (address rushERC20)
-    {
+    function createRushERC20(bytes32 kind, address originator) external onlyLauncherRole returns (address rushERC20) {
         // Effects: Create a new token using the implementation.
         rushERC20 = _templates[kind].clone();
 

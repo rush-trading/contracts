@@ -47,18 +47,10 @@ abstract contract ACLRoles is IACLRoles {
         _;
     }
 
-    /// @dev Enforces liquidity deployer role.
-    modifier onlyLiquidityDeployerRole() {
-        if (!IACLManager(ACL_MANAGER).isLiquidityDeployer(msg.sender)) {
-            revert Errors.OnlyLiquidityDeployerRole({ account: msg.sender });
-        }
-        _;
-    }
-
-    /// @dev Enforces rush creator role.
-    modifier onlyRushCreatorRole() {
-        if (!IACLManager(ACL_MANAGER).isRushCreator(msg.sender)) {
-            revert Errors.OnlyRushCreatorRole({ account: msg.sender });
+    /// @dev Enforces launcher role.
+    modifier onlyLauncherRole() {
+        if (!IACLManager(ACL_MANAGER).isLauncher(msg.sender)) {
+            revert Errors.OnlyLauncherRole({ account: msg.sender });
         }
         _;
     }

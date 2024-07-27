@@ -1,9 +1,0 @@
-removeLiquidityDeployer.t.sol
-├── when caller does not have admin role
-│   └── it should revert
-└── when caller has admin role
-    ├── when account does not have liquidity deployer role
-    │   └── it should do nothing
-    └── when account has liquidity deployer role
-        ├── it should revoke liquidity deployer role from account
-        └── it should emit {RoleRevoked} event
