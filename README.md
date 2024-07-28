@@ -73,6 +73,9 @@ To make it easier to perform some tasks within the repo, a few scripts are avail
 
 ### Test Scripts
 
+Make sure to create a local `.env` file and add the necessary `API_KEY_ALCHEMY` environment variable to be able to run
+fork tests. You can use the provided [`.env.example`](./.env.example) file as a template.
+
 | Script                         | Description                                                         |
 | ------------------------------ | ------------------------------------------------------------------- |
 | `bun run gas:report`           | Output gas report from all tests except those that revert.          |
