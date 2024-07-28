@@ -22,25 +22,9 @@ and flexibility in the future.
 You may notice that some test files are accompanied by `.tree` files. This is called the Branching Tree Technique, and
 the goal is to structure the tests systematically, making it easier to cover all possible test cases.
 
-To mirror the tree in Solidity, we use modifiers following the naming pattern `when<Condition>` for parameter conditions
-and `given<Condition>` for state conditions.
-
-Example:
-
-```plaintext
-exampleFunction.t.sol
-├── when parameter is x
-│   └── it should revert
-└── when parameter is y
-    ├── given state is a
-    │   └── it should revert
-    └── given state is b
-        └── it should succeed
-```
-
 The Branching Tree Technique is explained in detail here:
 
-- [Twitter: Branching Tree Technique](https://twitter.com/PaulRBerg/status/1682346315806539776)
+- [X/Twitter: Branching Tree Technique](https://x.com/PaulRBerg/status/1682346315806539776)
 - [EthCC 2023](https://prberg.com/presentations/ethcc-2023)
 - [Spearbit seminar](https://prberg.com/presentations/spearbit-2023)
 

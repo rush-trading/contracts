@@ -1,17 +1,17 @@
 # Deployment
 
 All contract deployment scripts are written in Solidity and can be found in the [`script`](/script) directory.
-Instructions are also provided below for running the deployment scripts using the `forge` CLI tool provided by
-[Foundry](https://getfoundry.sh/). Before running the deployment scripts, you should first set up a `.env` file with the
-necessary environment variables. You can use the provided [`.env.example`](./.env.example) file as a template.
-
-The examples below deploy to the Sepolia testnet, but you can pick any other chain listed under the `[rpc_endpoints]`
-section in [`foundry.toml`](./foundry.toml#L61).
+Instructions are also provided below for running the deployment scripts using the `forge` CLI tool provided by Foundry.
+Before running the deployment scripts, you should first set up a `.env` file with the necessary environment variables.
+You can use the provided [`.env.example`](./.env.example) file as a template.
 
 ## Instructions
 
-Instructions are organized by recommended order of deployment. You should replace the placeholders with the actual
-arguments you want to pass as follows:
+The instructions are organized by recommended order of deployment. They showcase how to deploy the contracts to the
+Sepolia testnet, but you can pick any other chain listed under the `[rpc_endpoints]` section in
+[`foundry.toml`](./foundry.toml#L61).
+
+You should replace placeholders with the actual arguments you want to pass as follows:
 
 - `<ADDRESS>`: An Ethereum address (e.g., `0x1234567890abcdef1234567890abcdef12345678`).
 - `<WAD>`: A number in 18 decimal format (e.g., `1000000000000000000` representing 1 RushERC20 token, 1 ETH, or 100%
