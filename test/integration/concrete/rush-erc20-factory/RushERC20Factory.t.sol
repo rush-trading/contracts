@@ -14,11 +14,21 @@ contract RushERC20Factory_Integration_Concrete_Test is Integration_Test {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region ----------------------------------=|+ VARIABLES +|=----------------------------------- //
+
+    bytes32 internal templateKind;
+    uint256 internal templateVersion;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region --------------------------------=|+ SET-UP FUNCTION +|=------------------------------- //
 
     function setUp() public virtual override {
         Integration_Test.setUp();
         deploy();
+
+        templateKind = keccak256(abi.encodePacked(goodRushERC20Mock.description()));
+        templateVersion = goodRushERC20Mock.version();
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

@@ -29,17 +29,13 @@ contract AddTemplate_Integration_Concrete_Test is RushERC20Factory_Integration_C
     function test_WhenImplementationSupportsRequiredInterface() external whenCallerHasAdminRole {
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(rushERC20Factory) });
-        emit AddTemplate({
-            kind: defaults.TEMPLATE_KIND(),
-            version: defaults.TEMPLATE_VERSION(),
-            implementation: address(goodRushERC20Mock)
-        });
+        emit AddTemplate({ kind: templateKind, version: templateVersion, implementation: address(goodRushERC20Mock) });
 
         // Add the template.
         rushERC20Factory.addTemplate({ implementation: address(goodRushERC20Mock) });
 
         // Assert that the template was added.
-        address actualImplementation = rushERC20Factory.getTemplate(defaults.TEMPLATE_KIND()).implementation;
+        address actualImplementation = rushERC20Factory.getTemplate(templateKind).implementation;
         address expectedImplementation = address(goodRushERC20Mock);
         vm.assertEq(actualImplementation, expectedImplementation, "template");
     }

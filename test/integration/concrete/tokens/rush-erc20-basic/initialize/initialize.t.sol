@@ -7,8 +7,8 @@ import { RushERC20Basic_Integration_Shared_Test } from "test/integration/shared/
 contract Initialize_Integration_Concrete_Test is RushERC20Basic_Integration_Shared_Test {
     function test_RevertGiven_AlreadyInitialized() external {
         // Initialize the contract.
-        string memory name = defaults.RUSH_ERC20_NAME();
-        string memory symbol = defaults.RUSH_ERC20_SYMBOL();
+        string memory name = RUSH_ERC20_NAME;
+        string memory symbol = RUSH_ERC20_SYMBOL;
         uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
         rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: users.recipient, data: "" });
 
@@ -20,8 +20,8 @@ contract Initialize_Integration_Concrete_Test is RushERC20Basic_Integration_Shar
     function test_GivenNotInitialized() external {
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(rushERC20) });
-        string memory name = defaults.RUSH_ERC20_NAME();
-        string memory symbol = defaults.RUSH_ERC20_SYMBOL();
+        string memory name = RUSH_ERC20_NAME;
+        string memory symbol = RUSH_ERC20_SYMBOL;
         uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
         address recipient = users.recipient;
         emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: "" });

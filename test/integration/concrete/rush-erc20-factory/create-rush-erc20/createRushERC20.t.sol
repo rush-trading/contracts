@@ -12,9 +12,8 @@ contract CreateRushERC20_Integration_Concrete_Test is RushERC20Factory_Integrati
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
-        bytes32 kind = defaults.TEMPLATE_KIND();
         vm.expectRevert(abi.encodeWithSelector(Errors.OnlyLauncherRole.selector, users.eve));
-        rushERC20Factory.createRushERC20({ kind: kind, originator: users.sender });
+        rushERC20Factory.createRushERC20({ kind: templateKind, originator: users.sender });
     }
 
     modifier whenCallerHasLauncherRole() {
@@ -25,9 +24,8 @@ contract CreateRushERC20_Integration_Concrete_Test is RushERC20Factory_Integrati
 
     function test_RevertGiven_ImplementationIsNotRegistered() external whenCallerHasLauncherRole {
         // Run the test.
-        bytes32 kind = defaults.TEMPLATE_KIND();
         vm.expectRevert();
-        rushERC20Factory.createRushERC20({ kind: kind, originator: users.sender });
+        rushERC20Factory.createRushERC20({ kind: templateKind, originator: users.sender });
     }
 
     function test_GivenImplementationIsRegistered() external whenCallerHasLauncherRole {
@@ -44,14 +42,13 @@ contract CreateRushERC20_Integration_Concrete_Test is RushERC20Factory_Integrati
          });
         emit CreateRushERC20({
             originator: users.sender,
-            kind: defaults.TEMPLATE_KIND(),
-            version: defaults.TEMPLATE_VERSION(),
+            kind: templateKind,
+            version: templateVersion,
             rushERC20: address(0)
         });
 
         // Create the RushERC20 token.
-        address rushERC20 =
-            rushERC20Factory.createRushERC20({ kind: defaults.TEMPLATE_KIND(), originator: users.sender });
+        address rushERC20 = rushERC20Factory.createRushERC20({ kind: templateKind, originator: users.sender });
 
         // Assert that the RushERC20 was created.
         assertEq(

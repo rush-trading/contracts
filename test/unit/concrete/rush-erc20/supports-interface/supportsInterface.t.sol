@@ -19,7 +19,7 @@ contract SupportsInterface_Unit_Concrete_Test is RushERC20_Unit_Concrete_Test {
     }
 
     function test_WhenInterfaceIdIsUnknown() external view {
-        bool actualSupportsInterface = rushERC20Mock.supportsInterface(defaults.UNKNOWN_INTERFACE_ID());
+        bool actualSupportsInterface = rushERC20Mock.supportsInterface(UNKNOWN_INTERFACE_ID);
         bool expectedSupportsInterface = false;
         assertEq(actualSupportsInterface, expectedSupportsInterface, "supportsInterface");
     }

@@ -10,9 +10,8 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
-        bytes32 kind = defaults.TEMPLATE_KIND();
         vm.expectRevert(abi.encodeWithSelector(Errors.OnlyAdminRole.selector, users.eve));
-        rushERC20Factory.removeTemplate({ kind: kind });
+        rushERC20Factory.removeTemplate({ kind: templateKind });
     }
 
     modifier whenCallerHasAdminRole() {
@@ -23,9 +22,8 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
 
     function test_RevertWhen_KindIsNotRegistered() external whenCallerHasAdminRole {
         // Run the test.
-        bytes32 kind = defaults.TEMPLATE_KIND();
-        vm.expectRevert(abi.encodeWithSelector(Errors.RushERC20Factory_NotTemplate.selector, defaults.TEMPLATE_KIND()));
-        rushERC20Factory.removeTemplate({ kind: kind });
+        vm.expectRevert(abi.encodeWithSelector(Errors.RushERC20Factory_NotTemplate.selector, templateKind));
+        rushERC20Factory.removeTemplate({ kind: templateKind });
     }
 
     function test_WhenKindIsRegistered() external whenCallerHasAdminRole {
@@ -34,13 +32,13 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(rushERC20Factory) });
-        emit RemoveTemplate({ kind: defaults.TEMPLATE_KIND(), version: defaults.TEMPLATE_VERSION() });
+        emit RemoveTemplate({ kind: templateKind, version: templateVersion });
 
         // Remove the template.
-        rushERC20Factory.removeTemplate({ kind: defaults.TEMPLATE_KIND() });
+        rushERC20Factory.removeTemplate({ kind: templateKind });
 
         // Assert that the template was removed.
-        address actualImplementation = rushERC20Factory.getTemplate(defaults.TEMPLATE_KIND()).implementation;
+        address actualImplementation = rushERC20Factory.getTemplate(templateKind).implementation;
         address expectedImplementation = address(0);
         vm.assertEq(actualImplementation, expectedImplementation, "template");
     }
