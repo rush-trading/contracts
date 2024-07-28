@@ -57,7 +57,8 @@ bun install
 
 ## Scripts
 
-To make it easier to perform some tasks within the repo, a few scripts are available via a `package.json` file.
+To make it easier to perform some tasks within the repo, a few scripts are available via a
+[package.json](./package.json#L20) file.
 
 ### Build Scripts
 
@@ -82,3 +83,7 @@ To make it easier to perform some tasks within the repo, a few scripts are avail
 
 Specific tests can be run using `forge test` conventions, specified in more detail in the Foundry
 [Book](https://book.getfoundry.sh/reference/forge/forge-test#test-options).
+
+## Deployment
+
+Deployment instructions can be found in the [DEPLOYMENT.md](./DEPLOYMENT.md) file.

@@ -35,8 +35,8 @@ contract CalculateFee_Unit_Concrete_Test is FeeCalculator_Unit_Shared_Test {
             duration: duration,
             feeRate: calculateFeeRate({
                 baseFeeRate: defaults.BASE_FEE_RATE(),
-                rateSlope1: defaults.RATE_SLOPE1(),
-                rateSlope2: defaults.RATE_SLOPE2(),
+                rateSlope1: defaults.RATE_SLOPE_1(),
+                rateSlope2: defaults.RATE_SLOPE_2(),
                 utilizationRatio: utilizationRatio,
                 optimalUtilizationRatio: defaults.OPTIMAL_UTILIZATION_RATIO()
             }),
@@ -70,8 +70,8 @@ contract CalculateFee_Unit_Concrete_Test is FeeCalculator_Unit_Shared_Test {
             duration: duration,
             feeRate: calculateFeeRate({
                 baseFeeRate: defaults.BASE_FEE_RATE(),
-                rateSlope1: defaults.RATE_SLOPE1(),
-                rateSlope2: defaults.RATE_SLOPE2(),
+                rateSlope1: defaults.RATE_SLOPE_1(),
+                rateSlope2: defaults.RATE_SLOPE_2(),
                 utilizationRatio: utilizationRatio,
                 optimalUtilizationRatio: defaults.OPTIMAL_UTILIZATION_RATIO()
             }),

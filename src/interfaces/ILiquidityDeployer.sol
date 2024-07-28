@@ -79,7 +79,7 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IA
 
     /**
      * @notice The reserve factor used for calculating fees.
-     * @dev Represented in 18 decimals (e.g., 1e18 = 100%).
+     * @dev Represented in WAD precision (18 decimal format).
      */
     function RESERVE_FACTOR() external view returns (uint256);
 

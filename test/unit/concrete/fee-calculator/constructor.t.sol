@@ -11,8 +11,8 @@ contract Constructor_FeeCalculator_Unit_Concrete_Test is Base_Test {
         FeeCalculator constructedFeeCalculator = new FeeCalculator({
             baseFeeRate: defaults.BASE_FEE_RATE(),
             optimalUtilizationRatio: defaults.OPTIMAL_UTILIZATION_RATIO(),
-            rateSlope1: defaults.RATE_SLOPE1(),
-            rateSlope2: defaults.RATE_SLOPE2()
+            rateSlope1: defaults.RATE_SLOPE_1(),
+            rateSlope2: defaults.RATE_SLOPE_2()
         });
 
         // Assert that the values were set correctly.
@@ -28,12 +28,12 @@ contract Constructor_FeeCalculator_Unit_Concrete_Test is Base_Test {
         uint256 expectedMaxExcessUtilizationRatio = 1e18 - defaults.OPTIMAL_UTILIZATION_RATIO();
         assertEq(actualMaxExcessUtilizationRatio, expectedMaxExcessUtilizationRatio, "MAX_EXCESS_UTILIZATION_RATIO");
 
-        uint256 actualRateSlope1 = constructedFeeCalculator.RATE_SLOPE1();
-        uint256 expectedRateSlope1 = defaults.RATE_SLOPE1();
-        assertEq(actualRateSlope1, expectedRateSlope1, "RATE_SLOPE1");
+        uint256 actualRateSlope1 = constructedFeeCalculator.RATE_SLOPE_1();
+        uint256 expectedRateSlope1 = defaults.RATE_SLOPE_1();
+        assertEq(actualRateSlope1, expectedRateSlope1, "RATE_SLOPE_1");
 
-        uint256 actualRateSlope2 = constructedFeeCalculator.RATE_SLOPE2();
-        uint256 expectedRateSlope2 = defaults.RATE_SLOPE2();
-        assertEq(actualRateSlope2, expectedRateSlope2, "RATE_SLOPE2");
+        uint256 actualRateSlope2 = constructedFeeCalculator.RATE_SLOPE_2();
+        uint256 expectedRateSlope2 = defaults.RATE_SLOPE_2();
+        assertEq(actualRateSlope2, expectedRateSlope2, "RATE_SLOPE_2");
     }
 }

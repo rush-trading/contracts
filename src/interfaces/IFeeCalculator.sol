@@ -12,33 +12,33 @@ interface IFeeCalculator {
 
     /**
      * @notice The base fee rate when U (the utilization ratio) is 0%.
-     * @dev Expressed as a per-second rate in 18 decimals.
+     * @dev Expressed as a per-second rate in WAD precision (18 decimal format).
      */
     function BASE_FEE_RATE() external view returns (uint256);
 
     /**
      * @dev The excess utilization ratio above the optimal (i.e., 100% - U_optimal).
-     * @dev Expressed in 18 decimals.
+     * @dev Expressed in WAD precision (18 decimal format).
      */
     function MAX_EXCESS_UTILIZATION_RATIO() external view returns (uint256);
 
     /**
      * @notice The utilization ratio at which the pool aims to obtain most competitive fee rates.
-     * @dev Expressed in 18 decimals.
+     * @dev Expressed in WAD precision (18 decimal format).
      */
     function OPTIMAL_UTILIZATION_RATIO() external view returns (uint256);
 
     /**
      * @notice The slope of the interest rate curve when U >= 0% and <= U_optimal.
-     * @dev Expressed as a per-second rate in 18 decimals.
+     * @dev Expressed as a per-second rate in WAD precision (18 decimal format).
      */
-    function RATE_SLOPE1() external view returns (uint256);
+    function RATE_SLOPE_1() external view returns (uint256);
 
     /**
      * @notice The slope of the interest rate curve when U > U_optimal.
-     * @dev Expressed as a per-second rate in 18 decimals.
+     * @dev Expressed as a per-second rate in WAD precision (18 decimal format).
      */
-    function RATE_SLOPE2() external view returns (uint256);
+    function RATE_SLOPE_2() external view returns (uint256);
 
     /**
      * @notice Calculate the liquidity deployment fee based on the given conditions.

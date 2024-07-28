@@ -58,8 +58,8 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         feeCalculator = new FeeCalculator({
             baseFeeRate: defaults.BASE_FEE_RATE(),
             optimalUtilizationRatio: defaults.OPTIMAL_UTILIZATION_RATIO(),
-            rateSlope1: defaults.RATE_SLOPE1(),
-            rateSlope2: defaults.RATE_SLOPE2()
+            rateSlope1: defaults.RATE_SLOPE_1(),
+            rateSlope2: defaults.RATE_SLOPE_2()
         });
         vm.label({ account: address(feeCalculator), newLabel: "FeeCalculator" });
 
