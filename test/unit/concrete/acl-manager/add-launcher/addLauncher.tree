@@ -1,0 +1,9 @@
+addLauncher.t.sol
+├── when caller does not have admin role
+│   └── it should revert
+└── when caller has admin role
+    ├── when account already has launcher role
+    │   └── it should do nothing
+    └── when account does not have launcher role
+        ├── it should grant launcher role to account
+        └── it should emit {RoleGranted} event

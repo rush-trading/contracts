@@ -7,7 +7,7 @@ import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 
 /**
  * @title RushERC20Abstract
- * @notice An abstract ERC20 token contract for rush.trading.
+ * @notice The abstract Rush ERC20 token contract.
  */
 abstract contract RushERC20Abstract is Initializable, IRushERC20, ERC165 {
     // #region ---------------------------------=|+ CONSTRUCTOR +|=---------------------------------- //

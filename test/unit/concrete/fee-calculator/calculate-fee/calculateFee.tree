@@ -1,0 +1,5 @@
+calculateFee.t.sol
+├── given utilization is greater than optimal utilization
+│   └── it should return correct fee values
+└── given utilization is less than or eq optimal utilization
+    └── it should return correct fee values

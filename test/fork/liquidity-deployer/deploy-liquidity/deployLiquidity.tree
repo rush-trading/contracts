@@ -1,0 +1,38 @@
+deployLiquidity.t.sol
+├── when caller does not have launcher role
+│   └── it should revert
+└── when caller has launcher role
+    ├── when contract is paused
+    │   └── it should revert
+    └── when contract is not paused
+        ├── given pair has already received liquidity
+        │   └── it should revert
+        └── given pair has not received liquidity
+            ├── given total supply of RushERC20 is zero
+            │   └── it should revert
+            └── given total supply of RushERC20 is not zero
+                ├── given pair does not hold entire supply of RushERC20
+                │   └── it should revert
+                └── given pair holds entire supply of RushERC20
+                    ├── given amount to deploy is less than minimum amount
+                    │   └── it should revert
+                    └── given amount to deploy is greater than or equal to minimum amount
+                        ├── given amount to deploy is greater than maximum amount
+                        │   └── it should revert
+                        └── given amount to deploy is less than or equal to maximum amount
+                            ├── given duration of deployment is less than minimum duration
+                            │   └── it should revert
+                            └── given duration of deployment is greater than or equal to minimum duration
+                                ├── given duration of deployment is greater than maximum duration
+                                │   └── it should revert
+                                └── given duration of deployment is less than or equal to maximum duration
+                                    ├── given passed msg value is less than deployment fee
+                                    │   └── it should revert
+                                    └── given passed msg value is greater than or equal to deployment fee
+                                        ├── given excess msg value is equal to zero
+                                        │   ├── it should deploy liquidity
+                                        │   └── it should emit a {DeployLiquidity} event
+                                        └── given excess msg value is greater than zero
+                                            ├── it should swap excess msg value for RushERC20
+                                            ├── it should deploy liquidity
+                                            └── it should emit a {DeployLiquidity} event

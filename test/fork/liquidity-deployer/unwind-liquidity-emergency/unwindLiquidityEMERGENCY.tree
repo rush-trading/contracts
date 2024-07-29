@@ -1,0 +1,15 @@
+unwindLiquidityEMERGENCY.t.sol
+├── when caller does not have admin role
+│   └── it should revert
+└── when caller has admin role
+    ├── when contract is not paused
+    │   └── it should revert
+    └── when contract is paused
+        ├── given pair has not received liquidity
+        │   └── it should revert
+        └── given pair has received liquidity
+            ├── given pair has already been unwound
+            │   └── it should revert
+            └── given pair has not been unwound
+                ├── it should unwind the liquidity
+                └── it should emit a {UnwindLiquidity} event

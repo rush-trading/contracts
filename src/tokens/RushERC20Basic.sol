@@ -6,7 +6,7 @@ import { IRushERC20, RushERC20Abstract } from "src/abstracts/RushERC20Abstract.s
 
 /**
  * @title RushERC20Basic
- * @notice The basic ERC20 token implementation for rush.trading.
+ * @notice The basic Rush ERC20 token implementation.
  */
 contract RushERC20Basic is ERC20Upgradeable, RushERC20Abstract {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
@@ -18,7 +18,7 @@ contract RushERC20Basic is ERC20Upgradeable, RushERC20Abstract {
 
     /// @inheritdoc IRushERC20
     function version() public pure override returns (uint256) {
-        return 0;
+        return 1;
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -39,6 +39,7 @@ contract RushERC20Basic is ERC20Upgradeable, RushERC20Abstract {
     {
         __ERC20_init(name, symbol);
         _mint(recipient, maxSupply);
+        emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: "" });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

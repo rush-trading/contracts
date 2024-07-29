@@ -3,7 +3,7 @@ pragma solidity >=0.8.25;
 
 /**
  * @title IReturnAssetCallback
- * @notice Any contract that calls ILiquidityDeployer#returnAsset must implement this interface.
+ * @notice Any contract that calls ILiquidityPool#returnAsset must implement this interface.
  */
 interface IReturnAssetCallback {
     /**

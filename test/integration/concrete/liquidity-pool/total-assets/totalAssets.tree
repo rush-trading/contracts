@@ -1,0 +1,9 @@
+totalAssets.t.sol
+├── given pool has never received deposits
+│  └── it should return zero
+├── given pool has received deposits but no dispatches
+│  └── it should return asset balance of pool
+├── given pool has received deposits and dispatches
+│  └── it should return asset balance of pool plus total dispatched assets
+└── given pool has received deposits and all are dispatched
+    └── it should return total dispatched assets

@@ -1,6 +1,6 @@
 {
   "name": "@rush-trading/contracts",
-  "description": "Smart contracts of rush.trading protocol",
+  "description": "Smart contracts of rush.trading",
   "version": "1.0.0",
   "author": {
     "name": "rush-trading",
@@ -18,14 +18,16 @@
   },
   "private": true,
   "scripts": {
-    "clean": "rm -rf cache out",
     "build": "forge build",
+    "clean": "rm -rf cache out",
+    "gas:report": "forge test --gas-report --no-match-test \"test(Fuzz)?_Revert\"",
+    "gas:snapshot": "forge snapshot --no-match-test \"test(Fuzz)?_Revert\"",
     "lint": "bun run lint:sol && bun run prettier:check",
     "lint:sol": "forge fmt --check && bun solhint {script,src,test}/**/*.sol",
     "prettier:check": "prettier --check \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
     "prettier:write": "prettier --write \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
     "test": "forge test",
     "test:coverage": "forge coverage",
-    "test:coverage:report": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage"
+    "test:coverage:report": "forge coverage --report lcov && lcov --branch-coverage --ignore-errors inconsistent --remove ./lcov.info -o ./lcov.info 'test/' 'script/' && genhtml lcov.info --branch-coverage --output-dir coverage --ignore-errors inconsistent"
   }
 }

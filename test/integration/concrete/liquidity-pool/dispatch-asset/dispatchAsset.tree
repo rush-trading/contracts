@@ -1,0 +1,16 @@
+dispatchAsset.t.sol
+├── when caller does not have asset manager role
+│   └── it should revert
+└── when caller has asset manager role
+    ├── when asset recipient is zero address
+    │   └── it should revert
+    └── when asset recipient is not zero address
+        ├── when asset recipient is LiquidityPool itself
+        │   └── it should revert
+        └── when asset recipient is not LiquidityPool itself
+            ├── when amount is zero
+            │   └── it should revert
+            └── when amount is not zero
+                ├── it should dispatch asset from pool to recipient
+                ├── it should execute callback logic
+                └── it should emit a {DispatchAsset} event

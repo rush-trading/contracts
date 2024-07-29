@@ -3,7 +3,7 @@ pragma solidity >=0.8.25;
 
 /**
  * @title IDispatchAssetCallback
- * @notice Any contract that calls ILiquidityDeployer#dispatchAsset must implement this interface.
+ * @notice Any contract that calls ILiquidityPool#dispatchAsset must implement this interface.
  */
 interface IDispatchAssetCallback {
     /**
