@@ -7,7 +7,6 @@ import { RushLauncherStore } from "../stores/RushLauncherStore.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
-import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { FC, RL } from "src/types/DataTypes.sol";
 import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
 
@@ -92,7 +91,7 @@ contract RushLauncherHandler is BaseHandler {
         // Launch the RushERC20 token with its liquidity.
         (, address uniV2Pair) = rushLauncher.launch{ value: totalFee }(
             RL.LaunchParams({
-                templateDescription: "RushERC20Basic",
+                kind: RUSH_ERC20_BASIC_KIND,
                 name: params.name,
                 symbol: params.symbol,
                 maxSupply: params.maxSupply,

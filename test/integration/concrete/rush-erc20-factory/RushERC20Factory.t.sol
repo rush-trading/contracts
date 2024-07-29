@@ -16,6 +16,7 @@ contract RushERC20Factory_Integration_Concrete_Test is Integration_Test {
 
     // #region ----------------------------------=|+ VARIABLES +|=----------------------------------- //
 
+    string internal templateDescription;
     bytes32 internal templateKind;
     uint256 internal templateVersion;
 
@@ -27,7 +28,8 @@ contract RushERC20Factory_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
         deploy();
 
-        templateKind = keccak256(abi.encodePacked(goodRushERC20Mock.description()));
+        templateDescription = goodRushERC20Mock.description();
+        templateKind = keccak256(abi.encodePacked(templateDescription));
         templateVersion = goodRushERC20Mock.version();
     }
 

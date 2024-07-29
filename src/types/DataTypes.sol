@@ -85,7 +85,7 @@ library LD {
 library RL {
     /**
      * @dev The parameters for launching a new ERC20 token market.
-     * @param templateDescription The description of the token template.
+     * @param kind The kind of the ERC20 token template.
      * @param name The name of the ERC20 token.
      * @param symbol The symbol of the ERC20 token.
      * @param maxSupply The minted maximum supply of the ERC20 token.
@@ -94,7 +94,7 @@ library RL {
      * @param liquidityDuration The duration of the liquidity deployment (in seconds).
      */
     struct LaunchParams {
-        string templateDescription;
+        bytes32 kind;
         string name;
         string symbol;
         uint256 maxSupply;

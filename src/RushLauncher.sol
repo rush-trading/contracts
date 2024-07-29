@@ -81,10 +81,8 @@ contract RushLauncher is IRushLauncher {
             revert Errors.RushLauncher_HighMaxSupply(params.maxSupply);
         }
 
-        // Compute the kind of the token template.
-        bytes32 kind = keccak256(abi.encodePacked(params.templateDescription));
         // Interactions: Create a new RushERC20 token.
-        rushERC20 = IRushERC20Factory(RUSH_ERC20_FACTORY).createRushERC20({ originator: msg.sender, kind: kind });
+        rushERC20 = IRushERC20Factory(RUSH_ERC20_FACTORY).createRushERC20({ originator: msg.sender, kind: params.kind });
         // Interactions: Create the Uniswap V2 pair.
         uniV2Pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).createPair({ tokenA: rushERC20, tokenB: WETH });
         // Interactions: Initialize the RushERC20 token.
@@ -107,7 +105,7 @@ contract RushLauncher is IRushLauncher {
         // Emit an event.
         emit Launch({
             rushERC20: rushERC20,
-            kind: kind,
+            kind: params.kind,
             uniV2Pair: uniV2Pair,
             maxSupply: params.maxSupply,
             liquidityAmount: params.liquidityAmount,

@@ -11,7 +11,7 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.OnlyAdminRole.selector, users.eve));
-        rushERC20Factory.removeTemplate({ kind: templateKind });
+        rushERC20Factory.removeTemplate({ description: templateDescription });
     }
 
     modifier whenCallerHasAdminRole() {
@@ -23,7 +23,7 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
     function test_RevertWhen_KindIsNotRegistered() external whenCallerHasAdminRole {
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.RushERC20Factory_NotTemplate.selector, templateKind));
-        rushERC20Factory.removeTemplate({ kind: templateKind });
+        rushERC20Factory.removeTemplate({ description: templateDescription });
     }
 
     function test_WhenKindIsRegistered() external whenCallerHasAdminRole {
@@ -35,7 +35,7 @@ contract RemoveTemplate_Integration_Concrete_Test is RushERC20Factory_Integratio
         emit RemoveTemplate({ kind: templateKind, version: templateVersion });
 
         // Remove the template.
-        rushERC20Factory.removeTemplate({ kind: templateKind });
+        rushERC20Factory.removeTemplate({ description: templateDescription });
 
         // Assert that the template was removed.
         address actualImplementation = rushERC20Factory.getTemplate(templateKind).implementation;

@@ -75,8 +75,9 @@ contract RushERC20Factory is IRushERC20Factory, ACLRoles {
     }
 
     /// @inheritdoc IRushERC20Factory
-    function removeTemplate(bytes32 kind) external onlyAdminRole {
+    function removeTemplate(string calldata description) external onlyAdminRole {
         // Checks: The given kind must be registered in the factory.
+        bytes32 kind = keccak256(abi.encodePacked(description));
         address implementation = _templates[kind].implementation;
         if (implementation == address(0)) {
             revert Errors.RushERC20Factory_NotTemplate(kind);

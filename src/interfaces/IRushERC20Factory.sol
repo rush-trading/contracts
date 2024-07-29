@@ -83,14 +83,14 @@ interface IRushERC20Factory is IACLRoles {
      *
      * Requirements:
      * - The caller must have the default admin role.
-     * - The given kind must be registered in the factory.
+     * - The given template must exist in the factory.
      *
      * Actions:
      * - Remove token template from the factory.
      *
-     * @param kind The kind of token template to remove.
+     * @param description The description of the token template to remove.
      */
-    function removeTemplate(bytes32 kind) external;
+    function removeTemplate(string calldata description) external;
 
     // #endregion ----------------------------------------------------------------------------------- //
 }
