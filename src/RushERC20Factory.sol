@@ -52,7 +52,7 @@ contract RushERC20Factory is IRushERC20Factory, ACLRoles {
             revert Errors.RushERC20Factory_InvalidInterfaceId();
         }
 
-        // Effects: Add token template to the factory.
+        // Effects: Add token template.
         bytes32 kind = keccak256(abi.encodePacked(IRushERC20(implementation).description()));
         _templates[kind].set({ implementation: implementation });
 
@@ -76,14 +76,14 @@ contract RushERC20Factory is IRushERC20Factory, ACLRoles {
 
     /// @inheritdoc IRushERC20Factory
     function removeTemplate(string calldata description) external onlyAdminRole {
-        // Checks: The given kind must be registered in the factory.
+        // Checks: The given kind must be registered.
         bytes32 kind = keccak256(abi.encodePacked(description));
         address implementation = _templates[kind].implementation;
         if (implementation == address(0)) {
             revert Errors.RushERC20Factory_NotTemplate(kind);
         }
 
-        // Effects: Remove token template from the factory.
+        // Effects: Remove token template.
         delete _templates[kind];
 
         // Emit an event.

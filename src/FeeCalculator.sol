@@ -35,7 +35,7 @@ contract FeeCalculator is IFeeCalculator {
     /**
      * @dev Constructor
      * @param baseFeeRate The base fee rate when U (the utilization ratio) is 0.
-     * @param optimalUtilizationRatio The utilization ratio at which the pool aims to obtain most competitive fee rates.
+     * @param optimalUtilizationRatio The utilization ratio at which LiquidityPool aims to obtain most competitive fee rates.
      * @param rateSlope1 The slope of the interest rate curve when U is >= 0% and <= U_optimal.
      * @param rateSlope2 The slope of the interest rate curve when U is > U_optimal.
      */

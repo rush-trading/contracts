@@ -55,7 +55,7 @@ interface IRushERC20Factory is IACLRoles {
      * - The token implementation must support the required interface.
      *
      * Actions:
-     * - Adds given token template to the factory.
+     * - Adds given token template.
      *
      * @param implementation The address of the token implementation.
      */
@@ -83,10 +83,10 @@ interface IRushERC20Factory is IACLRoles {
      *
      * Requirements:
      * - The caller must have the default admin role.
-     * - The given template must exist in the factory.
+     * - The given template must exist.
      *
      * Actions:
-     * - Remove token template from the factory.
+     * - Remove token template.
      *
      * @param description The description of the token template to remove.
      */

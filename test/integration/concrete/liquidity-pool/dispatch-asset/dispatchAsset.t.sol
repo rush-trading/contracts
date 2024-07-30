@@ -65,7 +65,7 @@ contract DispatchAsset_Integration_Concrete_Test is LiquidityPool_Integration_Co
         whenAssetRecipientIsNotZeroAddress
         whenAssetRecipientIsNotLiquidityPoolItself
     {
-        // Add deposits to the pool.
+        // Add deposits to LiquidityPool.
         deposit({ asset: address(wethMock), amount: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the relevant event to be emitted.

@@ -364,8 +364,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vars.reserveFee = (ud(vars.feeAmount) * ud(defaults.RESERVE_FACTOR())).intoUint256();
         vars.expectedBalanceDiff = vars.amount + vars.reserveFee;
         assertEq(vars.wethBalanceOfPairAfter - vars.wethBalanceOfPairBefore, vars.expectedBalanceDiff, "balanceOf");
-        // Assert that the liquidity pool balance is correct after deployment.
-        // (100% - reserveFactor) of the total fee amount is added back to the liquidity pool as APY.
+        // Assert that the LiquidityPool balance is correct after deployment.
+        // (100% - reserveFactor) of the total fee amount is added back to the LiquidityPool as APY.
         vars.expectedBalanceDiff =
             vars.amount - (ud(vars.feeAmount) * ud(1e18 - defaults.RESERVE_FACTOR())).intoUint256();
         assertEq(
@@ -451,8 +451,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vars.reserveFee = (ud(vars.feeAmount) * ud(defaults.RESERVE_FACTOR())).intoUint256();
         vars.expectedBalanceDiff = vars.amount + vars.feeExcessAmount + vars.reserveFee;
         assertEq(vars.wethBalanceOfPairAfter - vars.wethBalanceOfPairBefore, vars.expectedBalanceDiff, "balanceOf");
-        // Assert that the liquidity pool balance is correct after deployment.
-        // (100% - reserveFactor) of the total fee amount is added back to the liquidity pool as APY.
+        // Assert that the LiquidityPool balance is correct after deployment.
+        // (100% - reserveFactor) of the total fee amount is added back to the LiquidityPool as APY.
         vars.expectedBalanceDiff =
             vars.amount - (ud(vars.feeAmount) * ud(1e18 - defaults.RESERVE_FACTOR())).intoUint256();
         assertEq(

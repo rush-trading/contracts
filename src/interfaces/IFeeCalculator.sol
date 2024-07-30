@@ -23,7 +23,7 @@ interface IFeeCalculator {
     function MAX_EXCESS_UTILIZATION_RATIO() external view returns (uint256);
 
     /**
-     * @notice The utilization ratio at which the pool aims to obtain most competitive fee rates.
+     * @notice The utilization ratio at which LiquidityPool aims to obtain most competitive fee rates.
      * @dev Expressed in WAD precision (18 decimal format).
      */
     function OPTIMAL_UTILIZATION_RATIO() external view returns (uint256);

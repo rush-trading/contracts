@@ -14,8 +14,8 @@ library FC {
      * @param duration The duration of liquidity deployment (in seconds).
      * @param newLiquidity The liquidity to be deployed.
      * @param outstandingLiquidity The liquidity already deployed.
-     * @param reserveFactor The reserve factor of the pool.
-     * @param totalLiquidity The total liquidity managed by the pool.
+     * @param reserveFactor The reserve factor.
+     * @param totalLiquidity The total liquidity managed by LiquidityPool.
      */
     struct CalculateFeeParams {
         uint256 duration;

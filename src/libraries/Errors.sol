@@ -92,7 +92,7 @@ library Errors {
     error LiquidityDeployer_PairNotReceivedLiquidity(address uniV2Pair);
 
     /**
-     * @notice Thrown when the pool does not contain the entire supply of the RushERC20 token.
+     * @notice Thrown when the Uniswap V2 pair does not contain the entire supply of the RushERC20 token.
      * @param rushERC20 The address of the RushERC20 token.
      * @param uniV2Pair The address of the Uniswap V2 pair.
      * @param rushERC20BalanceOfPair The RushERC20 token balance held by the pair.

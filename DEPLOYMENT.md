@@ -147,3 +147,30 @@ forge script script/DeployRushLauncher.s.sol \
     ${RUSH_ERC20_FACTORY} \
     ${UNISWAP_V2_FACTORY}
 ```
+
+### Assign Roles
+
+The `ACLManager` contract is used to manage roles and permissions. Once the contracts are deployed, the `ADMIN` role
+recipient should assign the necessary roles to the contracts as follows:
+
+#### ASSET_MANAGER_ROLE
+
+It is assigned to the `LiquidityDeployer` contract to allow it to manage the `LiquidityPool` assets. The necessary role
+is assigned by calling the `addAssetManager` function on the `ACLManager` contract.
+
+```solidity
+aclManager.addAssetManager({
+    account: address(liquidityDeployer)
+});
+```
+
+#### LAUNCHER_ROLE
+
+It is assigned to the `RushLauncher` contract to allow it to launch new RushERC20 tokens and deploy liquidity. The
+necessary role is assigned by calling the `addLauncher` function on the `ACLManager` contract.
+
+```solidity
+aclManager.addLauncher({
+    account: address(rushLauncher)
+});
+```
