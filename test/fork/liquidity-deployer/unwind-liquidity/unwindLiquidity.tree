@@ -11,8 +11,12 @@ unwindLiquidity.t.sol
         │   ├── it should unwind the liquidity
         │   └── it should emit a {UnwindLiquidity} event
         ├── given deadline has passed but early unwind threshold is not reached
-        │   ├── it should unwind the liquidity
-        │   └── it should emit a {UnwindLiquidity} event
+        │   ├── when asset balance of pair is still same as initial balance
+        │   │   ├── it should unwind the liquidity
+        │   │   └── it should emit a {UnwindLiquidity} event
+        │   └── when asset balance of pair is above initial balance by dust
+        │       ├── it should unwind the liquidity
+        │       └── it should emit a {UnwindLiquidity} event
         └── given deadline has passed and early unwind threshold is reached
             ├── it should unwind the liquidity
             └── it should emit a {UnwindLiquidity} event

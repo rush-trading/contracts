@@ -106,10 +106,15 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vm.assertGt(reserveWETHBalanceAfter, reserveWETHBalanceBefore, "balanceOf");
     }
 
-    function test_GivenDeadlineHasPassedButEarlyUnwindThresholdIsNotReached()
+    modifier givenDeadlineHasPassedButEarlyUnwindThresholdIsNotReached() {
+        _;
+    }
+
+    function test_WhenAssetBalanceOfPairIsStillSameAsInitialBalance()
         external
         givenPairHasReceivedLiquidity
         givenPairHasNotBeenUnwound
+        givenDeadlineHasPassedButEarlyUnwindThresholdIsNotReached
     {
         // Set time to be at the deadline.
         LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
@@ -120,6 +125,53 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: users.sender, amount: defaults.LIQUIDITY_AMOUNT() });
 
         // Unwind the liquidity.
+        uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
+        liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
+        uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
+
+        // Assert that the liquidity was unwound.
+        uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.LIQUIDITY_AMOUNT();
+        vm.assertEq(
+            liquidityPoolWETHBalanceAfter - liquidityPoolWETHBalanceBefore,
+            expectedLiquidtyPoolWETHBalanceDiff,
+            "balanceOf"
+        );
+    }
+
+    function test_WhenAssetBalanceOfPairIsAboveInitialBalanceByDust()
+        external
+        givenPairHasReceivedLiquidity
+        givenPairHasNotBeenUnwound
+        givenDeadlineHasPassedButEarlyUnwindThresholdIsNotReached
+    {
+        // Set time to be at the deadline.
+        LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
+        vm.warp(liquidityDeployment.deadline);
+
+        // Send WETH dust to the pair to attempt to brick unwinding.
+        (, address caller,) = vm.readCallers();
+        resetPrank({ msgSender: users.sender });
+        uint256 dust = 2;
+        uint256 equivalentRushERC20ToDust = 19_068_923_769;
+        deal({ token: address(weth), to: users.sender, give: dust });
+        weth.transfer(uniV2Pair, dust);
+        resetPrank({ msgSender: caller });
+
+        // Expect the relevant event to be emitted on the pair.
+        vm.expectEmit({
+            emitter: address(uniV2Pair),
+            checkTopic1: true,
+            checkTopic2: true,
+            checkTopic3: true,
+            checkData: true
+        });
+        emit Sync({ reserve0: uint112(dust), reserve1: uint112(equivalentRushERC20ToDust) });
+
+        // Expect the relevant event to be emitted on LiquidityDeployer.
+        vm.expectEmit({ emitter: address(liquidityDeployer) });
+        emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: users.sender, amount: defaults.LIQUIDITY_AMOUNT() });
+
+        // Unwind the liquidity and gracefully handle `IUniswapV2Pair.mint` revert with `IUniswapV2Pair.sync`.
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
