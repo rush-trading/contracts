@@ -44,7 +44,7 @@ library LD {
         uint256 amountWETHInWithFee;
         uint256 numerator;
         uint256 denominator;
-        uint256 amountRushERC20Out;
+        uint256 maxAmountRushERC20Out;
     }
 
     /**

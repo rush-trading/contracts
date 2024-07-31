@@ -220,12 +220,12 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             vars.amountWETHInWithFee = vars.excessValue * 997;
             vars.numerator = vars.amountWETHInWithFee * vars.rushERC20Reserve;
             vars.denominator = (vars.wethReserve * 1000) + vars.amountWETHInWithFee;
-            vars.amountRushERC20Out = vars.numerator / vars.denominator;
+            vars.maxAmountRushERC20Out = vars.numerator / vars.denominator;
 
             // Interactions: Swap excess WETH to RushERC20.
             IUniswapV2Pair(uniV2Pair).swap({
-                amount0Out: vars.isToken0WETH ? 0 : vars.amountRushERC20Out,
-                amount1Out: vars.isToken0WETH ? vars.amountRushERC20Out : 0,
+                amount0Out: vars.isToken0WETH ? 0 : vars.maxAmountRushERC20Out,
+                amount1Out: vars.isToken0WETH ? vars.maxAmountRushERC20Out : 0,
                 to: originator,
                 data: ""
             });
