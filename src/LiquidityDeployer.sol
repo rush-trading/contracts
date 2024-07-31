@@ -204,7 +204,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             data: abi.encode(vars.totalFee, vars.reserveFee, uniV2Pair)
         });
 
-        // Interactions: Swap any excess ETH to tokens.
+        // Interactions: Swap any excess ETH to RushERC20.
         vars.excessValue = msg.value - vars.totalFee;
         if (vars.excessValue > 0) {
             // Interactions: Convert excess ETH to WETH.
@@ -212,6 +212,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             // Interactions: Transfer excess WETH to the pair.
             IERC20(WETH).safeTransfer(uniV2Pair, vars.excessValue);
 
+            // Calculate the amount of RushERC20 to receive.
             vars.isToken0WETH = IUniswapV2Pair(uniV2Pair).token0() == WETH;
             (vars.reserve0, vars.reserve1,) = IUniswapV2Pair(uniV2Pair).getReserves();
             (vars.wethReserve, vars.rushERC20Reserve) =
@@ -221,7 +222,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             vars.denominator = (vars.wethReserve * 1000) + vars.amountWETHInWithFee;
             vars.amountRushERC20Out = vars.numerator / vars.denominator;
 
-            // Interactions: Swap excess WETH to tokens.
+            // Interactions: Swap excess WETH to RushERC20.
             IUniswapV2Pair(uniV2Pair).swap({
                 amount0Out: vars.isToken0WETH ? 0 : vars.amountRushERC20Out,
                 amount1Out: vars.isToken0WETH ? vars.amountRushERC20Out : 0,

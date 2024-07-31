@@ -5,6 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 import { RushLauncherStore } from "../stores/RushLauncherStore.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
+import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { FC, RL } from "src/types/DataTypes.sol";
@@ -104,17 +105,46 @@ contract RushLauncherHandler is BaseHandler {
         rushLauncherStore.pushDeployment(uniV2Pair);
     }
 
-    function sendWETHToPair(address pair, uint256 amount) external {
-        // Skip when the `pair` address is the zero address.
-        if (pair == address(0)) {
+    function sendWETHDirectlyToPair(address pair, uint256 amount) external {
+        // Skip when the deployment does not exist.
+        if (!rushLauncherStore.deploymentExists(pair)) {
             return;
         }
-        // Bound the `amount` to the range (1 wei, 10K WETH).
+        // Bound the `amount` to the range (1 wei, 10k WETH).
         amount = bound(amount, 1 wei, 10_000 ether);
         // Give required assets to this contract.
         deal({ token: weth, to: address(this), give: amount });
         // Transfer the assets to the pair.
         IERC20(weth).transfer(pair, amount);
+    }
+
+    function swapWETHForRushERC20InPair(address pair, uint256 amount) external {
+        // Skip when the deployment does not exist.
+        if (!rushLauncherStore.deploymentExists(pair)) {
+            return;
+        }
+        // Bound the `amount` to the range (1 wei, 10k WETH).
+        amount = bound(amount, 1 wei, 10_000 ether);
+        // Give required assets to this contract.
+        deal({ token: weth, to: address(this), give: amount });
+        // Transfer the assets to the pair.
+        IERC20(weth).transfer(pair, amount);
+        // Calculate the expected amount of RushERC20 to receive.
+        bool isToken0WETH = IUniswapV2Pair(pair).token0() == weth;
+        (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
+        (uint256 wethReserve, uint256 rushERC20Reserve) = isToken0WETH ? (reserve0, reserve1) : (reserve1, reserve0);
+        uint256 amountInWithFee = amount * 997;
+        uint256 numerator = amountInWithFee * rushERC20Reserve;
+        uint256 denominator = wethReserve * 1000 + amountInWithFee;
+        uint256 maxRushERC20Amount = numerator / denominator;
+        // Skip when the expected amount is zero.
+        if (maxRushERC20Amount == 0) {
+            return;
+        }
+        // Swap the WETH for RushERC20.
+        IUniswapV2Pair(pair).swap(
+            isToken0WETH ? 0 : maxRushERC20Amount, isToken0WETH ? maxRushERC20Amount : 0, address(this), new bytes(0)
+        );
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

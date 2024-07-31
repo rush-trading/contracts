@@ -481,7 +481,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         assertEq(vars.actualIsUnwound, vars.expectedIsUnwound, "isUnwound");
 
         // Assert that the original caller received a RushERC20 amount equivalent to the excess msg value.
-        vars.expectedRushERC20Amount = calculateExactAmountOut({
+        vars.expectedRushERC20Amount = calculateAmountOutFromExactIn({
             amountIn: vars.feeExcessAmount,
             reserveIn: defaults.LIQUIDITY_AMOUNT() + vars.reserveFee,
             reserveOut: defaults.MAX_RUSH_ERC20_SUPPLY()

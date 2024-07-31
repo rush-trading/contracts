@@ -49,7 +49,7 @@ abstract contract Calculations {
     /// @dev Mimics the logic of {UniswapV2Library#getAmountOut}.
     /// @dev
     /// https://github.com/Uniswap/v2-periphery/blob/0335e8f7e1bd1e8d8329fd300aea2ef2f36dd19f/contracts/libraries/UniswapV2Library.sol#L43
-    function calculateExactAmountOut(
+    function calculateAmountOutFromExactIn(
         uint256 amountIn,
         uint256 reserveIn,
         uint256 reserveOut
