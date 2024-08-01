@@ -2,17 +2,13 @@
 pragma solidity >=0.8.25;
 
 import { IACLRoles } from "src/interfaces/IACLRoles.sol";
-import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
-import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
-import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
-import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
 import { LD } from "src/types/DataTypes.sol";
 
 /**
  * @title ILiquidityDeployer
  * @notice A permissioned contract for deploying WETH-backed liquidity to Uniswap V2 pairs over a specified duration.
  */
-interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IACLRoles {
+interface ILiquidityDeployer is IACLRoles {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
@@ -112,7 +108,11 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IA
      * Actions:
      * 1. Store the liquidity deployment entity.
      * 2. Dispatch asset from LiquidityPool to the Uniswap V2 pair.
-     * 3. Swap any excess `msg.value` for RushERC20 tokens and return them to the originator.
+     * 3. Convert received fee from ETH to WETH.
+     * 4. Transfer reserve fee portion to the pair to maintain `_unwindLiquidity` invariant.
+     * 5. Transfer the remaining portion of the fee to the LiquidityPool as APY.
+     * 6. Mint LP tokens to the contract.
+     * 7. Swap any excess `msg.value` for RushERC20 tokens and return them to the originator.
      *
      * @param originator The address that originated the request (i.e., the user).
      * @param uniV2Pair The address of the Uniswap V2 pair that will receive liquidity.
@@ -169,7 +169,16 @@ interface ILiquidityDeployer is IDispatchAssetCallback, IReturnAssetCallback, IA
      *
      * Actions:
      * 1. Set deployment as unwound.
-     * 2. Return asset to the LiquidityPool.
+     * 2. Transfer entire LP token balance to the pair.
+     * 3. Burn the LP tokens to redeem the underlying assets.
+     * 4. Calculate the total reserve fee and the amount of WETH and RushERC20 to lock in the pair.
+     * 5. Transfer the WETH to lock to the pair.
+     * 6. Transfer the RushERC20 to lock to the pair.
+     * 7. Mint LP tokens and send them to a burn address to lock them.
+     * 8. Burn entire remaining balance of the RushERC20 token.
+     * 9. Transfer the total reserve fee to the reserve.
+     * 10. Approve the LiquidityPool to transfer the original liquidity deployment amount.
+     * 11. Return asset to the LiquidityPool.
      *
      * @param uniV2Pair The address of the Uniswap V2 pair that liquidity will be unwound from.
      */

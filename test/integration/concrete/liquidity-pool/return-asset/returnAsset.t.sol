@@ -12,12 +12,12 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         // Run the test.
         uint256 amount = defaults.LIQUIDITY_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.OnlyAssetManagerRole.selector, users.eve));
-        liquidityPool.returnAsset({ from: users.recipient, amount: amount, data: "" });
+        liquidityPool.returnAsset({ from: users.recipient, amount: amount });
     }
 
     modifier whenCallerHasAssetManagerRole() {
-        // Make ReturnAssetCaller the caller in this test.
-        resetPrank({ msgSender: address(returnAssetCaller) });
+        // Make AssetManager the caller in this test.
+        resetPrank({ msgSender: users.assetManager });
         _;
     }
 
@@ -25,7 +25,7 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         // Run the test.
         uint256 amount = defaults.LIQUIDITY_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityPool_ZeroAddress.selector));
-        liquidityPool.returnAsset({ from: address(0), amount: amount, data: "" });
+        liquidityPool.returnAsset({ from: address(0), amount: amount });
     }
 
     modifier whenAssetSenderIsNotZeroAddress() {
@@ -40,7 +40,7 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         // Run the test.
         uint256 amount = defaults.LIQUIDITY_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityPool_SelfReturn.selector));
-        liquidityPool.returnAsset({ from: address(liquidityPool), amount: amount, data: "" });
+        liquidityPool.returnAsset({ from: address(liquidityPool), amount: amount });
     }
 
     modifier whenAssetSenderIsNotLiquidityPoolItself() {
@@ -56,7 +56,7 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
         // Run the test.
         uint256 amount = 0;
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityPool_ZeroAmount.selector));
-        liquidityPool.returnAsset({ from: users.sender, amount: amount, data: "" });
+        liquidityPool.returnAsset({ from: users.sender, amount: amount });
     }
 
     function test_WhenAmountIsNotZero()
@@ -80,11 +80,11 @@ contract ReturnAsset_Integration_Concrete_Test is LiquidityPool_Integration_Conc
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(liquidityPool) });
-        emit ReturnAsset({ originator: address(returnAssetCaller), from: users.sender, amount: amount });
+        emit ReturnAsset({ originator: users.assetManager, from: users.sender, amount: amount });
 
         // Return the asset.
         uint256 beforeBalance = wethMock.balanceOf(users.sender);
-        liquidityPool.returnAsset({ from: users.sender, amount: amount, data: "" });
+        liquidityPool.returnAsset({ from: users.sender, amount: amount });
         uint256 afterBalance = wethMock.balanceOf(users.sender);
 
         // Assert that the asset has been dispatched.

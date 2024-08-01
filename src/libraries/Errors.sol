@@ -43,12 +43,6 @@ library Errors {
     error LiquidityDeployer_FeeMismatch(uint256 expected, uint256 received);
 
     /**
-     * @notice Thrown when the callback sender is invalid.
-     * @param sender The address of the callback sender.
-     */
-    error LiquidityDeployer_InvalidCallbackSender(address sender);
-
-    /**
      * @notice Thrown when the duration is greater than the maximum limit.
      * @param duration The duration attempted to set.
      */

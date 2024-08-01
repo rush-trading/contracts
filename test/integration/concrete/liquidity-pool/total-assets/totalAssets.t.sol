@@ -22,8 +22,8 @@ contract TotalAssets_Integration_Concrete_Test is LiquidityPool_Integration_Conc
     }
 
     function test_GivenPoolHasReceivedDepositsAndDispatches() external givenPoolHasReceivedDeposits {
-        resetPrank({ msgSender: address(dispatchAssetCaller) });
-        liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.LIQUIDITY_AMOUNT(), data: "" });
+        resetPrank({ msgSender: users.assetManager });
+        liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.LIQUIDITY_AMOUNT() });
 
         uint256 actualTotalAssets = liquidityPool.totalAssets();
         uint256 expectedTotalAssets = defaults.LIQUIDITY_AMOUNT() + wethMock.balanceOf(address(liquidityPool));
@@ -31,8 +31,8 @@ contract TotalAssets_Integration_Concrete_Test is LiquidityPool_Integration_Conc
     }
 
     function test_GivenPoolHasReceivedDepositsAndAllAreDispatched() external givenPoolHasReceivedDeposits {
-        resetPrank({ msgSender: address(dispatchAssetCaller) });
-        liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT(), data: "" });
+        resetPrank({ msgSender: users.assetManager });
+        liquidityPool.dispatchAsset({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT() });
 
         uint256 actualTotalAssets = liquidityPool.totalAssets();
         uint256 expectedTotalAssets = defaults.DEPOSIT_AMOUNT();

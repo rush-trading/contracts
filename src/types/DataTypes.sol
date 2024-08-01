@@ -56,11 +56,8 @@ library LD {
         address originator;
     }
 
-    /// @dev The local variables used in `onReturnAsset`.
-    struct OnReturnAssetLocalVars {
-        address uniV2Pair;
-        address rushERC20;
-        uint256 wethSubsidy;
+    /// @dev The local variables used in `_unwindLiquidity`.
+    struct UnwindLiquidityLocalVars {
         uint256 wethBalance;
         uint256 rushERC20Balance;
         uint256 initialWETHReserve;

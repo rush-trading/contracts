@@ -57,6 +57,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         // Create users for testing.
         users = Users({
             admin: createUser("Admin"),
+            assetManager: createUser("AssetManager"),
             eve: createUser("Eve"),
             launcher: createUser("Launcher"),
             recipient: createUser("Recipient"),
@@ -147,6 +148,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
         aclManager.addAssetManager({ account: address(liquidityDeployer) });
+        aclManager.addAssetManager({ account: address(users.assetManager) });
         aclManager.addLauncher({ account: users.launcher });
         resetPrank({ msgSender: caller });
     }

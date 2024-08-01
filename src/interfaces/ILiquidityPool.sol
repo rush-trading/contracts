@@ -43,7 +43,6 @@ interface ILiquidityPool is IERC4626, IACLRoles {
      *
      * Requirements:
      * - The caller must have the asset manager role.
-     * - The caller must implement the IDispatchAssetCallback interface.
      * - The `to` address must not be the zero address.
      * - The `to` address must not be the contract address itself.
      * - The asset amount must be greater than zero.
@@ -51,34 +50,29 @@ interface ILiquidityPool is IERC4626, IACLRoles {
      * Actions:
      * - Increases the total amount of outstanding assets.
      * - Transfers the asset from the contract to the recipient.
-     * - Executes the callback logic after transferring the assets.
      *
      * @param to The address to which assets are dispatched.
      * @param amount The amount of assets to dispatch.
-     * @param data Additional data.
      */
-    function dispatchAsset(address to, uint256 amount, bytes calldata data) external;
+    function dispatchAsset(address to, uint256 amount) external;
 
     /**
      * @notice Returns assets from a sender.
      *
      * Requirements:
      * - The caller must have the asset manager role.
-     * - The caller must implement the IReturnAssetCallback interface.
      * - The `from` address must not be the zero address.
      * - The `from` address must not be the contract address itself.
      * - The asset amount must be greater than zero.
      *
      * Actions:
      * - Decreases the total amount of outstanding assets.
-     * - Executes the callback logic before receiving the assets.
      * - Transfers the asset from the sender to the contract.
      *
      * @param from The address from which assets are returned.
      * @param amount The amount of assets to return.
-     * @param data Additional data.
      */
-    function returnAsset(address from, uint256 amount, bytes calldata data) external;
+    function returnAsset(address from, uint256 amount) external;
 
     // #endregion ----------------------------------------------------------------------------------- //
 }

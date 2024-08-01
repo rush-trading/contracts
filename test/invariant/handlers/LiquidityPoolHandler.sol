@@ -80,7 +80,7 @@ contract LiquidityPoolHandler is BaseHandler {
         liquidityPool.withdraw(amount, receiver, owner);
     }
 
-    function dispatchAsset(address to, uint256 amount, bytes calldata data) external useNewSender(address(this)) {
+    function dispatchAsset(address to, uint256 amount) external useNewSender(address(this)) {
         // Skip when the `to` address is the zero address.
         if (to == address(0)) {
             return;
@@ -101,10 +101,10 @@ contract LiquidityPoolHandler is BaseHandler {
         // Increase the outstanding assets of the LiquidityPool.
         liquidityPoolStore.increaseOutstandingAssets(amount);
         // Dispatch the assets to the `to` address.
-        liquidityPool.dispatchAsset(to, amount, data);
+        liquidityPool.dispatchAsset(to, amount);
     }
 
-    function returnAsset(address from, uint256 amount, bytes calldata data) external useNewSender(address(this)) {
+    function returnAsset(address from, uint256 amount) external useNewSender(address(this)) {
         // Skip when the `from` address is the zero address.
         if (from == address(0)) {
             return;
@@ -130,7 +130,7 @@ contract LiquidityPoolHandler is BaseHandler {
         // Decrease the outstanding assets of the LiquidityPool.
         liquidityPoolStore.decreaseOutstandingAssets(amount);
         // Return the assets from the `from` address to the LiquidityPool.
-        liquidityPool.returnAsset(from, amount, data);
+        liquidityPool.returnAsset(from, amount);
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

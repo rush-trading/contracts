@@ -6,8 +6,6 @@ import { ERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ACLRoles } from "src/abstracts/ACLRoles.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
-import { IDispatchAssetCallback } from "src/interfaces/callback/IDispatchAssetCallback.sol";
-import { IReturnAssetCallback } from "src/interfaces/callback/IReturnAssetCallback.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 /**
@@ -57,7 +55,7 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
     // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc ILiquidityPool
-    function dispatchAsset(address to, uint256 amount, bytes calldata data) external override onlyAssetManagerRole {
+    function dispatchAsset(address to, uint256 amount) external override onlyAssetManagerRole {
         // Checks: `to` must not be the zero address.
         if (to == address(0)) {
             revert Errors.LiquidityPool_ZeroAddress();
@@ -76,15 +74,13 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
 
         // Interactions: Transfer the asset to the recipient.
         IERC20(asset()).safeTransfer(to, amount);
-        // Interactions: Execute the callback logic after transferring the assets.
-        IDispatchAssetCallback(msg.sender).onDispatchAsset({ to: to, amount: amount, data: data });
 
         // Emit an event.
         emit DispatchAsset({ originator: msg.sender, to: to, amount: amount });
     }
 
     /// @inheritdoc ILiquidityPool
-    function returnAsset(address from, uint256 amount, bytes calldata data) external override onlyAssetManagerRole {
+    function returnAsset(address from, uint256 amount) external override onlyAssetManagerRole {
         // Checks: `from` must not be the zero address.
         if (from == address(0)) {
             revert Errors.LiquidityPool_ZeroAddress();
@@ -101,8 +97,6 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
         // Effects: Decrease the total amount of outstanding assets.
         outstandingAssets -= amount;
 
-        // Interactions: Execute the callback logic before receiving the assets.
-        IReturnAssetCallback(msg.sender).onReturnAsset({ from: from, amount: amount, data: data });
         // Interactions: Transfer the asset from the sender.
         IERC20(asset()).safeTransferFrom(from, address(this), amount);
 
