@@ -207,28 +207,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         // Interactions: Swap any excess ETH to RushERC20.
         vars.excessValue = msg.value - vars.totalFee;
         if (vars.excessValue > 0) {
-            // Interactions: Convert excess ETH to WETH.
-            IWETH(WETH).deposit{ value: vars.excessValue }();
-            // Interactions: Transfer excess WETH to the pair.
-            IERC20(WETH).safeTransfer(uniV2Pair, vars.excessValue);
-
-            // Calculate the amount of RushERC20 to receive.
-            vars.isToken0WETH = IUniswapV2Pair(uniV2Pair).token0() == WETH;
-            (vars.reserve0, vars.reserve1,) = IUniswapV2Pair(uniV2Pair).getReserves();
-            (vars.wethReserve, vars.rushERC20Reserve) =
-                vars.isToken0WETH ? (vars.reserve0, vars.reserve1) : (vars.reserve1, vars.reserve0);
-            vars.amountWETHInWithFee = vars.excessValue * 997;
-            vars.numerator = vars.amountWETHInWithFee * vars.rushERC20Reserve;
-            vars.denominator = (vars.wethReserve * 1000) + vars.amountWETHInWithFee;
-            vars.maxAmountRushERC20Out = vars.numerator / vars.denominator;
-
-            // Interactions: Swap excess WETH to RushERC20.
-            IUniswapV2Pair(uniV2Pair).swap({
-                amount0Out: vars.isToken0WETH ? 0 : vars.maxAmountRushERC20Out,
-                amount1Out: vars.isToken0WETH ? vars.maxAmountRushERC20Out : 0,
-                to: originator,
-                data: ""
-            });
+            _swapETHToRushERC20({ uniV2Pair: uniV2Pair, originator: originator, ethAmountIn: vars.excessValue });
         }
 
         // Emit an event.
@@ -292,9 +271,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             revert Errors.LiquidityDeployer_PairAlreadyUnwound({ uniV2Pair: uniV2Pair });
         }
         // Checks: Deadline must have passed or early unwind threshold must be met.
-        (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(uniV2Pair).getReserves();
-        (uint256 wethReserve,) =
-            IUniswapV2Pair(uniV2Pair).token0() == WETH ? (reserve0, reserve1) : (reserve1, reserve0);
+        (uint256 wethReserve,,) = _getOrderedReserves(uniV2Pair);
         uint256 targetWETHReserve = deployment.amount + EARLY_UNWIND_THRESHOLD;
         if (block.timestamp < deployment.deadline && wethReserve < targetWETHReserve) {
             revert Errors.LiquidityDeployer_UnwindNotReady({
@@ -420,7 +397,44 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region -------------------------=|+ INTERNAL CONSTANT FUNCTIONS +|=-------------------------- //
+
+    /// @dev Returns the ordered reserves of the Uniswap V2 pair with the ordering.
+    function _getOrderedReserves(address uniV2Pair)
+        internal
+        view
+        returns (uint256 wethReserve, uint256 rushERC20Reserve, bool isToken0WETH)
+    {
+        isToken0WETH = IUniswapV2Pair(uniV2Pair).token0() == WETH;
+        (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(uniV2Pair).getReserves();
+        (wethReserve, rushERC20Reserve) = isToken0WETH ? (reserve0, reserve1) : (reserve1, reserve0);
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region -----------------------=|+ INTERNAL NON-CONSTANT FUNCTIONS +|=------------------------ //
+
+    /// @dev Swaps ETH to RushERC20 via Uniswap V2 pair.
+    function _swapETHToRushERC20(address uniV2Pair, address originator, uint256 ethAmountIn) internal {
+        // Calculate the amount of RushERC20 to receive.
+        (uint256 wethReserve, uint256 rushERC20Reserve, bool isToken0WETH) = _getOrderedReserves(uniV2Pair);
+        uint256 ethAmountInWithFee = ethAmountIn * 997;
+        uint256 numerator = ethAmountInWithFee * rushERC20Reserve;
+        uint256 denominator = (wethReserve * 1000) + ethAmountInWithFee;
+        uint256 maxAmountRushERC20Out = numerator / denominator;
+
+        // Interactions: Convert ETH to WETH.
+        IWETH(WETH).deposit{ value: ethAmountIn }();
+        // Interactions: Transfer WETH to the pair.
+        IERC20(WETH).safeTransfer(uniV2Pair, ethAmountIn);
+        // Interactions: Swap WETH to equivalent RushERC20.
+        IUniswapV2Pair(uniV2Pair).swap({
+            amount0Out: isToken0WETH ? 0 : maxAmountRushERC20Out,
+            amount1Out: isToken0WETH ? maxAmountRushERC20Out : 0,
+            to: originator,
+            data: ""
+        });
+    }
 
     /**
      * @dev Unwinds the liquidity deployment.
