@@ -370,6 +370,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             try IUniswapV2Pair(uniV2Pair).mint(address(1)) { }
             catch {
                 // If minting fails, gracefully recover by syncing the pair without minting LP tokens.
+                // Interactions: Sync the pair.
                 IUniswapV2Pair(uniV2Pair).sync();
             }
         } else {
