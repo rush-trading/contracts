@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.25;
+pragma solidity >=0.8.26;
 
 /// @notice Contract with default values used throughout the tests.
 contract Defaults {

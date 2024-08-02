@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.25;
+pragma solidity >=0.8.26;
 
 import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.25;
+pragma solidity >=0.8.26;
 
 import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
 import { IRushERC20Factory } from "src/RushERC20Factory.sol";

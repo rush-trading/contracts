@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.25 <0.9.0;
+pragma solidity >=0.8.26 <0.9.0;
 
 import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";

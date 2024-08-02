@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // solhint-disable max-line-length
-pragma solidity >=0.8.25;
+pragma solidity >=0.8.26;
 
 abstract contract Calculations {
     /// @dev Mimics fee calculation logic in {FeeCalculator#calculateFee}.

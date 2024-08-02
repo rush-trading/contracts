@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.25 <0.9.0;
+pragma solidity >=0.8.26 <0.9.0;
 
 import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
 import { FC } from "src/types/DataTypes.sol";

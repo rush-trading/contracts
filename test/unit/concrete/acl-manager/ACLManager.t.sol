@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.25 <0.9.0;
+pragma solidity >=0.8.26 <0.9.0;
 
 import { ACLManager } from "src/ACLManager.sol";
 import { Base_Test } from "test/Base.t.sol";

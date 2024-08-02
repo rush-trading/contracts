@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.25;
+pragma solidity >=0.8.26;
 
 /// @title Errors
 /// @notice Library containing all custom errors the protocol may revert with.

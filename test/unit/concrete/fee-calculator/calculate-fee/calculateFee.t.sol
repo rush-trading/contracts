@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.25 <0.9.0;
+pragma solidity >=0.8.26 <0.9.0;
 
 import { ud } from "@prb/math/src/UD60x18.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";

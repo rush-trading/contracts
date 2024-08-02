@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.25 <0.9.0;
+pragma solidity >=0.8.26 <0.9.0;
 
 import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 import { BadRushERC20Mock } from "test/mocks/BadRushERC20Mock.sol";

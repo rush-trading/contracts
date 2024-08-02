@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.25 <0.9.0;
+pragma solidity >=0.8.26 <0.9.0;
 
 import { BaseHandler } from "./BaseHandler.sol";
 import { LiquidityPoolStore } from "../stores/LiquidityPoolStore.sol";
