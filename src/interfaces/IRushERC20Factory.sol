@@ -2,7 +2,6 @@
 pragma solidity >=0.8.26;
 
 import { IACLRoles } from "src/interfaces/IACLRoles.sol";
-import { CloneTemplate } from "src/libraries/CloneTemplate.sol";
 
 /**
  * @title IRushERC20Factory
@@ -40,7 +39,7 @@ interface IRushERC20Factory is IACLRoles {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /// @notice Retrieves the template entity.
-    function getTemplate(bytes32 kind) external view returns (CloneTemplate.Data memory template);
+    function getTemplate(bytes32 kind) external view returns (address template);
 
     // #endregion ----------------------------------------------------------------------------------- //
 

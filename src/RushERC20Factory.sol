@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26;
 
-import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 import { ACLRoles } from "src/abstracts/ACLRoles.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
-import { CloneTemplate } from "src/libraries/CloneTemplate.sol";
+import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 /**
@@ -14,13 +14,12 @@ import { Errors } from "src/libraries/Errors.sol";
  * @notice See the documentation in {IRushERC20Factory}.
  */
 contract RushERC20Factory is IRushERC20Factory, ACLRoles {
-    using Address for address;
-    using CloneTemplate for CloneTemplate.Data;
+    using Clones for address;
 
     // #region -------------------------------=|+ INTERNAL STORAGE +|=------------------------------- //
 
     /// @dev A mapping of token templates.
-    mapping(bytes32 kind => CloneTemplate.Data template) internal _templates;
+    mapping(bytes32 kind => address template) internal _templates;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -37,7 +36,7 @@ contract RushERC20Factory is IRushERC20Factory, ACLRoles {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /// @inheritdoc IRushERC20Factory
-    function getTemplate(bytes32 kind) external view override returns (CloneTemplate.Data memory template) {
+    function getTemplate(bytes32 kind) external view override returns (address template) {
         return _templates[kind];
     }
 
@@ -54,7 +53,7 @@ contract RushERC20Factory is IRushERC20Factory, ACLRoles {
 
         // Effects: Add token template.
         bytes32 kind = keccak256(abi.encodePacked(IRushERC20(implementation).description()));
-        _templates[kind].set({ implementation: implementation });
+        _templates[kind] = implementation;
 
         // Emit an event.
         emit AddTemplate({ kind: kind, version: IRushERC20(implementation).version(), implementation: implementation });
@@ -78,7 +77,7 @@ contract RushERC20Factory is IRushERC20Factory, ACLRoles {
     function removeTemplate(string calldata description) external onlyAdminRole {
         // Checks: The given kind must be registered.
         bytes32 kind = keccak256(abi.encodePacked(description));
-        address implementation = _templates[kind].implementation;
+        address implementation = _templates[kind];
         if (implementation == address(0)) {
             revert Errors.RushERC20Factory_NotTemplate(kind);
         }
