@@ -383,7 +383,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         // Interactions: Transfer the total reserve fee to the reserve.
         IERC20(WETH).safeTransfer(RESERVE, vars.totalReserveFee);
         // Interactions: Approve the LiquidityPool to transfer the original liquidity deployment amount.
-        IERC20(WETH).approve(LIQUIDITY_POOL, deployment.amount);
+        IERC20(WETH).safeIncreaseAllowance(LIQUIDITY_POOL, deployment.amount);
         // Interactions: Return asset to the LiquidityPool.
         ILiquidityPool(LIQUIDITY_POOL).returnAsset({ from: address(this), amount: deployment.amount });
 

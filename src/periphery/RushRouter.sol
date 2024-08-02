@@ -105,7 +105,7 @@ contract RushRouter {
         IERC20(WETH).safeTransferFrom({ from: msg.sender, to: address(this), value: amount });
 
         // Approve the LiquidityPool to spend the WETH.
-        IERC20(WETH).approve({ spender: address(LIQUIDITY_POOL), value: amount });
+        IERC20(WETH).safeIncreaseAllowance({ spender: address(LIQUIDITY_POOL), value: amount });
 
         // Deposit the WETH into the LiquidityPool and mint the corresponding amount of shares to the sender.
         LIQUIDITY_POOL.deposit({ assets: amount, receiver: msg.sender });
@@ -119,7 +119,7 @@ contract RushRouter {
         IWETH(WETH).deposit{ value: msg.value }();
 
         // Approve the LiquidityPool to spend the WETH.
-        IERC20(WETH).approve({ spender: address(LIQUIDITY_POOL), value: msg.value });
+        IERC20(WETH).safeIncreaseAllowance({ spender: address(LIQUIDITY_POOL), value: msg.value });
 
         // Deposit the WETH into the LiquidityPool and mint the corresponding amount of shares to the sender.
         LIQUIDITY_POOL.deposit({ assets: msg.value, receiver: msg.sender });
