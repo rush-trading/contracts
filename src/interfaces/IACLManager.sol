@@ -4,6 +4,7 @@ pragma solidity >=0.8.26;
 /**
  * @title IACLManager
  * @notice The protocol's access control list manager.
+ * @dev Assume that none of the ACL roles will ever be assigned to malicious actors.
  */
 interface IACLManager {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
