@@ -12,12 +12,12 @@ contract RushERC20Basic is ERC20Upgradeable, RushERC20Abstract {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /// @inheritdoc IRushERC20
-    function description() public pure override returns (string memory) {
+    function description() external pure override returns (string memory) {
         return "RushERC20Basic";
     }
 
     /// @inheritdoc IRushERC20
-    function version() public pure override returns (uint256) {
+    function version() external pure override returns (uint256) {
         return 1;
     }
 
@@ -33,7 +33,7 @@ contract RushERC20Basic is ERC20Upgradeable, RushERC20Abstract {
         address recipient,
         bytes calldata
     )
-        public
+        external
         override
         initializer
     {
