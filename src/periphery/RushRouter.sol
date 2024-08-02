@@ -2,13 +2,10 @@
 pragma solidity >=0.8.26;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { IRushLauncher } from "src/interfaces/IRushLauncher.sol";
 import { IWETH } from "src/external/IWETH.sol";
-
 import { RL } from "src/types/DataTypes.sol";
 
 /**
@@ -16,8 +13,6 @@ import { RL } from "src/types/DataTypes.sol";
  * @notice A periphery contract that acts as a DSProxy target for Rush protocol interactions.
  */
 contract RushRouter {
-    using SafeERC20 for IERC20;
-
     // #region ----------------------------------=|+ CONSTANTS +|=----------------------------------- //
 
     /// @dev The RushERC20Basic kind.
@@ -92,7 +87,7 @@ contract RushRouter {
         uint256 rushERC20Balance = IERC20(rushERC20).balanceOf(address(this));
         if (rushERC20Balance > 0) {
             // Transfer any received RushERC20 tokens to the sender.
-            IERC20(rushERC20).safeTransfer({ to: msg.sender, value: rushERC20Balance });
+            IERC20(rushERC20).transfer({ to: msg.sender, value: rushERC20Balance });
         }
     }
 
@@ -102,10 +97,10 @@ contract RushRouter {
      */
     function lend(uint256 amount) external {
         // Transfer the amount of WETH to this contract.
-        IERC20(WETH).safeTransferFrom({ from: msg.sender, to: address(this), value: amount });
+        IERC20(WETH).transferFrom({ from: msg.sender, to: address(this), value: amount });
 
         // Approve the LiquidityPool to spend the WETH.
-        IERC20(WETH).safeIncreaseAllowance({ spender: address(LIQUIDITY_POOL), value: amount });
+        IERC20(WETH).approve({ spender: address(LIQUIDITY_POOL), value: amount });
 
         // Deposit the WETH into the LiquidityPool and mint the corresponding amount of shares to the sender.
         LIQUIDITY_POOL.deposit({ assets: amount, receiver: msg.sender });
@@ -119,7 +114,7 @@ contract RushRouter {
         IWETH(WETH).deposit{ value: msg.value }();
 
         // Approve the LiquidityPool to spend the WETH.
-        IERC20(WETH).safeIncreaseAllowance({ spender: address(LIQUIDITY_POOL), value: msg.value });
+        IERC20(WETH).approve({ spender: address(LIQUIDITY_POOL), value: msg.value });
 
         // Deposit the WETH into the LiquidityPool and mint the corresponding amount of shares to the sender.
         LIQUIDITY_POOL.deposit({ assets: msg.value, receiver: msg.sender });
@@ -134,7 +129,7 @@ contract RushRouter {
         uint256 shares = LIQUIDITY_POOL.previewWithdraw(amount);
 
         // Transfer the amount of shares to this contract.
-        IERC20(LIQUIDITY_POOL).safeTransferFrom({ from: msg.sender, to: address(this), value: shares });
+        IERC20(LIQUIDITY_POOL).transferFrom({ from: msg.sender, to: address(this), value: shares });
 
         // Redeem the amount of shares from the LiquidityPool and transfer the corresponding amount of WETH to the
         // sender.
@@ -150,7 +145,7 @@ contract RushRouter {
         uint256 shares = LIQUIDITY_POOL.previewWithdraw(amount);
 
         // Transfer the amount of shares to this contract.
-        IERC20(LIQUIDITY_POOL).safeTransferFrom({ from: msg.sender, to: address(this), value: shares });
+        IERC20(LIQUIDITY_POOL).transferFrom({ from: msg.sender, to: address(this), value: shares });
 
         // Redeem the amount of shares from the LiquidityPool and transfer the corresponding amount of WETH to this
         // contract.

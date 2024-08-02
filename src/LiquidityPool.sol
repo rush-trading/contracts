@@ -3,7 +3,6 @@ pragma solidity >=0.8.26;
 
 import { ERC4626, IERC4626 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 import { ERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ACLRoles } from "src/abstracts/ACLRoles.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -13,8 +12,6 @@ import { Errors } from "src/libraries/Errors.sol";
  * @notice See the documentation in {ILiquidityPool}.
  */
 contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
-    using SafeERC20 for IERC20;
-
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
     /// @inheritdoc ILiquidityPool
@@ -73,7 +70,7 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
         outstandingAssets += amount;
 
         // Interactions: Transfer the asset to the recipient.
-        IERC20(asset()).safeTransfer(to, amount);
+        IERC20(asset()).transfer(to, amount);
 
         // Emit an event.
         emit DispatchAsset({ originator: msg.sender, to: to, amount: amount });
@@ -98,7 +95,7 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
         outstandingAssets -= amount;
 
         // Interactions: Transfer the asset from the sender.
-        IERC20(asset()).safeTransferFrom(from, address(this), amount);
+        IERC20(asset()).transferFrom(from, address(this), amount);
 
         // Emit an event.
         emit ReturnAsset({ originator: msg.sender, from: from, amount: amount });

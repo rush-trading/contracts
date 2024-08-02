@@ -3,7 +3,6 @@ pragma solidity >=0.8.26;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
 import { ACLRoles } from "src/abstracts/ACLRoles.sol";
@@ -21,7 +20,6 @@ import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
  */
 contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     using SafeCast for uint256;
-    using SafeERC20 for IERC20;
 
     // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
 
@@ -198,9 +196,9 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         // Interactions: Convert received fee from ETH to WETH.
         IWETH(WETH).deposit{ value: vars.totalFee }();
         // Interactions: Transfer reserve fee portion to the pair to maintain `_unwindLiquidity` invariant.
-        IERC20(WETH).safeTransfer(uniV2Pair, vars.reserveFee);
+        IERC20(WETH).transfer(uniV2Pair, vars.reserveFee);
         // Interactions: Transfer the remaining portion of the fee to the LiquidityPool as APY.
-        IERC20(WETH).safeTransfer(LIQUIDITY_POOL, vars.totalFee - vars.reserveFee);
+        IERC20(WETH).transfer(LIQUIDITY_POOL, vars.totalFee - vars.reserveFee);
         // Interactions: Mint LP tokens to the contract.
         IUniswapV2Pair(uniV2Pair).mint(address(this));
         // Interactions: Swap any excess ETH to RushERC20.
@@ -316,7 +314,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         // Interactions: Convert ETH to WETH.
         IWETH(WETH).deposit{ value: ethAmountIn }();
         // Interactions: Transfer WETH to the pair.
-        IERC20(WETH).safeTransfer(uniV2Pair, ethAmountIn);
+        IERC20(WETH).transfer(uniV2Pair, ethAmountIn);
         // Interactions: Swap WETH to equivalent RushERC20.
         IUniswapV2Pair(uniV2Pair).swap({
             amount0Out: isToken0WETH ? 0 : maxAmountRushERC20Out,
@@ -340,7 +338,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         deployment.isUnwound = true;
 
         // Interactions: Transfer entire LP token balance to the pair.
-        IERC20(uniV2Pair).safeTransfer(uniV2Pair, IERC20(uniV2Pair).balanceOf(address(this)));
+        IERC20(uniV2Pair).transfer(uniV2Pair, IERC20(uniV2Pair).balanceOf(address(this)));
         // Interactions: Burn the LP tokens to redeem the underlying assets.
         IUniswapV2Pair(uniV2Pair).burn({ to: address(this) });
 
@@ -361,9 +359,9 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             vars.rushERC20ToLock =
                 (ud(vars.rushERC20Balance) * (ud(vars.wethToLock) / ud(vars.wethBalance))).intoUint256();
             // Interactions: Transfer the WETH to lock to the pair.
-            IERC20(WETH).safeTransfer(uniV2Pair, vars.wethToLock);
+            IERC20(WETH).transfer(uniV2Pair, vars.wethToLock);
             // Interactions: Transfer the RushERC20 to lock to the pair.
-            IERC20(deployment.rushERC20).safeTransfer(uniV2Pair, vars.rushERC20ToLock);
+            IERC20(deployment.rushERC20).transfer(uniV2Pair, vars.rushERC20ToLock);
             // Interactions: Mint LP tokens send them to a burn address to lock them.
             // Calling `IUniswapV2Pair.mint` here could potentially revert if resulting liquidity is 0, which makes this
             // function susceptible to griefing attacks if error was not handled.
@@ -379,11 +377,11 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         }
 
         // Interactions: Burn entire remaining balance of the RushERC20 token.
-        IERC20(deployment.rushERC20).safeTransfer(address(1), vars.rushERC20Balance - vars.rushERC20ToLock);
+        IERC20(deployment.rushERC20).transfer(address(1), vars.rushERC20Balance - vars.rushERC20ToLock);
         // Interactions: Transfer the total reserve fee to the reserve.
-        IERC20(WETH).safeTransfer(RESERVE, vars.totalReserveFee);
+        IERC20(WETH).transfer(RESERVE, vars.totalReserveFee);
         // Interactions: Approve the LiquidityPool to transfer the original liquidity deployment amount.
-        IERC20(WETH).safeIncreaseAllowance(LIQUIDITY_POOL, deployment.amount);
+        IERC20(WETH).approve(LIQUIDITY_POOL, deployment.amount);
         // Interactions: Return asset to the LiquidityPool.
         ILiquidityPool(LIQUIDITY_POOL).returnAsset({ from: address(this), amount: deployment.amount });
 
