@@ -67,18 +67,19 @@ contract FeeCalculator is IFeeCalculator {
 
         if (vars.utilizationRatio > OPTIMAL_UTILIZATION_RATIO) {
             // If U > U_optimal, formula is:
-            //                                                      U - U_optimal
-            // R_fee = BASE_FEE_RATE + RATE_SLOPE_1 + RATE_SLOPE_2 * ---------------
-            //                                                      1 - U_optimal
-            uint256 excessUtilizationRatio =
-                (ud(vars.utilizationRatio - OPTIMAL_UTILIZATION_RATIO) / ud(MAX_EXCESS_UTILIZATION_RATIO)).intoUint256();
-
-            vars.feeRate += RATE_SLOPE_1 + (ud(RATE_SLOPE_2) * ud(excessUtilizationRatio)).intoUint256();
+            //                                                        U - U_optimal
+            // R_fee = BASE_FEE_RATE + RATE_SLOPE_1 + RATE_SLOPE_2 * ----------------
+            //                                                        1 - U_optimal
+            vars.feeRate += RATE_SLOPE_1
+                + (
+                    ud(RATE_SLOPE_2)
+                        * (ud(vars.utilizationRatio - OPTIMAL_UTILIZATION_RATIO) / ud(MAX_EXCESS_UTILIZATION_RATIO))
+                ).intoUint256();
         } else {
             // Else, formula is:
             //                                             U
             // R_fee = BASE_FEE_RATE + RATE_SLOPE_1 *  -----------
-            //                                         U_optimal
+            //                                          U_optimal
             vars.feeRate +=
                 (ud(RATE_SLOPE_1) * (ud(vars.utilizationRatio) / ud(OPTIMAL_UTILIZATION_RATIO))).intoUint256();
         }

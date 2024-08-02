@@ -32,17 +32,20 @@ abstract contract Calculations {
     {
         if (utilizationRatio > optimalUtilizationRatio) {
             // If U > U_optimal, formula is:
-            //                                                      U - U_optimal
-            // R_fee = BASE_FEE_RATE + RATE_SLOPE_1 + RATE_SLOPE_2 * ---------------
-            //                                                      1 - U_optimal
+            //                                                        U - U_optimal
+            // R_fee = BASE_FEE_RATE + RATE_SLOPE_1 + RATE_SLOPE_2 * ----------------
+            //                                                        1 - U_optimal
             feeRate = baseFeeRate + rateSlope1
-                + rateSlope2 * (utilizationRatio - optimalUtilizationRatio) / (1e18 - optimalUtilizationRatio);
+                + (
+                    (rateSlope2 * utilizationRatio - rateSlope2 * optimalUtilizationRatio)
+                        / (1e18 - optimalUtilizationRatio)
+                );
         } else {
             // Else, formula is:
             //                                             U
             // R_fee = BASE_FEE_RATE + RATE_SLOPE_1 *  -----------
-            //                                         U_optimal
-            feeRate = baseFeeRate + rateSlope1 * utilizationRatio / optimalUtilizationRatio;
+            //                                          U_optimal
+            feeRate = baseFeeRate + (rateSlope1 * utilizationRatio) / optimalUtilizationRatio;
         }
     }
 
