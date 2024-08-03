@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { ud } from "@prb/math/src/UD60x18.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { LD } from "src/types/DataTypes.sol";
 import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
@@ -361,13 +361,12 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vars.rushERC20BalanceOfSenderAfter = GoodRushERC20Mock(rushERC20Mock).balanceOf({ account: users.sender });
 
         // Assert that the liquidity was deployed.
-        vars.reserveFee = (ud(vars.feeAmount) * ud(defaults.RESERVE_FACTOR())).intoUint256();
+        vars.reserveFee = Math.mulDiv(vars.feeAmount, defaults.RESERVE_FACTOR(), 1e18);
         vars.expectedBalanceDiff = vars.amount + vars.reserveFee;
         assertEq(vars.wethBalanceOfPairAfter - vars.wethBalanceOfPairBefore, vars.expectedBalanceDiff, "balanceOf");
         // Assert that the LiquidityPool balance is correct after deployment.
         // (100% - reserveFactor) of the total fee amount is added back to the LiquidityPool as APY.
-        vars.expectedBalanceDiff =
-            vars.amount - (ud(vars.feeAmount) * ud(1e18 - defaults.RESERVE_FACTOR())).intoUint256();
+        vars.expectedBalanceDiff = vars.amount - Math.mulDiv(vars.feeAmount, 1e18 - defaults.RESERVE_FACTOR(), 1e18);
         assertEq(
             vars.wethBalanceOfLiquidtyPoolBefore - vars.wethBalanceOfLiquidtyPoolAfter,
             vars.expectedBalanceDiff,
@@ -448,13 +447,12 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vars.rushERC20BalanceOfSenderAfter = GoodRushERC20Mock(rushERC20Mock).balanceOf({ account: users.sender });
 
         // Assert that the liquidity was deployed.
-        vars.reserveFee = (ud(vars.feeAmount) * ud(defaults.RESERVE_FACTOR())).intoUint256();
+        vars.reserveFee = Math.mulDiv(vars.feeAmount, defaults.RESERVE_FACTOR(), 1e18);
         vars.expectedBalanceDiff = vars.amount + vars.feeExcessAmount + vars.reserveFee;
         assertEq(vars.wethBalanceOfPairAfter - vars.wethBalanceOfPairBefore, vars.expectedBalanceDiff, "balanceOf");
         // Assert that the LiquidityPool balance is correct after deployment.
         // (100% - reserveFactor) of the total fee amount is added back to the LiquidityPool as APY.
-        vars.expectedBalanceDiff =
-            vars.amount - (ud(vars.feeAmount) * ud(1e18 - defaults.RESERVE_FACTOR())).intoUint256();
+        vars.expectedBalanceDiff = vars.amount - Math.mulDiv(vars.feeAmount, 1e18 - defaults.RESERVE_FACTOR(), 1e18);
         assertEq(
             vars.wethBalanceOfLiquidtyPoolBefore - vars.wethBalanceOfLiquidtyPoolAfter,
             vars.expectedBalanceDiff,

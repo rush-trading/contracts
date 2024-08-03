@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { ud } from "@prb/math/src/UD60x18.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
 import { FC } from "src/types/DataTypes.sol";
 
@@ -27,7 +27,7 @@ contract CalculateFee_Unit_Fuzz_Test is FeeCalculator_Unit_Shared_Test {
         totalLiquidity = bound(totalLiquidity, defaults.MIN_TOTAL_LIQUIDITY(), defaults.MAX_TOTAL_LIQUIDITY());
 
         // Calculate new outstanding liquidity (after adding new liquidity).
-        uint256 outstandingPlusNewLiquidity = (ud(utilizationRatio) * ud(totalLiquidity)).intoUint256();
+        uint256 outstandingPlusNewLiquidity = Math.mulDiv(utilizationRatio, totalLiquidity, 1e18);
 
         // Bound the current outstanding liquidity.
         outstandingLiquidity = bound(outstandingLiquidity, 0, outstandingPlusNewLiquidity);
@@ -83,7 +83,7 @@ contract CalculateFee_Unit_Fuzz_Test is FeeCalculator_Unit_Shared_Test {
         totalLiquidity = bound(totalLiquidity, defaults.MIN_TOTAL_LIQUIDITY(), defaults.MAX_TOTAL_LIQUIDITY());
 
         // Calculate new outstanding liquidity (after adding new liquidity).
-        uint256 outstandingPlusNewLiquidity = (ud(utilizationRatio) * ud(totalLiquidity)).intoUint256();
+        uint256 outstandingPlusNewLiquidity = Math.mulDiv(utilizationRatio, totalLiquidity, 1e18);
 
         // Bound the current outstanding liquidity.
         outstandingLiquidity = bound(outstandingLiquidity, 0, outstandingPlusNewLiquidity);

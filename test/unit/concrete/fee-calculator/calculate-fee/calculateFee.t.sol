@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { ud } from "@prb/math/src/UD60x18.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
 import { FC } from "src/types/DataTypes.sol";
 
@@ -18,7 +18,7 @@ contract CalculateFee_Unit_Concrete_Test is FeeCalculator_Unit_Shared_Test {
         uint256 outstandingLiquidity = 98.9 ether; // 98.9 WETH
         uint256 totalLiquidity = 100 ether; // 100 WETH
 
-        uint256 utilizationRatio = (ud(outstandingLiquidity + newLiquidity) / ud(totalLiquidity)).intoUint256();
+        uint256 utilizationRatio = Math.mulDiv(outstandingLiquidity + newLiquidity, 1e18, totalLiquidity);
         assertGt(utilizationRatio, defaults.OPTIMAL_UTILIZATION_RATIO(), "utilizationRatio");
 
         (uint256 actualTotalFee, uint256 actualReserveFee) = feeCalculator.calculateFee(
@@ -53,7 +53,7 @@ contract CalculateFee_Unit_Concrete_Test is FeeCalculator_Unit_Shared_Test {
         uint256 outstandingLiquidity = 4.9 ether; // 4.9 WETH
         uint256 totalLiquidity = 100 ether; // 100 WETH
 
-        uint256 utilizationRatio = (ud(outstandingLiquidity + newLiquidity) / ud(totalLiquidity)).intoUint256();
+        uint256 utilizationRatio = Math.mulDiv(outstandingLiquidity + newLiquidity, 1e18, totalLiquidity);
         assertLt(utilizationRatio, defaults.OPTIMAL_UTILIZATION_RATIO(), "utilizationRatio");
 
         (uint256 actualTotalFee, uint256 actualReserveFee) = feeCalculator.calculateFee(
