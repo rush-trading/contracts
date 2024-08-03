@@ -306,6 +306,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     function _swapETHToRushERC20(address uniV2Pair, address originator, uint256 ethAmountIn) internal {
         // Calculate the amount of RushERC20 to receive.
         (uint256 wethReserve, uint256 rushERC20Reserve, bool isToken0WETH) = _getOrderedReserves(uniV2Pair);
+        // Calculation logic mimics the logic of `UniswapV2Library.getAmountOut` function.
+        /// https://github.com/Uniswap/v2-periphery/blob/0335e8f7e1bd1e8d8329fd300aea2ef2f36dd19f/contracts/libraries/UniswapV2Library.sol#L43
         uint256 ethAmountInWithFee = ethAmountIn * 997;
         uint256 numerator = ethAmountInWithFee * rushERC20Reserve;
         uint256 denominator = (wethReserve * 1000) + ethAmountInWithFee;
