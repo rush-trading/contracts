@@ -2,9 +2,9 @@
 pragma solidity >=0.8.26;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
-import { ud } from "@prb/math/src/UD60x18.sol";
 import { ACLRoles } from "src/abstracts/ACLRoles.sol";
 import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
 import { IWETH } from "src/external/IWETH.sol";
@@ -352,12 +352,11 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         if (vars.wethBalance > vars.initialWETHReserve) {
             // Calculate the total reserve fee.
             vars.wethSurplus = vars.wethBalance - vars.initialWETHReserve;
-            vars.wethSurplusTax = (ud(vars.wethSurplus) * ud(RESERVE_FACTOR)).intoUint256();
+            vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, RESERVE_FACTOR, 1e18);
             vars.totalReserveFee = deployment.subsidyAmount + vars.wethSurplusTax;
             // Calculate the amount of WETH and RushERC20 to lock in the pair.
             vars.wethToLock = vars.wethSurplus - vars.wethSurplusTax;
-            vars.rushERC20ToLock =
-                (ud(vars.rushERC20Balance) * (ud(vars.wethToLock) / ud(vars.wethBalance))).intoUint256();
+            vars.rushERC20ToLock = Math.mulDiv(vars.rushERC20Balance, vars.wethToLock, vars.wethBalance);
             // Interactions: Transfer the WETH to lock to the pair.
             IERC20(WETH).transfer(uniV2Pair, vars.wethToLock);
             // Interactions: Transfer the RushERC20 to lock to the pair.

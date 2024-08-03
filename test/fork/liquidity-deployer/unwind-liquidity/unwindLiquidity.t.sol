@@ -151,7 +151,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         // Send WETH dust to the pair to attempt to brick unwinding.
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.sender });
-        uint256 dust = 2;
+        uint256 dust = 1;
         uint256 equivalentRushERC20ToDust = 19_068_923_769;
         deal({ token: address(weth), to: users.sender, give: dust });
         weth.transfer(uniV2Pair, dust);

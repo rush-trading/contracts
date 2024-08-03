@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26;
 
-import { ud } from "@prb/math/src/UD60x18.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
 import { FC } from "src/types/DataTypes.sol";
@@ -63,7 +63,7 @@ contract FeeCalculator is IFeeCalculator {
 
         vars.feeRate = BASE_FEE_RATE;
         vars.utilizationRatio =
-            (ud(params.outstandingLiquidity + params.newLiquidity) / ud(params.totalLiquidity)).intoUint256();
+            Math.mulDiv(params.outstandingLiquidity + params.newLiquidity, 1e18, params.totalLiquidity);
 
         if (vars.utilizationRatio > OPTIMAL_UTILIZATION_RATIO) {
             // If U > U_optimal, formula is:
@@ -71,21 +71,17 @@ contract FeeCalculator is IFeeCalculator {
             // R_fee = BASE_FEE_RATE + RATE_SLOPE_1 + RATE_SLOPE_2 * ----------------
             //                                                        1 - U_optimal
             vars.feeRate += RATE_SLOPE_1
-                + (
-                    ud(RATE_SLOPE_2)
-                        * (ud(vars.utilizationRatio - OPTIMAL_UTILIZATION_RATIO) / ud(MAX_EXCESS_UTILIZATION_RATIO))
-                ).intoUint256();
+                + Math.mulDiv(RATE_SLOPE_2, vars.utilizationRatio - OPTIMAL_UTILIZATION_RATIO, MAX_EXCESS_UTILIZATION_RATIO);
         } else {
             // Else, formula is:
             //                                             U
             // R_fee = BASE_FEE_RATE + RATE_SLOPE_1 *  -----------
             //                                          U_optimal
-            vars.feeRate +=
-                (ud(RATE_SLOPE_1) * (ud(vars.utilizationRatio) / ud(OPTIMAL_UTILIZATION_RATIO))).intoUint256();
+            vars.feeRate += Math.mulDiv(RATE_SLOPE_1, vars.utilizationRatio, OPTIMAL_UTILIZATION_RATIO);
         }
 
-        totalFee = (ud(vars.feeRate * params.duration) * ud(params.newLiquidity)).intoUint256();
-        reserveFee = (ud(totalFee) * ud(params.reserveFactor)).intoUint256();
+        totalFee = Math.mulDiv(vars.feeRate * params.duration, params.newLiquidity, 1e18);
+        reserveFee = Math.mulDiv(totalFee, params.reserveFactor, 1e18);
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
