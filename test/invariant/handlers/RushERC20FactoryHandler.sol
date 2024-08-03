@@ -32,7 +32,7 @@ contract RushERC20FactoryHandler is BaseHandler {
         if (uint160(implementation) < 10 || implementation.code.length != 0) {
             return;
         }
-        vm.etch(implementation, address(new GoodRushERC20Mock()).code);
+        vm.etch(implementation, type(GoodRushERC20Mock).runtimeCode);
         GoodRushERC20Mock mock = GoodRushERC20Mock(implementation);
         mock.setDescription(description);
         mock.setVersion(version);
