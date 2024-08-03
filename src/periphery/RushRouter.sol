@@ -2,10 +2,10 @@
 pragma solidity >=0.8.26;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IWETH } from "src/external/IWETH.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { IRushLauncher } from "src/interfaces/IRushLauncher.sol";
-import { IWETH } from "src/external/IWETH.sol";
 import { RL } from "src/types/DataTypes.sol";
 
 /**
