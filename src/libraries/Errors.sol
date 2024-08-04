@@ -31,6 +31,9 @@ library Errors {
     /// @notice Thrown when the account is missing the launcher role.
     error OnlyLauncherRole(address account);
 
+    /// @notice Thrown when the account is missing the router role.
+    error OnlyRouterRole(address account);
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------=|+ LIQUIDITY-DEPLOYER +|=------------------------------ //

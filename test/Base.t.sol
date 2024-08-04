@@ -60,6 +60,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
             launcher: createUser("Launcher"),
             recipient: createUser("Recipient"),
             reserve: createUser("Reserve"),
+            router: createUser("Router"),
             sender: createUser("Sender")
         });
 
@@ -148,6 +149,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         aclManager.addAssetManager({ account: address(liquidityDeployer) });
         aclManager.addAssetManager({ account: address(users.assetManager) });
         aclManager.addLauncher({ account: users.launcher });
+        aclManager.addRouter({ account: users.router });
         resetPrank({ msgSender: caller });
     }
 

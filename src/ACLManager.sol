@@ -20,6 +20,9 @@ contract ACLManager is AccessControl, IACLManager {
     /// @inheritdoc IACLManager
     bytes32 public constant override LAUNCHER_ROLE = keccak256("LAUNCHER_ROLE");
 
+    /// @inheritdoc IACLManager
+    bytes32 public constant override ROUTER_ROLE = keccak256("ROUTER_ROLE");
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ---------------------------------=|+ CONSTRUCTOR +|=---------------------------------- //
@@ -51,6 +54,11 @@ contract ACLManager is AccessControl, IACLManager {
         return hasRole(LAUNCHER_ROLE, account);
     }
 
+    /// @inheritdoc IACLManager
+    function isRouter(address account) external view returns (bool) {
+        return hasRole(ROUTER_ROLE, account);
+    }
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ----------------------------=|+ NON-CONSTANT FUNCTIONS +|=---------------------------- //
@@ -71,6 +79,11 @@ contract ACLManager is AccessControl, IACLManager {
     }
 
     /// @inheritdoc IACLManager
+    function addRouter(address account) external onlyRole(ADMIN_ROLE) {
+        _grantRole({ role: ROUTER_ROLE, account: account });
+    }
+
+    /// @inheritdoc IACLManager
     function removeAdmin(address account) external onlyRole(ADMIN_ROLE) {
         _revokeRole({ role: ADMIN_ROLE, account: account });
     }
@@ -83,6 +96,11 @@ contract ACLManager is AccessControl, IACLManager {
     /// @inheritdoc IACLManager
     function removeLauncher(address account) external onlyRole(ADMIN_ROLE) {
         _revokeRole({ role: LAUNCHER_ROLE, account: account });
+    }
+
+    /// @inheritdoc IACLManager
+    function removeRouter(address account) external onlyRole(ADMIN_ROLE) {
+        _revokeRole({ role: ROUTER_ROLE, account: account });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

@@ -18,6 +18,9 @@ interface IACLManager {
     /// @notice The token and liquidity launcher role.
     function LAUNCHER_ROLE() external view returns (bytes32);
 
+    /// @notice The router role.
+    function ROUTER_ROLE() external view returns (bytes32);
+
     /**
      * @notice Returns true if the address has the admin role, false otherwise.
      * @param account The address to check.
@@ -38,6 +41,13 @@ interface IACLManager {
      * @return True if the given address has the launcher role, false otherwise.
      */
     function isLauncher(address account) external view returns (bool);
+
+    /**
+     * @notice Returns true if the address has the router role, false otherwise.
+     * @param account The address to check.
+     * @return True if the given address has the router role, false otherwise.
+     */
+    function isRouter(address account) external view returns (bool);
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -62,6 +72,12 @@ interface IACLManager {
     function addLauncher(address account) external;
 
     /**
+     * @notice Adds a new router.
+     * @param account The address to add as a router.
+     */
+    function addRouter(address account) external;
+
+    /**
      * @notice Removes an admin.
      * @param account The address to remove as an admin.
      */
@@ -78,6 +94,12 @@ interface IACLManager {
      * @param account The address to remove as a launcher.
      */
     function removeLauncher(address account) external;
+
+    /**
+     * @notice Removes a router.
+     * @param account The address to remove as a router.
+     */
+    function removeRouter(address account) external;
 
     // #endregion ----------------------------------------------------------------------------------- //
 }

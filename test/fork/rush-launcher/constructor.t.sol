@@ -11,6 +11,7 @@ contract Constructor_RushLauncher_Fork_Test is Fork_Test {
 
         // Construct the contract.
         RushLauncher constructedRushLauncher = new RushLauncher({
+            aclManager_: address(aclManager),
             liquidityDeployer_: address(liquidityDeployer),
             maxSupplyLimit_: defaults.MAX_RUSH_ERC20_SUPPLY(),
             minSupplyLimit_: defaults.MIN_RUSH_ERC20_SUPPLY(),

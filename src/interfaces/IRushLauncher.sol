@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26;
 
+import { IACLRoles } from "src/interfaces/IACLRoles.sol";
 import { RL } from "src/types/DataTypes.sol";
 
 /**
  * @title IRushLauncher
  * @notice A permission-less contract for launching ERC20 token markets.
  */
-interface IRushLauncher {
+interface IRushLauncher is IACLRoles {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**

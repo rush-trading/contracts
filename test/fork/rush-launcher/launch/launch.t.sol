@@ -19,7 +19,35 @@ contract Launch_Fork_Test is RushLauncher_Test {
         addTemplate({ implementation: address(rushERC20) });
     }
 
-    function test_RevertWhen_TokenMaxSupplyIsLessThanMinimumLimit() external {
+    function test_RevertWhen_CallerDoesNotHaveRouterRole() external {
+        // Make Eve the caller in this test.
+        resetPrank({ msgSender: users.eve });
+
+        // Run the test.
+        uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
+        uint256 liquidityAmount = defaults.LIQUIDITY_AMOUNT();
+        uint256 liquidityDuration = defaults.LIQUIDITY_DURATION();
+        bytes32 kind = keccak256(abi.encodePacked(rushERC20.description()));
+        vm.expectRevert(abi.encodeWithSelector(Errors.OnlyRouterRole.selector, users.eve));
+        rushLauncher.launch(
+            RL.LaunchParams({
+                kind: kind,
+                name: "MyToken",
+                symbol: "MTK",
+                maxSupply: maxSupply,
+                data: abi.encodePacked(users.recipient, ""),
+                liquidityAmount: liquidityAmount,
+                liquidityDuration: liquidityDuration
+            })
+        );
+    }
+
+    modifier whenCallerHasRouterRole() {
+        resetPrank({ msgSender: users.router });
+        _;
+    }
+
+    function test_RevertWhen_TokenMaxSupplyIsLessThanMinimumLimit() external whenCallerHasRouterRole {
         // Run the test.
         uint256 maxSupply = defaults.MIN_RUSH_ERC20_SUPPLY() - 1;
         uint256 liquidityAmount = defaults.LIQUIDITY_AMOUNT();
@@ -45,6 +73,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
 
     function test_RevertWhen_TokenMaxSupplyIsGreaterThanMaximumLimit()
         external
+        whenCallerHasRouterRole
         whenTokenMaxSupplyIsNotLessThanMinimumLimit
     {
         // Run the test.
@@ -68,6 +97,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
 
     function test_WhenTokenMaxSupplyIsNotGreaterThanMaximumLimit()
         external
+        whenCallerHasRouterRole
         whenTokenMaxSupplyIsNotLessThanMinimumLimit
     {
         uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();

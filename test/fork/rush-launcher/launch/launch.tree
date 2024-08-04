@@ -1,9 +1,12 @@
 launch.t.sol
-├── when token max supply is less than minimum limit
+├── when caller does not have router role
 │   └── it should revert
-└── when token max supply is not less than minimum limit
-    ├── when token max supply is greater than maximum limit
+└── when caller has router role
+    ├── when token max supply is less than minimum limit
     │   └── it should revert
-    └── when token max supply is not greater than maximum limit
-        ├── it should launch token with pair and liquidity
-        └── it should emit a {Launch} event
+    └── when token max supply is not less than minimum limit
+        ├── when token max supply is greater than maximum limit
+        │   └── it should revert
+        └── when token max supply is not greater than maximum limit
+            ├── it should launch token with pair and liquidity
+            └── it should emit a {Launch} event

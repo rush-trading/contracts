@@ -1,0 +1,9 @@
+addRouter.t.sol
+├── when caller does not have admin role
+│   └── it should revert
+└── when caller has admin role
+    ├── when account already has router role
+    │   └── it should do nothing
+    └── when account does not have router role
+        ├── it should grant router role to account
+        └── it should emit {RoleGranted} event

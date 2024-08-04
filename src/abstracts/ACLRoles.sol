@@ -55,5 +55,13 @@ abstract contract ACLRoles is IACLRoles {
         _;
     }
 
+    /// @dev Enforces router role.
+    modifier onlyRouterRole() {
+        if (!IACLManager(ACL_MANAGER).isRouter(msg.sender)) {
+            revert Errors.OnlyRouterRole({ account: msg.sender });
+        }
+        _;
+    }
+
     // #endregion ----------------------------------------------------------------------------------- //
 }

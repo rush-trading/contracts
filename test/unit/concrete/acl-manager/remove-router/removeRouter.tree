@@ -1,0 +1,9 @@
+removeRouter.t.sol
+├── when caller does not have admin role
+│   └── it should revert
+└── when caller has admin role
+    ├── when account does not have router role
+    │   └── it should do nothing
+    └── when account has router role
+        ├── it should revoke router role from account
+        └── it should emit {RoleRevoked} event

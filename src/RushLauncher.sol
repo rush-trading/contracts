@@ -2,6 +2,7 @@
 pragma solidity >=0.8.26;
 
 import { IRushERC20Factory } from "src/RushERC20Factory.sol";
+import { ACLRoles } from "src/abstracts/ACLRoles.sol";
 import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
@@ -13,7 +14,7 @@ import { RL } from "src/types/DataTypes.sol";
  * @title RushLauncher
  * @notice See the documentation in {IRushLauncher}.
  */
-contract RushLauncher is IRushLauncher {
+contract RushLauncher is IRushLauncher, ACLRoles {
     // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
 
     /// @inheritdoc IRushLauncher
@@ -40,6 +41,7 @@ contract RushLauncher is IRushLauncher {
 
     /**
      * @dev Constructor
+     * @param aclManager_ The address of the ACLManager contract.
      * @param liquidityDeployer_ The address of the LiquidityDeployer contract.
      * @param maxSupplyLimit_ The maximum minted supply of the ERC20 token.
      * @param minSupplyLimit_ The minimum minted supply of the ERC20 token.
@@ -47,12 +49,15 @@ contract RushLauncher is IRushLauncher {
      * @param uniswapV2Factory_ The address of the Uniswap V2 factory contract.
      */
     constructor(
+        address aclManager_,
         address liquidityDeployer_,
         uint256 maxSupplyLimit_,
         uint256 minSupplyLimit_,
         address rushERC20Factory_,
         address uniswapV2Factory_
-    ) {
+    )
+        ACLRoles(aclManager_)
+    {
         WETH = ILiquidityDeployer(liquidityDeployer_).WETH();
         LIQUIDITY_DEPLOYER = liquidityDeployer_;
         MAX_SUPPLY_LIMIT = maxSupplyLimit_;
@@ -70,6 +75,7 @@ contract RushLauncher is IRushLauncher {
         external
         payable
         override
+        onlyRouterRole
         returns (address rushERC20, address uniV2Pair)
     {
         // Checks: Maximum supply must be greater than the minimum limit.

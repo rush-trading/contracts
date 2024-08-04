@@ -129,6 +129,7 @@ forge script script/DeployLiquidityDeployer.s.sol \
 ```shell
 # Set the deployment variables
 export NETWORK="sepolia"
+export ACL_MANAGER="<ADDRESS>"
 export LIQUIDITY_DEPLOYER="<ADDRESS>"
 export MAX_SUPPLY_LIMIT="<WAD>"
 export MIN_SUPPLY_LIMIT="<WAD>"
@@ -139,8 +140,9 @@ export UNISWAP_V2_FACTORY="<ADDRESS>"
 forge script script/DeployRushLauncher.s.sol \
     --broadcast \
     --rpc-url ${NETWORK} \
-    --sig "run(address,uint256,uint256,address,address)" \
+    --sig "run(address,address,uint256,uint256,address,address)" \
     --verify \
+    ${ACL_MANAGER} \
     ${LIQUIDITY_DEPLOYER} \
     ${MAX_SUPPLY_LIMIT} \
     ${MIN_SUPPLY_LIMIT} \
@@ -172,5 +174,16 @@ necessary role is assigned by calling the `addLauncher` function on the `ACLMana
 ```solidity
 aclManager.addLauncher({
     account: address(rushLauncher)
+});
+```
+
+### ROUTER_ROLE
+
+It is assigned to the `RushRouter` contract to allow it to call the `launch` function on the `RushLauncher` contract.
+The necessary role is assigned by calling the `addRouter` function on the `ACLManager` contract.
+
+```solidity
+aclManager.addRouter({
+    account: address(rushRouter)
 });
 ```

@@ -85,6 +85,7 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         vm.label({ account: address(uniswapV2Factory), newLabel: "UniswapV2Factory" });
 
         rushLauncher = new RushLauncher({
+            aclManager_: address(aclManager),
             liquidityDeployer_: address(liquidityDeployer),
             maxSupplyLimit_: defaults.MAX_RUSH_ERC20_SUPPLY(),
             minSupplyLimit_: defaults.MIN_RUSH_ERC20_SUPPLY(),
@@ -105,6 +106,7 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
     function grantRoles() internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
+        aclManager.addRouter({ account: address(rushLauncherHandler) });
         aclManager.addLauncher({ account: address(rushLauncher) });
         aclManager.addAssetManager({ account: address(liquidityDeployer) });
         resetPrank({ msgSender: caller });
