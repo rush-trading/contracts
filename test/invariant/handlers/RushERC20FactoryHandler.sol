@@ -3,8 +3,7 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { BaseHandler } from "./BaseHandler.sol";
 import { RushERC20FactoryStore } from "../stores/RushERC20FactoryStore.sol";
-import { RushERC20Factory, IRushERC20Factory } from "src/RushERC20Factory.sol";
-
+import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
 import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 
 /// @notice Exposes {RushERC20Factory} functions to Foundry for invariant testing purposes.

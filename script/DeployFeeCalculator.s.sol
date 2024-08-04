@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
-
+import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployFeeCalculator is BaseScript {

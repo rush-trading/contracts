@@ -3,7 +3,6 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 import { BadRushERC20Mock } from "test/mocks/BadRushERC20Mock.sol";
-
 import { Integration_Test } from "test/integration/Integration.t.sol";
 
 contract RushERC20Factory_Integration_Concrete_Test is Integration_Test {

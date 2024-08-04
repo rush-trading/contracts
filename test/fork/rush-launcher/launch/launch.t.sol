@@ -3,10 +3,8 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 import { RushLauncher_Test } from "../RushLauncher.t.sol";
-import { RushLauncher } from "src/RushLauncher.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { FC, RL } from "src/types/DataTypes.sol";
-import { FeeCalculator } from "src/FeeCalculator.sol";
 
 contract Launch_Fork_Test is RushLauncher_Test {
     function setUp() public virtual override {

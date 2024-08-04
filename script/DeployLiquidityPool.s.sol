@@ -3,7 +3,6 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
-
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployLiquidityPool is BaseScript {

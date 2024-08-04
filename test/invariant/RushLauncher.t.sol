@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { FeeCalculator } from "src/FeeCalculator.sol";
-import { LiquidityPool } from "src/LiquidityPool.sol";
-import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
-
-import { Invariant_Test } from "./Invariant.t.sol";
-
-import { RushLauncherHandler } from "./handlers/RushLauncherHandler.sol";
-import { RushLauncherStore } from "./stores/RushLauncherStore.sol";
 import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
+import { FeeCalculator } from "src/FeeCalculator.sol";
+import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
+import { LiquidityPool } from "src/LiquidityPool.sol";
+import { RushERC20Factory } from "src/RushERC20Factory.sol";
+import { RushLauncher } from "src/RushLauncher.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { LD } from "src/types/DataTypes.sol";
-import { RushLauncher } from "src/RushLauncher.sol";
-import { RushERC20Factory } from "src/RushERC20Factory.sol";
+import { RushLauncherHandler } from "./handlers/RushLauncherHandler.sol";
+import { Invariant_Test } from "./Invariant.t.sol";
+import { RushLauncherStore } from "./stores/RushLauncherStore.sol";
 
 /// @dev Invariant tests for {RushLauncher}.
 contract RushLauncher_Invariant_Test is Invariant_Test {

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { Base_Test } from "../Base.t.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
+import { Base_Test } from "./../Base.t.sol";
 
 /// @notice Common logic needed by all integration tests, both concrete and fuzz tests.
 abstract contract Integration_Test is Base_Test {

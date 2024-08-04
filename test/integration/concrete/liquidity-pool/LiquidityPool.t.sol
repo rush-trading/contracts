@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { LiquidityPool } from "src/LiquidityPool.sol";
-
 import { Integration_Test } from "test/integration/Integration.t.sol";
 
 contract LiquidityPool_Integration_Concrete_Test is Integration_Test {

@@ -3,7 +3,6 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { IRushLauncher } from "src/interfaces/IRushLauncher.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
-
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployRushLauncher is BaseScript {

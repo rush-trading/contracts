@@ -2,7 +2,6 @@
 pragma solidity >=0.8.26 <0.9.0;
 
 import { RushLauncher } from "src/RushLauncher.sol";
-
 import { Fork_Test } from "test/fork/Fork.t.sol";
 
 contract Constructor_RushLauncher_Fork_Test is Fork_Test {

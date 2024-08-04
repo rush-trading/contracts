@@ -2,9 +2,8 @@
 pragma solidity >=0.8.26 <0.9.0;
 
 import { LiquidityPool } from "src/LiquidityPool.sol";
-
-import { Invariant_Test } from "./Invariant.t.sol";
 import { LiquidityPoolHandler } from "./handlers/LiquidityPoolHandler.sol";
+import { Invariant_Test } from "./Invariant.t.sol";
 import { LiquidityPoolStore } from "./stores/LiquidityPoolStore.sol";
 
 /// @dev Invariant tests for {LiquidityPool}.

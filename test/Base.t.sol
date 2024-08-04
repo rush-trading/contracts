@@ -10,12 +10,10 @@ import { Constants } from "./utils/Constants.sol";
 import { Defaults } from "./utils/Defaults.sol";
 import { Events } from "./utils/Events.sol";
 import { Precompiles } from "./utils/Precompiles.sol";
-
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { ACLManager } from "src/ACLManager.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
-import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { IACLManager } from "src/interfaces/IACLManager.sol";
 import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";

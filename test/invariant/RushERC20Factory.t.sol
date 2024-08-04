@@ -2,11 +2,10 @@
 pragma solidity >=0.8.26 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
-
-import { Invariant_Test } from "./Invariant.t.sol";
+import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { RushERC20FactoryHandler } from "./handlers/RushERC20FactoryHandler.sol";
+import { Invariant_Test } from "./Invariant.t.sol";
 import { RushERC20FactoryStore } from "./stores/RushERC20FactoryStore.sol";
 
 /// @dev Invariant tests for {RushERC20Factory}.

@@ -2,7 +2,6 @@
 pragma solidity >=0.8.26 <0.9.0;
 
 import { LiquidityPool } from "src/LiquidityPool.sol";
-
 import { Base_Test } from "test/Base.t.sol";
 
 contract Constructor_LiquidityPool_Integration_Concrete_Test is Base_Test {

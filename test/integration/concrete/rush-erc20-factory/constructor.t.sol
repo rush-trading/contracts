@@ -2,7 +2,6 @@
 pragma solidity >=0.8.26 <0.9.0;
 
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
-
 import { Base_Test } from "test/Base.t.sol";
 
 contract Constructor_RushERC20Factory_Integration_Concrete_Test is Base_Test {
