@@ -333,7 +333,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
      * @dev Unwinds the liquidity deployment.
      * @dev The invariant here is that the exact deployed amount must always be unwindable. This can only be guaranteed
      * by configuring the protocol with sensible values to ensure that the reserve fee is always sufficient to subsidize
-     * the infinitesimal LP dilution in UniswapV2Pair implementation, as 10e3 LP tokens are minted and forever locked
+     * the infinitesimal LP dilution in UniswapV2Pair implementation, as 1e3 LP tokens are minted and forever locked
      * when `mint` is called for the first time, meaning that burning the LP tokens minted during `deployLiquidity`
      * execution will result in slightly less balances than the original supplied amounts, assuming no swaps have
      * occurred on the pair.
