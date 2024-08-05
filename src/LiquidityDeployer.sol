@@ -332,13 +332,15 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     /**
      * @dev Unwinds the liquidity deployment.
      * @dev The invariant here is that the exact deployed amount must always be unwindable. This can only be guaranteed
-     * by configuring the protocol with sensible values to ensure that the reserve fee is always sufficient to subsidize
-     * the infinitesimal LP dilution in UniswapV2Pair implementation, as 1e3 LP tokens are minted and forever locked
-     * when `mint` is called for the first time, meaning that burning the LP tokens minted during `deployLiquidity`
-     * execution will result in slightly less balances than the original supplied amounts, assuming no swaps have
-     * occurred on the pair.
+     * by configuring the protocol with sensible values in order to:
+     * 1. Ensure that the reserve fee is always sufficient to subsidize the infinitesimal LP dilution in UniswapV2Pair
+     * implementation, as 1e3 LP tokens are minted and forever locked when `mint` is called for the first time, meaning
+     * that burning the LP tokens minted during `deployLiquidity` execution would yield slightly less balances than the
+     * original supplied amounts, assuming no swaps have occurred on the pair.
+     * 2. Ensure that both the WETH and RushERC20 amounts resupplied to the pair are always greater than 0 to prevent
+     * `UniswapV2Pair.mint` from reverting with `INSUFFICIENT_LIQUIDITY_MINTED`.
      * Reference:
-     * https://github.com/Uniswap/v2-core/blob/ee547b17853e71ed4e0101ccfd52e70d5acded58/contracts/UniswapV2Pair.sol#L121
+     * https://github.com/Uniswap/v2-core/blob/ee547b17853e71ed4e0101ccfd52e70d5acded58/contracts/UniswapV2Pair.sol#L110
      */
     function _unwindLiquidity(address uniV2Pair) internal {
         LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
