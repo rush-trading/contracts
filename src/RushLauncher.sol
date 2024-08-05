@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26;
 
-import { IRushERC20Factory } from "src/RushERC20Factory.sol";
 import { ACLRoles } from "src/abstracts/ACLRoles.sol";
 import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { IRushLauncher } from "src/interfaces/IRushLauncher.sol";
 import { Errors } from "src/libraries/Errors.sol";
+import { IRushERC20Factory } from "src/RushERC20Factory.sol";
 import { RL } from "src/types/DataTypes.sol";
 
 /**

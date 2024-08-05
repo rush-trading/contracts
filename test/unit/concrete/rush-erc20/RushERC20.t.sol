@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 import { Base_Test } from "test/Base.t.sol";
+import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 
 contract RushERC20_Unit_Concrete_Test is Base_Test {
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //

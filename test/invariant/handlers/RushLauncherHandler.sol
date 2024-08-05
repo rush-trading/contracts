@@ -2,14 +2,14 @@
 pragma solidity >=0.8.26 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { BaseHandler } from "./BaseHandler.sol";
-import { RushLauncherStore } from "../stores/RushLauncherStore.sol";
-import { RushLauncher } from "src/RushLauncher.sol";
 import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
+import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
+import { RushLauncher } from "src/RushLauncher.sol";
 import { FC, RL } from "src/types/DataTypes.sol";
-import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
+import { RushLauncherStore } from "./../stores/RushLauncherStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @notice Exposes {RushLauncher} functions to Foundry for invariant testing purposes.
 contract RushLauncherHandler is BaseHandler {
@@ -25,7 +25,7 @@ contract RushLauncherHandler is BaseHandler {
 
     // #region ----------------------------------=|+ VARIABLES +|=----------------------------------- //
 
-    address internal immutable weth;
+    address internal weth;
 
     // #endregion ----------------------------------------------------------------------------------- //
 

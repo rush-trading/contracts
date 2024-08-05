@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { BaseHandler } from "./BaseHandler.sol";
-import { RushERC20FactoryStore } from "../stores/RushERC20FactoryStore.sol";
 import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
 import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
+import { RushERC20FactoryStore } from "./../stores/RushERC20FactoryStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @notice Exposes {RushERC20Factory} functions to Foundry for invariant testing purposes.
 contract RushERC20FactoryHandler is BaseHandler {
