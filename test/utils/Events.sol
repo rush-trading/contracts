@@ -9,7 +9,7 @@ abstract contract Events {
 
     event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
 
-    event Sync(uint112 reserve0, uint112 reserve1);
+    event Mint(address indexed sender, uint256 amount0, uint256 amount1);
 
     // #endregion ----------------------------------------------------------------------------------- //
 

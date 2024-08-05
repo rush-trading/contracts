@@ -64,8 +64,8 @@ library LD {
         uint256 wethSurplus;
         uint256 wethSurplusTax;
         uint256 totalReserveFee;
-        uint256 wethToLock;
-        uint256 rushERC20ToLock;
+        uint256 wethToResupply;
+        uint256 rushERC20ToResupply;
     }
 }
 

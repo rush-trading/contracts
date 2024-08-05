@@ -109,7 +109,7 @@ interface ILiquidityDeployer is IACLRoles {
      * 1. Store the liquidity deployment entity.
      * 2. Dispatch asset from LiquidityPool to the Uniswap V2 pair.
      * 3. Convert received fee from ETH to WETH.
-     * 4. Transfer reserve fee portion to the pair to maintain `_unwindLiquidity` invariant.
+     * 4. Transfer reserve fee portion to the pair.
      * 5. Transfer the remaining portion of the fee to the LiquidityPool as APY.
      * 6. Mint LP tokens to the contract.
      * 7. Swap any excess `msg.value` for RushERC20 tokens and return them to the originator.

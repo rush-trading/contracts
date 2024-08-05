@@ -2,6 +2,7 @@
 pragma solidity >=0.8.26 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { LD } from "src/types/DataTypes.sol";
@@ -151,10 +152,12 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         // Send WETH dust to the pair to attempt to brick unwinding.
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.sender });
-        uint256 dust = 1;
-        uint256 equivalentRushERC20ToDust = 19_068_923_769;
-        deal({ token: address(weth), to: users.sender, give: dust });
-        weth.transfer(uniV2Pair, dust);
+        uint256 wethDust = 2;
+        uint256 wethDustAfterLPBurn = 1;
+        (uint256 wethReserve, uint256 rushERC20Reserve,) = IUniswapV2Pair(uniV2Pair).getReserves();
+        uint256 rushERC20EquivalentToDust = Math.mulDiv(wethDustAfterLPBurn, rushERC20Reserve, wethReserve);
+        deal({ token: address(weth), to: users.sender, give: wethDust });
+        weth.transfer(uniV2Pair, wethDust);
         resetPrank({ msgSender: caller });
 
         // Expect the relevant event to be emitted on the pair.
@@ -165,7 +168,11 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             checkTopic3: true,
             checkData: true
         });
-        emit Sync({ reserve0: uint112(dust), reserve1: uint112(equivalentRushERC20ToDust) });
+        emit Mint({
+            sender: address(liquidityDeployer),
+            amount0: wethDustAfterLPBurn,
+            amount1: rushERC20EquivalentToDust
+        });
 
         // Expect the relevant event to be emitted on LiquidityDeployer.
         vm.expectEmit({ emitter: address(liquidityDeployer) });

@@ -302,12 +302,15 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
     // #region -----------------------=|+ INTERNAL NON-CONSTANT FUNCTIONS +|=------------------------ //
 
-    /// @dev Swaps ETH to RushERC20 via Uniswap V2 pair.
+    /**
+     * @dev Swaps ETH to RushERC20 via Uniswap V2 pair.
+     * @dev Swap calculation logic mimics the logic of `UniswapV2Library.getAmountOut` function.
+     * Reference:
+     * https://github.com/Uniswap/v2-periphery/blob/0335e8f7e1bd1e8d8329fd300aea2ef2f36dd19f/contracts/libraries/UniswapV2Library.sol#L43
+     */
     function _swapETHToRushERC20(address uniV2Pair, address originator, uint256 ethAmountIn) internal {
-        // Calculate the amount of RushERC20 to receive.
+        // Calculate the maximum amount of RushERC20 to receive from the swap.
         (uint256 wethReserve, uint256 rushERC20Reserve, bool isToken0WETH) = _getOrderedReserves(uniV2Pair);
-        // Calculation logic mimics the logic of `UniswapV2Library.getAmountOut` function.
-        /// https://github.com/Uniswap/v2-periphery/blob/0335e8f7e1bd1e8d8329fd300aea2ef2f36dd19f/contracts/libraries/UniswapV2Library.sol#L43
         uint256 ethAmountInWithFee = ethAmountIn * 997;
         uint256 numerator = ethAmountInWithFee * rushERC20Reserve;
         uint256 denominator = (wethReserve * 1000) + ethAmountInWithFee;
@@ -328,10 +331,14 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
     /**
      * @dev Unwinds the liquidity deployment.
-     *
-     * Invariant:
-     * - The full deployment amount must always be unwindable (i.e., never stuck in the pair due to rounding errors), as
-     * long as the protocol is configured with default parameters.
+     * @dev The invariant here is that the exact deployed amount must always be unwindable. This can only be guaranteed
+     * by configuring the protocol with sensible values to ensure that the reserve fee is always sufficient to subsidize
+     * the infinitesimal LP dilution in UniswapV2Pair implementation, as 10e3 LP tokens are minted and forever locked
+     * when `mint` is called for the first time, meaning that burning the LP tokens minted during `deployLiquidity`
+     * execution will result in slightly less balances than the original supplied amounts, assuming no swaps have
+     * occurred on the pair.
+     * Reference:
+     * https://github.com/Uniswap/v2-core/blob/ee547b17853e71ed4e0101ccfd52e70d5acded58/contracts/UniswapV2Pair.sol#L121
      */
     function _unwindLiquidity(address uniV2Pair) internal {
         LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
@@ -344,44 +351,40 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         // Interactions: Burn the LP tokens to redeem the underlying assets.
         IUniswapV2Pair(uniV2Pair).burn({ to: address(this) });
 
-        // LP token total supply should be 1000 at this point, as those were forever locked in address(0).
-        // https://github.com/Uniswap/v2-core/blob/ee547b17853e71ed4e0101ccfd52e70d5acded58/contracts/UniswapV2Pair.sol#L121
-
         LD.UnwindLiquidityLocalVars memory vars;
         vars.wethBalance = IERC20(WETH).balanceOf(address(this));
         vars.rushERC20Balance = IERC20(deployment.rushERC20).balanceOf(address(this));
         vars.initialWETHReserve = deployment.amount + deployment.subsidyAmount;
+        // If the WETH balance is greater than the initial reserve, the pair has a surplus.
         if (vars.wethBalance > vars.initialWETHReserve) {
             // Calculate the total reserve fee.
             vars.wethSurplus = vars.wethBalance - vars.initialWETHReserve;
+            // Tax the surplus to the reserve.
             vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, RESERVE_FACTOR, 1e18);
+            // Calculate the total reserve fee.
             vars.totalReserveFee = deployment.subsidyAmount + vars.wethSurplusTax;
-            // Calculate the amount of WETH and RushERC20 to lock in the pair.
-            vars.wethToLock = vars.wethSurplus - vars.wethSurplusTax;
-            vars.rushERC20ToLock = Math.mulDiv(vars.rushERC20Balance, vars.wethToLock, vars.wethBalance);
-            // Interactions: Transfer the WETH to lock to the pair.
-            IERC20(WETH).transfer(uniV2Pair, vars.wethToLock);
-            // Interactions: Transfer the RushERC20 to lock to the pair.
-            IERC20(deployment.rushERC20).transfer(uniV2Pair, vars.rushERC20ToLock);
-            // Interactions: Mint LP tokens send them to a burn address to lock them.
-            // Calling `IUniswapV2Pair.mint` here could potentially revert if resulting liquidity is 0, which makes this
-            // function susceptible to griefing attacks if error was not handled.
-            try IUniswapV2Pair(uniV2Pair).mint(address(1)) { }
-            catch {
-                // If minting fails, gracefully recover by syncing the pair without minting LP tokens.
-                // Interactions: Sync the pair.
-                IUniswapV2Pair(uniV2Pair).sync();
-            }
-        } else {
+            // Calculate the amount of WETH to resupply to the pair.
+            vars.wethToResupply = vars.wethSurplus - vars.wethSurplusTax;
+            // Calculate the amount of RushERC20 to resupply to the pair.
+            vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance);
+            // Interactions: Transfer the WETH to resupply to the pair.
+            IERC20(WETH).transfer(uniV2Pair, vars.wethToResupply);
+            // Interactions: Transfer the RushERC20 to resupply to the pair.
+            IERC20(deployment.rushERC20).transfer(uniV2Pair, vars.rushERC20ToResupply);
+            // Interactions: Mint LP tokens send them to a burn address to lock them forever.
+            IUniswapV2Pair(uniV2Pair).mint(address(1));
+        }
+        // Else, the pair had no swaps and the total reserve fee is whatever is left of the fee after subsidy.
+        else {
             // Calculate the total reserve fee.
             vars.totalReserveFee = vars.wethBalance - deployment.amount;
         }
 
         // Interactions: Burn entire remaining balance of the RushERC20 token.
-        IERC20(deployment.rushERC20).transfer(address(1), vars.rushERC20Balance - vars.rushERC20ToLock);
+        IERC20(deployment.rushERC20).transfer(address(1), vars.rushERC20Balance - vars.rushERC20ToResupply);
         // Interactions: Transfer the total reserve fee to the reserve.
         IERC20(WETH).transfer(RESERVE, vars.totalReserveFee);
-        // Interactions: Approve the LiquidityPool to transfer the original liquidity deployment amount.
+        // Interactions: Approve the LiquidityPool to transfer the liquidity deployment amount.
         IERC20(WETH).approve(LIQUIDITY_POOL, deployment.amount);
         // Interactions: Return asset to the LiquidityPool.
         ILiquidityPool(LIQUIDITY_POOL).returnAsset({ from: address(this), amount: deployment.amount });
