@@ -149,7 +149,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
         vm.warp(liquidityDeployment.deadline);
 
-        // Send WETH dust to the pair to trigger the surplus condition.
+        // Send WETH amount to the pair to trigger the surplus condition.
         uint256 wethAmount = 10_000;
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.sender });

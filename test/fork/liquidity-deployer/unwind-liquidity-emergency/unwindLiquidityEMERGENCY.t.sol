@@ -133,7 +133,7 @@ contract UnwindLiquidityEMERGENCY__Fork_Test is LiquidityDeployer_Fork_Test {
         givenPairHasReceivedLiquidity
         givenPairHasNotBeenUnwound
     {
-        // Send WETH dust to the pair to trigger the surplus condition.
+        // Send WETH amount to the pair to trigger the surplus condition.
         uint256 wethAmount = 10_000;
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.sender });
