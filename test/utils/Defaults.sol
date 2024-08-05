@@ -20,7 +20,7 @@ contract Defaults {
     uint256 public constant MIN_LIQUIDITY_AMOUNT = 0.00001 ether; // 0.00001 WETH
     uint256 public constant MIN_LIQUIDITY_DURATION = 1 seconds; // 1 seconds
     uint256 public constant MIN_TOTAL_LIQUIDITY = 1 ether; // 1 WETH
-    uint256 public constant MIN_RUSH_ERC20_SUPPLY = 1e18; // 1 token
+    uint256 public constant MIN_RUSH_ERC20_SUPPLY = 0.1e18; // 0.1 tokens
     uint256 public constant OPTIMAL_UTILIZATION_RATIO = 0.6e18; // 60%
     uint256 public constant RATE_SLOPE_1 = 317_097_919; // ~1% annual
     uint256 public constant RATE_SLOPE_2 = 23_782_343_987; // ~75% annual
