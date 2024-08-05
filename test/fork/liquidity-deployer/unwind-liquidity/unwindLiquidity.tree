@@ -14,7 +14,7 @@ unwindLiquidity.t.sol
         │   ├── when asset balance of pair is still same as initial balance
         │   │   ├── it should unwind the liquidity
         │   │   └── it should emit a {UnwindLiquidity} event
-        │   └── when asset balance of pair is above initial balance by dust
+        │   └── when asset balance of pair is above initial balance
         │       ├── it should unwind the liquidity
         │       └── it should emit a {UnwindLiquidity} event
         └── given deadline has passed and early unwind threshold is reached

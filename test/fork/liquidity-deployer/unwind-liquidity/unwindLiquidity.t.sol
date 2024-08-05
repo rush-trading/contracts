@@ -25,7 +25,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             originator_: users.sender,
             uniV2Pair_: uniV2Pair,
             rushERC20_: rushERC20Mock,
-            rushERC20Amount_: defaults.MAX_RUSH_ERC20_SUPPLY(),
+            rushERC20Amount_: defaults.RUSH_ERC20_SUPPLY(),
             wethAmount_: amount,
             duration_: duration,
             feeAmount_: feeAmount
@@ -139,7 +139,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         );
     }
 
-    function test_WhenAssetBalanceOfPairIsAboveInitialBalanceByDust()
+    function test_WhenAssetBalanceOfPairIsAboveInitialBalance()
         external
         givenPairHasReceivedLiquidity
         givenPairHasNotBeenUnwound
@@ -149,16 +149,18 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
         vm.warp(liquidityDeployment.deadline);
 
-        // Send WETH dust to the pair to attempt to brick unwinding.
+        // Send WETH dust to the pair to trigger the surplus condition.
+        uint256 wethAmount = 10_000;
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.sender });
-        uint256 wethDust = 2;
-        uint256 wethDustAfterLPBurn = 1;
-        (uint256 wethReserve, uint256 rushERC20Reserve,) = IUniswapV2Pair(uniV2Pair).getReserves();
-        uint256 rushERC20EquivalentToDust = Math.mulDiv(wethDustAfterLPBurn, rushERC20Reserve, wethReserve);
-        deal({ token: address(weth), to: users.sender, give: wethDust });
-        weth.transfer(uniV2Pair, wethDust);
+        deal({ token: address(weth), to: users.sender, give: wethAmount });
+        weth.transfer(uniV2Pair, wethAmount);
         resetPrank({ msgSender: caller });
+
+        // Calculate the amounts of WETH and RUSH ERC20 to be resupplied to the pair.
+        uint256 wethAmountToResupply = Math.mulDiv(wethAmount, 1e18 - defaults.RESERVE_FACTOR(), 1e18) - 1;
+        (uint256 wethReserve, uint256 rushERC20Reserve,) = IUniswapV2Pair(uniV2Pair).getReserves();
+        uint256 rushERC20ToResupply = Math.mulDiv(wethAmountToResupply, rushERC20Reserve, wethReserve);
 
         // Expect the relevant event to be emitted on the pair.
         vm.expectEmit({
@@ -168,11 +170,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             checkTopic3: true,
             checkData: true
         });
-        emit Mint({
-            sender: address(liquidityDeployer),
-            amount0: wethDustAfterLPBurn,
-            amount1: rushERC20EquivalentToDust
-        });
+        emit Mint({ sender: address(liquidityDeployer), amount0: wethAmountToResupply, amount1: rushERC20ToResupply });
 
         // Expect the relevant event to be emitted on LiquidityDeployer.
         vm.expectEmit({ emitter: address(liquidityDeployer) });

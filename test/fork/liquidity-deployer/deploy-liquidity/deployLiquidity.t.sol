@@ -66,7 +66,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             originator_: users.sender,
             uniV2Pair_: uniV2Pair,
             rushERC20_: rushERC20Mock,
-            rushERC20Amount_: defaults.MAX_RUSH_ERC20_SUPPLY(),
+            rushERC20Amount_: defaults.RUSH_ERC20_SUPPLY(),
             wethAmount_: amount,
             duration_: duration,
             feeAmount_: feeAmount
