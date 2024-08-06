@@ -311,10 +311,9 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     function _swapETHToRushERC20(address uniV2Pair, address originator, uint256 ethAmountIn) internal {
         // Calculate the maximum amount of RushERC20 to receive from the swap.
         (uint256 wethReserve, uint256 rushERC20Reserve, bool isToken0WETH) = _getOrderedReserves(uniV2Pair);
-        uint256 ethAmountInWithFee = ethAmountIn * 997;
-        uint256 numerator = ethAmountInWithFee * rushERC20Reserve;
-        uint256 denominator = (wethReserve * 1000) + ethAmountInWithFee;
-        uint256 maxAmountRushERC20Out = numerator / denominator;
+        uint256 ethAmountInWithFee = Math.mulDiv(ethAmountIn, 0.997e18, 1e18);
+        uint256 maxAmountRushERC20Out =
+            Math.mulDiv(ethAmountInWithFee, rushERC20Reserve, wethReserve + ethAmountInWithFee);
 
         // Interactions: Convert ETH to WETH.
         IWETH(WETH).deposit{ value: ethAmountIn }();
