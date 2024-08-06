@@ -132,7 +132,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     {
         LD.DeployLiquidityLocalVars memory vars;
         // Checks: Pair must not have received liquidity before.
-        if (_liquidityDeployments[uniV2Pair].deadline != 0) {
+        if (_liquidityDeployments[uniV2Pair].deadline > 0) {
             revert Errors.LiquidityDeployer_PairAlreadyReceivedLiquidity({ rushERC20: rushERC20, uniV2Pair: uniV2Pair });
         }
         // Checks: Total supply of the RushERC20 token must be greater than 0.
@@ -203,7 +203,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         IUniswapV2Pair(uniV2Pair).mint(address(this));
         // Interactions: Swap any excess ETH to RushERC20.
         vars.excessValue = msg.value - vars.totalFee;
-        if (vars.excessValue != 0) {
+        if (vars.excessValue > 0) {
             _swapETHToRushERC20({ uniV2Pair: uniV2Pair, originator: originator, ethAmountIn: vars.excessValue });
         }
 

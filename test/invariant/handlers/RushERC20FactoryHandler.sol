@@ -28,7 +28,7 @@ contract RushERC20FactoryHandler is BaseHandler {
 
     function addTemplate(address implementation, uint256 version, string calldata description) external {
         // `vm.etch` is disallowed for addresses 0 < n < 10 and any already-existing contract.
-        if (uint160(implementation) < 10 || implementation.code.length != 0) {
+        if (uint160(implementation) < 10 || implementation.code.length > 0) {
             return;
         }
         vm.etch(implementation, type(GoodRushERC20Mock).runtimeCode);

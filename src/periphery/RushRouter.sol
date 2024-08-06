@@ -85,7 +85,7 @@ contract RushRouter {
         );
 
         uint256 rushERC20Balance = IERC20(rushERC20).balanceOf(address(this));
-        if (rushERC20Balance != 0) {
+        if (rushERC20Balance > 0) {
             // Transfer any received RushERC20 tokens to the sender.
             IERC20(rushERC20).transfer({ to: msg.sender, value: rushERC20Balance });
         }
