@@ -127,6 +127,42 @@ contract RushLauncherHandler is BaseHandler {
         IERC20(weth).transfer(pair, amount);
     }
 
+    function swapRushERC20ForWETHInPair(address pair, uint256 amount) external {
+        // Skip when the deployment does not exist.
+        if (!rushLauncherStore.deploymentExists(pair)) {
+            return;
+        }
+        // Get the RushERC20 token address and its balance in this contract.
+        address token0 = IUniswapV2Pair(pair).token0();
+        address token1 = IUniswapV2Pair(pair).token1();
+        bool isToken0WETH = token0 == weth;
+        address rushERC20 = isToken0WETH ? token1 : token0;
+        uint256 rushERC20Balance = IERC20(rushERC20).balanceOf(address(this));
+        // Bound the `amount` to the range (0, rushERC20Balance).
+        amount = bound(amount, 0, rushERC20Balance);
+        // Skip when the amount is zero.
+        if (amount == 0) {
+            return;
+        }
+        // Transfer the assets to the pair.
+        IERC20(rushERC20).transfer(pair, amount);
+        // Calculate the expected amount of WETH to receive.
+        (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
+        (uint256 wethReserve, uint256 rushERC20Reserve) = isToken0WETH ? (reserve0, reserve1) : (reserve1, reserve0);
+        uint256 amountInWithFee = amount * 997;
+        uint256 numerator = amountInWithFee * wethReserve;
+        uint256 denominator = rushERC20Reserve * 1000 + amountInWithFee;
+        uint256 maxWETHAmount = numerator / denominator;
+        // Skip when the expected amount is zero.
+        if (maxWETHAmount == 0) {
+            return;
+        }
+        // Swap the WETH for RushERC20.
+        IUniswapV2Pair(pair).swap(
+            isToken0WETH ? maxWETHAmount : 0, isToken0WETH ? 0 : maxWETHAmount, address(1), new bytes(0)
+        );
+    }
+
     function swapWETHForRushERC20InPair(address pair, uint256 amount) external {
         // Skip when the deployment does not exist.
         if (!rushLauncherStore.deploymentExists(pair)) {
