@@ -63,10 +63,10 @@ contract RushERC20Factory_Invariant_Test is Invariant_Test {
 
     function invariant_NoKindCollisionForDifferentDescriptions() external view {
         uint256 id = rushERC20FactoryStore.nextTemplateId();
-        for (uint256 i = 0; i < id; i++) {
+        for (uint256 i; i < id; ++i) {
             string memory descriptionI = IRushERC20(rushERC20FactoryStore.templates(i)).description();
             bytes32 kindI = keccak256(abi.encodePacked(descriptionI));
-            for (uint256 j = i; j < id; j++) {
+            for (uint256 j = i; j < id; ++j) {
                 string memory descriptionJ = IRushERC20(rushERC20FactoryStore.templates(j)).description();
                 bytes32 kindJ = keccak256(abi.encodePacked(descriptionJ));
                 if (kindI == kindJ && i != j) {

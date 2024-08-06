@@ -203,7 +203,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         IUniswapV2Pair(uniV2Pair).mint(address(this));
         // Interactions: Swap any excess ETH to RushERC20.
         vars.excessValue = msg.value - vars.totalFee;
-        if (vars.excessValue > 0) {
+        if (vars.excessValue != 0) {
             _swapETHToRushERC20({ uniV2Pair: uniV2Pair, originator: originator, ethAmountIn: vars.excessValue });
         }
 
@@ -235,7 +235,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
     /// @inheritdoc ILiquidityDeployer
     function unwindLiquidityEMERGENCY(address[] calldata uniV2Pairs) external override onlyAdminRole whenPaused {
-        for (uint256 i = 0; i < uniV2Pairs.length; i++) {
+        for (uint256 i; i < uniV2Pairs.length; ++i) {
             address uniV2Pair = uniV2Pairs[i];
             LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
             // Checks: Pair must have received liquidity before.

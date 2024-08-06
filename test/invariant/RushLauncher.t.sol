@@ -154,7 +154,7 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
 
     function _unwindDeadline() internal {
         uint256 id = rushLauncherStore.nextDeploymentId();
-        for (uint256 i = 0; i < id; i++) {
+        for (uint256 i; i < id; ++i) {
             address uniV2Pair = rushLauncherStore.deployments(i);
             // Skip the entire test if the first pair is address(0).
             if (uniV2Pair == address(0)) {
@@ -179,7 +179,7 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
 
         uint256 id = rushLauncherStore.nextDeploymentId();
         address[] memory uniV2Pairs = new address[](id);
-        for (uint256 i = 0; i < id; i++) {
+        for (uint256 i; i < id; ++i) {
             address uniV2Pair = rushLauncherStore.deployments(i);
             // Skip the entire test if the first pair is address(0).
             if (uniV2Pair == address(0)) {
