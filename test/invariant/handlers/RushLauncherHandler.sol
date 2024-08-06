@@ -114,6 +114,41 @@ contract RushLauncherHandler is BaseHandler {
         rushLauncherStore.pushDeployment(uniV2Pair);
     }
 
+    function addLiquidityToPair(address pair, uint256 rushERC20Amount) external {
+        // Skip when the deployment does not exist.
+        if (!rushLauncherStore.deploymentExists(pair)) {
+            return;
+        }
+        // Get the RushERC20 token address and its balance in this contract.
+        address token0 = IUniswapV2Pair(pair).token0();
+        address token1 = IUniswapV2Pair(pair).token1();
+        bool isToken0WETH = token0 == weth;
+        address rushERC20 = isToken0WETH ? token1 : token0;
+        uint256 rushERC20Balance = IERC20(rushERC20).balanceOf(address(this));
+        // Bound the `rushERC20Amount` to the range (0, rushERC20Balance).
+        rushERC20Amount = bound(rushERC20Amount, 0, rushERC20Balance);
+        // Skip when `rushERC20Amount` is zero.
+        if (rushERC20Amount == 0) {
+            return;
+        }
+        // Calculate the amount of WETH required to add liquidity.
+        (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
+        (uint256 wethReserve, uint256 rushERC20Reserve) = isToken0WETH ? (reserve0, reserve1) : (reserve1, reserve0);
+        uint256 wethAmount = (rushERC20Amount * wethReserve) / rushERC20Reserve;
+        // Skip when the amount of WETH is zero.
+        if (wethAmount == 0) {
+            return;
+        }
+        // Give the required WETH to this contract.
+        deal({ token: weth, to: address(this), give: wethAmount });
+        // Transfer the WETH to the pair.
+        IERC20(weth).transfer(pair, wethAmount);
+        // Transfer the RushERC20 to the pair.
+        IERC20(rushERC20).transfer(pair, rushERC20Amount);
+        // Add liquidity to the pair.
+        IUniswapV2Pair(pair).mint(address(this));
+    }
+
     function sendWETHDirectlyToPair(address pair, uint256 amount) external {
         // Skip when the deployment does not exist.
         if (!rushLauncherStore.deploymentExists(pair)) {
