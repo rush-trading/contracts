@@ -358,7 +358,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         vars.initialWETHReserve = deployment.amount + deployment.subsidyAmount;
         // If the WETH balance is greater than the initial reserve, the pair has a surplus.
         if (vars.wethBalance > vars.initialWETHReserve) {
-            // Calculate the total reserve fee.
+            // Calculate the surplus.
             vars.wethSurplus = vars.wethBalance - vars.initialWETHReserve;
             // Tax the surplus to the reserve.
             vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, RESERVE_FACTOR, 1e18);
