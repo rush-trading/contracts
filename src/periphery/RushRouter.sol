@@ -51,7 +51,7 @@ contract RushRouter {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
+    // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /**
      * @notice Launch an ERC20 token.

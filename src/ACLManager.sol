@@ -61,7 +61,7 @@ contract ACLManager is AccessControl, IACLManager {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region ----------------------------=|+ NON-CONSTANT FUNCTIONS +|=---------------------------- //
+    // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc IACLManager
     function addAdmin(address account) external onlyRole(ADMIN_ROLE) {

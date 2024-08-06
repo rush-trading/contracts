@@ -68,7 +68,7 @@ contract RushLauncher is IRushLauncher, ACLRoles {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
+    // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc IRushLauncher
     function launch(RL.LaunchParams calldata params)

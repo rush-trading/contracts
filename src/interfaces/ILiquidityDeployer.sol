@@ -88,7 +88,7 @@ interface ILiquidityDeployer is IACLRoles {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
+    // #region ----------------------------=|+ NON-CONSTANT FUNCTIONS +|=---------------------------- //
 
     /**
      * @notice Deploy liquidity to a given pair.
