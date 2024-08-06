@@ -51,6 +51,7 @@ contract RushLauncherHandler is BaseHandler {
         bytes data;
         uint256 liquidityAmount;
         uint256 liquidityDuration;
+        bool hasExcessFee;
         uint256 excessFeeAmount;
     }
 
@@ -89,9 +90,12 @@ contract RushLauncherHandler is BaseHandler {
                 totalLiquidity: liquidityPool.totalAssets()
             })
         );
-        // Bound the `excessFeeAmount` to the range (0.0001 ETH, 0.1 ETH).
-        params.excessFeeAmount = bound(params.excessFeeAmount, 0.0001 ether, 0.1 ether);
-        totalFee += params.excessFeeAmount;
+        // Add the excess fee if enabled.
+        if (params.hasExcessFee) {
+            // Bound the `excessFeeAmount` to the range (0.0001 ETH, 0.1 ETH).
+            params.excessFeeAmount = bound(params.excessFeeAmount, 0.0001 ether, 0.1 ether);
+            totalFee += params.excessFeeAmount;
+        }
         // Give the required ETH to this contract.
         vm.deal({ account: address(this), newBalance: totalFee });
         // Launch the RushERC20 token with its liquidity.
