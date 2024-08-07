@@ -3,7 +3,6 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
-import { LiquidityPool } from "src/LiquidityPool.sol";
 import { Base_Test } from "../Base.t.sol";
 
 /// @notice Common logic needed by all fork tests.
@@ -23,12 +22,8 @@ abstract contract Fork_Test is Base_Test {
 
         Base_Test.setUp();
 
-        // Deploy the LiquidityPool.
-        liquidityPool = new LiquidityPool({ aclManager_: address(aclManager), asset_: address(weth) });
-        vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
-
         // Deploy the core contracts.
-        deployCore();
+        deployCore({ asset: address(weth) });
 
         // Grant roles.
         grantRolesCore();

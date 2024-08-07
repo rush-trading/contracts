@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { LiquidityPool } from "src/LiquidityPool.sol";
 import { Base_Test } from "./../Base.t.sol";
 
 /// @notice Common logic needed by all integration tests, both concrete and fuzz tests.
@@ -11,12 +10,8 @@ abstract contract Integration_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Deploy the LiquidityPool.
-        liquidityPool = new LiquidityPool({ aclManager_: address(aclManager), asset_: address(wethMock) });
-        vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
-
         // Deploy the core contracts.
-        deployCore();
+        deployCore({ asset: address(wethMock) });
 
         // Grant roles.
         grantRolesCore();

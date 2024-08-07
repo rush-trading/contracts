@@ -12,6 +12,7 @@ import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
 import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
+import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { WETHMock } from "test/mocks/WETHMock.sol";
 import { Calculations } from "./utils/Calculations.sol";
@@ -107,7 +108,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
     }
 
     /// @dev Deploys the core contracts.
-    function deployCore() internal {
+    function deployCore(address asset) internal {
         rushERC20Factory = new RushERC20Factory({ aclManager_: address(aclManager) });
         vm.label({ account: address(rushERC20Factory), newLabel: "RushERC20Factory" });
         feeCalculator = new FeeCalculator({
@@ -117,6 +118,8 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
             rateSlope2: defaults.RATE_SLOPE_2()
         });
         vm.label({ account: address(feeCalculator), newLabel: "FeeCalculator" });
+        liquidityPool = new LiquidityPool({ aclManager_: address(aclManager), asset_: asset });
+        vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
         liquidityDeployer = new LiquidityDeployer({
             aclManager_: address(aclManager),
             earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
