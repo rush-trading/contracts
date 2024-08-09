@@ -149,6 +149,15 @@ contract RushLauncherHandler is BaseHandler {
         IUniswapV2Pair(pair).mint(address(this));
     }
 
+    function sendWETHDirectlyToLiquidityDeployer(uint256 amount) external {
+        // Bound the `amount` to the range (1 wei, 10k WETH).
+        amount = bound(amount, 1 wei, 10_000 ether);
+        // Give required assets to this contract.
+        deal({ token: weth, to: address(this), give: amount });
+        // Transfer the assets to the LiquidityDeployer.
+        IERC20(weth).transfer(address(liquidityDeployer), amount);
+    }
+
     function sendWETHDirectlyToPair(address pair, uint256 amount) external {
         // Skip when the deployment does not exist.
         if (!rushLauncherStore.deploymentExists(pair)) {
