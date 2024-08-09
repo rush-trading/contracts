@@ -1,22 +1,16 @@
-pragma solidity >=0.8.25;
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity >=0.8.26;
+
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-
-
-
+import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 /**
- * @title Exchange pool processor abstract contract.
- * @notice Keeps an enumerable set of designated exchange addresses as well as a single primary pool address.
+ * @dev Extension of {ERC20} that allows token deployers to set a tax on transfers from and to specific addresses.
  */
-abstract contract ExchangePoolProcessor is Initializable, OwnableUpgradeable {
+abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     using EnumerableSet for EnumerableSet.AddressSet;
-
-    /// @dev Set of exchange pool addresses.
-    EnumerableSet.AddressSet internal _exchangePools;
-
 
     /// @notice Emitted when an exchange pool address is added to the set of tracked pool addresses.
     event ExchangePoolAdded(address exchangePool);
@@ -24,10 +18,44 @@ abstract contract ExchangePoolProcessor is Initializable, OwnableUpgradeable {
     /// @notice Emitted when an exchange pool address is removed from the set of tracked pool addresses.
     event ExchangePoolRemoved(address exchangePool);
 
-    function __ExchangePoolProcessor_init(address owner, address exchangePool) internal onlyInitializing {
-        __Ownable_init(owner);
+    /// @notice Emitted when an address is added to or removed from the exempted addresses set.
+    event TaxExemptionUpdated(address indexed wallet, bool exempted);
+
+    /// @dev The set of addresses exempt from tax.
+    EnumerableSet.AddressSet private _exempted;
+    /// @dev Set of exchange pool addresses.
+    EnumerableSet.AddressSet internal _exchangePools;
+    /// @notice Receiver of the tax (set to owner)
+    address public taxBeneficiary;
+    /// @notice How much tax to collect in basis points. 10,000 basis points is 100%.
+    uint256 public taxBasisPoints;
+
+    function __ERC20Taxable_init(
+        address owner,
+        address exchangePool,
+        uint256 initialTaxBasisPoints
+    )
+        internal
+        onlyInitializing
+    {
+        __Ownable_init_unchained(owner);
+        __ERC20Taxable_init_unchained(owner, exchangePool, initialTaxBasisPoints);
+    }
+
+    function __ERC20Taxable_init_unchained(
+        address owner,
+        address exchangePool,
+        uint256 initialTaxBasisPoints
+    )
+        internal
+        onlyInitializing
+    {
+        taxBeneficiary = owner;
+        _exempted.add(owner);
+        emit TaxExemptionUpdated(owner, true);
         _exchangePools.add(exchangePool);
         emit ExchangePoolAdded(exchangePool);
+        taxBasisPoints = initialTaxBasisPoints;
     }
 
     /**
@@ -59,37 +87,6 @@ abstract contract ExchangePoolProcessor is Initializable, OwnableUpgradeable {
             emit ExchangePoolRemoved(exchangePool);
         }
     }
-}
-
-
-/**
- * @title Static Tax Handler
- * @notice Charges taxBasisPoints on all Buys/Sells
- */
-abstract contract StaticTaxHandler is Initializable, ExchangePoolProcessor {
-    using EnumerableSet for EnumerableSet.AddressSet;
-
-    /// @dev The set of addresses exempt from tax.
-    EnumerableSet.AddressSet private _exempted;
-    /// @notice Receiver of the tax (set to owner)
-    address public taxBeneficiary;
-    /// @notice How much tax to collect in basis points. 10,000 basis points is 100%.
-    uint256 public taxBasisPoints;
-
-    /// @notice Emitted when an address is added to or removed from the exempted addresses set.
-    event TaxExemptionUpdated(address indexed wallet, bool exempted);
-
-
-
-    function __StaticTaxHandler_init(bytes calldata data) internal onlyInitializing {
-        // Don't like the fact that owner is passed in calldata, it should be propogated via msg.sender...
-        (uint256 initialTaxBasisPoints, address owner, address exchangePool) =  abi.decode(data,(uint256,address,address));
-        __ExchangePoolProcessor_init(owner, exchangePool);
-        taxBasisPoints = initialTaxBasisPoints;
-        _exempted.add(owner);
-        taxBeneficiary = owner;
-    }
-
 
     /**
      * @notice Get number of tokens to pay as tax.
@@ -102,11 +99,7 @@ abstract contract StaticTaxHandler is Initializable, ExchangePoolProcessor {
      * @param amount Number of tokens in the transfer.
      * @return Number of tokens to pay as tax.
      */
-    function getTax(
-        address benefactor,
-        address beneficiary,
-        uint256 amount
-    ) public view  returns (uint256) {
+    function getTax(address benefactor, address beneficiary, uint256 amount) public view returns (uint256) {
         if (_exempted.contains(benefactor) || _exempted.contains(beneficiary)) {
             return 0;
         }
@@ -116,9 +109,8 @@ abstract contract StaticTaxHandler is Initializable, ExchangePoolProcessor {
             return 0;
         }
 
-        return (amount * taxBasisPoints) / 10000;
+        return (amount * taxBasisPoints) / 10_000;
     }
-
 
     /**
      * @notice Add address to set of tax-exempted addresses.
@@ -137,6 +129,18 @@ abstract contract StaticTaxHandler is Initializable, ExchangePoolProcessor {
     function removeExemption(address exemption) external onlyOwner {
         if (_exempted.remove(exemption)) {
             emit TaxExemptionUpdated(exemption, false);
+        }
+    }
+
+    /// @dev See {ERC20-_update}.
+    function _update(address from, address to, uint256 value) internal virtual override {
+        // TODO: make `getTax` internal.
+        uint256 tax = getTax(from, to, value);
+        uint256 taxedAmount = value - tax;
+        super._update(from, to, taxedAmount);
+        if (tax > 0) {
+            // TODO: make `taxBeneficiary` immutable if possible.
+            super._update(from, taxBeneficiary, tax);
         }
     }
 }

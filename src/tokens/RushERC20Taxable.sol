@@ -1,24 +1,33 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.25;
+pragma solidity >=0.8.26;
 
-import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import { ERC20TaxableUpgradeable } from "src/abstracts/ERC20TaxableUpgradeable.sol";
 import { IRushERC20, RushERC20Abstract } from "src/abstracts/RushERC20Abstract.sol";
-import {StaticTaxHandler} from "src/abstracts/StaticTaxHandler.sol";
 
 /**
- * @title RushERC20Basic
- * @notice The basic Rush ERC20 token implementation.
+ * @title RushERC20Taxable
+ * @notice The taxable Rush ERC20 token implementation.
  */
-contract RushERC20Taxable is ERC20Upgradeable, RushERC20Abstract, StaticTaxHandler {
+contract RushERC20Taxable is ERC20TaxableUpgradeable, RushERC20Abstract {
+    // #region -----------------------------------=|+ STRUCTS +|=------------------------------------ //
+
+    struct InitializeLocalVars {
+        address owner;
+        address exchangePool;
+        uint256 initialTaxBasisPoints;
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /// @inheritdoc IRushERC20
-    function description() public pure override returns (string memory) {
+    function description() external pure override returns (string memory) {
         return "RushERC20Taxable";
     }
 
     /// @inheritdoc IRushERC20
-    function version() public pure override returns (uint256) {
+    function version() external pure override returns (uint256) {
         return 1;
     }
 
@@ -34,33 +43,18 @@ contract RushERC20Taxable is ERC20Upgradeable, RushERC20Abstract, StaticTaxHandl
         address recipient,
         bytes calldata data
     )
-        public
+        external
         override
         initializer
     {
-        // Don't like the fact that owner is passed in calldata, it should be propogated via msg.sender...
+        InitializeLocalVars memory vars;
         __ERC20_init(name, symbol);
         _mint(recipient, maxSupply);
-        __StaticTaxHandler_init(data);
-
+        // TODO: Don't like the fact that owner is passed in calldata, it should be propogated via msg.sender...
+        (vars.owner, vars.exchangePool, vars.initialTaxBasisPoints) = abi.decode(data, (address, address, uint256));
+        __ERC20Taxable_init(vars.owner, vars.exchangePool, vars.initialTaxBasisPoints);
         emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
     }
-
-        /**
-     * @dev Overrides update function to tax into account the Tax
-     *
-     * Emits a {Transfer} event.
-     */
-    function _update(address from, address to, uint256 value) internal override {
-        // require(value > 0, "Transfer amount must be greater than zero.");
-        uint256 tax = getTax(from,to,value);
-        uint256 taxedAmount = value - tax;
-        super._update(from,to, taxedAmount);
-        if (tax > 0) {
-            super._update(from, taxBeneficiary, tax);
-        }
-    }
-
 
     // #endregion ----------------------------------------------------------------------------------- //
 }
