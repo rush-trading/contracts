@@ -306,7 +306,9 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     // #region -------------------------=|+ INTERNAL CONSTANT FUNCTIONS +|=-------------------------- //
 
     /// @dev Returns the ordered reserves of the Uniswap V2 pair with the ordering.
-    function _getOrderedReserves(address uniV2Pair)
+    function _getOrderedReserves(
+        address uniV2Pair
+    )
         internal
         view
         returns (uint256 wethReserve, uint256 rushERC20Reserve, bool isToken0WETH)
