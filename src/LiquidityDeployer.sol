@@ -392,8 +392,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             IERC20(WETH).transfer(uniV2Pair, vars.wethToResupply);
             // Interactions: Transfer the RushERC20 to resupply to the pair.
             IERC20(deployment.rushERC20).transfer(uniV2Pair, vars.rushERC20ToResupply);
-            // Interactions: Mint LP tokens send them to a burn address to lock them forever.
-            IUniswapV2Pair(uniV2Pair).mint(address(1));
+            // Interactions: Mint LP tokens and send them to the RushERC20 token address to lock them forever.
+            IUniswapV2Pair(uniV2Pair).mint(deployment.rushERC20);
         }
         // Else, the pair had no swaps and the total reserve fee is whatever is left of the fee after subsidy.
         else {
@@ -401,8 +401,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             vars.totalReserveFee = vars.wethBalance - deployment.amount;
         }
 
-        // Interactions: Burn entire remaining balance of the RushERC20 token.
-        IERC20(deployment.rushERC20).transfer(address(1), vars.rushERC20Balance - vars.rushERC20ToResupply);
+        // Interactions: Burn entire remaining balance of the RushERC20 token by sending it to the token address itself.
+        IERC20(deployment.rushERC20).transfer(deployment.rushERC20, vars.rushERC20Balance - vars.rushERC20ToResupply);
         // Interactions: Transfer the total reserve fee to the reserve.
         IERC20(WETH).transfer(RESERVE, vars.totalReserveFee);
         // Interactions: Approve the LiquidityPool to transfer the liquidity deployment amount.

@@ -193,8 +193,8 @@ interface ILiquidityDeployer is IACLRoles {
      * 4. Calculate the total reserve fee and the amount of WETH and RushERC20 to lock in the pair.
      * 5. Transfer the WETH to lock to the pair.
      * 6. Transfer the RushERC20 to lock to the pair.
-     * 7. Mint LP tokens and send them to a burn address to lock them.
-     * 8. Burn entire remaining balance of the RushERC20 token.
+     * 7. Mint LP tokens and send them to the RushERC20 token itself to lock them.
+     * 8. Burn entire remaining balance of the RushERC20 token by sending it to the token address itself.
      * 9. Transfer the total reserve fee to the reserve.
      * 10. Approve the LiquidityPool to transfer the original liquidity deployment amount.
      * 11. Return asset to the LiquidityPool.

@@ -237,10 +237,12 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: users.sender, amount: defaults.LIQUIDITY_AMOUNT() });
 
         // Unwind the liquidity.
-        uint256 address1LPBalanceBefore = IERC20(uniV2Pair).balanceOf(address(1));
+        uint256 lpBalanceBefore = IERC20(uniV2Pair).balanceOf(address(rushERC20Mock));
+        uint256 tokenBalanceBefore = IERC20(rushERC20Mock).balanceOf(address(rushERC20Mock));
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
-        uint256 address1LPBalanceAfter = IERC20(uniV2Pair).balanceOf(address(1));
+        uint256 lpBalanceAfter = IERC20(uniV2Pair).balanceOf(address(rushERC20Mock));
+        uint256 tokenBalanceAfter = IERC20(rushERC20Mock).balanceOf(address(rushERC20Mock));
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
 
         // Assert that the liquidity was unwound.
@@ -248,10 +250,13 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vm.assertEq(
             liquidityPoolWETHBalanceAfter - liquidityPoolWETHBalanceBefore,
             expectedLiquidtyPoolWETHBalanceDiff,
-            "balanceOf"
+            "liquidtyPoolWETHBalanceDiff"
         );
-        // Assert that excess liquidity was re-added to the pair.
-        vm.assertEq(address1LPBalanceBefore, 0, "balanceOf");
-        vm.assertGt(address1LPBalanceAfter, 0, "balanceOf");
+        // Assert that excess liquidity was re-added to the pair and tokens locked in token contract itself.
+        vm.assertEq(lpBalanceBefore, 0, "lpBalanceBefore");
+        vm.assertGt(lpBalanceAfter, 0, "lpBalanceAfter");
+        // Assert that tokens were burned by sending them to the token contract itself.
+        vm.assertEq(tokenBalanceBefore, 0, "tokenBalanceBefore");
+        vm.assertGt(tokenBalanceAfter, 0, "tokenBalanceAfter");
     }
 }
