@@ -53,6 +53,8 @@ abstract contract Events {
         address indexed rushERC20,
         address indexed uniV2Pair,
         uint256 amount,
+        uint256 totalFee,
+        uint256 reserveFee,
         uint256 deadline
     );
 

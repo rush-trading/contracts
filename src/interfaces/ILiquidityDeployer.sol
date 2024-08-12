@@ -17,6 +17,8 @@ interface ILiquidityDeployer is IACLRoles {
      * @param rushERC20 The address of the RushERC20 token.
      * @param uniV2Pair The address of the Uniswap V2 pair that received liquidity.
      * @param amount The amount of base asset liquidity deployed.
+     * @param totalFee The total fee collected for the deployment.
+     * @param reserveFee The reserve portion of the total fee.
      * @param deadline The timestamp after which the liquidity can be unwound.
      */
     event DeployLiquidity(
@@ -24,6 +26,8 @@ interface ILiquidityDeployer is IACLRoles {
         address indexed rushERC20,
         address indexed uniV2Pair,
         uint256 amount,
+        uint256 totalFee,
+        uint256 reserveFee,
         uint256 deadline
     );
 

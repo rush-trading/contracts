@@ -217,6 +217,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             rushERC20: rushERC20,
             uniV2Pair: uniV2Pair,
             amount: amount,
+            totalFee: vars.totalFee,
+            reserveFee: vars.reserveFee,
             deadline: vars.deadline
         });
     }
