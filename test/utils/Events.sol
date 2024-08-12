@@ -56,6 +56,8 @@ abstract contract Events {
 
     event Pause();
 
+    event SetFeeCalculator(address newFeeCalculator);
+
     event Unpause();
 
     event UnwindLiquidity(address indexed uniV2Pair, address indexed originator, uint256 amount);

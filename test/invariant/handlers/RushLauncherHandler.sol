@@ -35,7 +35,7 @@ contract RushLauncherHandler is BaseHandler {
         rushLauncher = rushLauncher_;
         rushLauncherStore = rushLauncherStore_;
         liquidityDeployer = ILiquidityDeployer(rushLauncher_.LIQUIDITY_DEPLOYER());
-        feeCalculator = IFeeCalculator(liquidityDeployer.FEE_CALCULATOR());
+        feeCalculator = IFeeCalculator(liquidityDeployer.feeCalculator());
         liquidityPool = ILiquidityPool(liquidityDeployer.LIQUIDITY_POOL());
         weth = liquidityPool.asset();
     }

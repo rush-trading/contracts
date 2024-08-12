@@ -1,0 +1,12 @@
+setFeeCalculator.t.sol
+├── when caller does not have admin role
+│   └── it should revert
+└── when caller has admin role
+    ├── when contract is not paused
+    │   └── it should revert
+    └── when contract is paused
+        ├── when new FeeCalculator is zero address
+        │   └── it should revert
+        └── when new FeeCalculator is not zero address
+            ├── it should set new FeeCalculator
+            └── it should emit a {SetFeeCalculator} event

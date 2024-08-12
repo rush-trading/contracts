@@ -27,9 +27,6 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     uint256 public immutable override EARLY_UNWIND_THRESHOLD;
 
     /// @inheritdoc ILiquidityDeployer
-    address public immutable override FEE_CALCULATOR;
-
-    /// @inheritdoc ILiquidityDeployer
     address public immutable override LIQUIDITY_POOL;
 
     /// @inheritdoc ILiquidityDeployer
@@ -59,6 +56,13 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
     /// @dev A mapping of liquidity deployments.
     mapping(address uniV2Pair => LD.LiquidityDeployment) internal _liquidityDeployments;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
+
+    /// @inheritdoc ILiquidityDeployer
+    address public override feeCalculator;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -92,7 +96,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         ACLRoles(aclManager_)
     {
         EARLY_UNWIND_THRESHOLD = earlyUnwindThreshold_;
-        FEE_CALCULATOR = feeCalculator_;
+        feeCalculator = feeCalculator_;
         LIQUIDITY_POOL = liquidityPool_;
         MAX_DEPLOYMENT_AMOUNT = maxDeploymentAmount_;
         MAX_DURATION = maxDuration_;
@@ -167,7 +171,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             revert Errors.LiquidityDeployer_MaxDuration(duration);
         }
         // Checks: `msg.value` must be at least the liquidity deployment fee.
-        (vars.totalFee, vars.reserveFee) = IFeeCalculator(FEE_CALCULATOR).calculateFee(
+        (vars.totalFee, vars.reserveFee) = IFeeCalculator(feeCalculator).calculateFee(
             FC.CalculateFeeParams({
                 duration: duration,
                 newLiquidity: amount,
@@ -223,6 +227,20 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
         // Emit an event.
         emit Pause();
+    }
+
+    /// @inheritdoc ILiquidityDeployer
+    function setFeeCalculator(address newFeeCalculator) external override onlyAdminRole whenPaused {
+        // Checks: New FeeCalculator address must not be the zero address.
+        if (newFeeCalculator == address(0)) {
+            revert Errors.LiquidityDeployer_FeeCalculatorZeroAddress();
+        }
+
+        // Effects: Set the new FeeCalculator address.
+        feeCalculator = newFeeCalculator;
+
+        // Emit an event.
+        emit SetFeeCalculator({ newFeeCalculator: newFeeCalculator });
     }
 
     /// @inheritdoc ILiquidityDeployer

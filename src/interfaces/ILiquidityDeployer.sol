@@ -33,6 +33,12 @@ interface ILiquidityDeployer is IACLRoles {
     event Pause();
 
     /**
+     * @notice Emitted when the FeeCalculator contract address is updated.
+     * @param newFeeCalculator The address of the new FeeCalculator contract.
+     */
+    event SetFeeCalculator(address newFeeCalculator);
+
+    /**
      * @notice Emitted when the contract is unpaused.
      */
     event Unpause();
@@ -51,9 +57,6 @@ interface ILiquidityDeployer is IACLRoles {
 
     /// @notice The level of base asset liquidity in a Uniswap V2 pair at which early unwinding is allowed.
     function EARLY_UNWIND_THRESHOLD() external view returns (uint256);
-
-    /// @notice The address of the FeeCalculator contract.
-    function FEE_CALCULATOR() external view returns (address);
 
     /// @notice The address of the LiquidityPool contract.
     function LIQUIDITY_POOL() external view returns (address);
@@ -82,6 +85,9 @@ interface ILiquidityDeployer is IACLRoles {
     /// @notice The WETH contract address.
     /// @dev WETH is used as the base asset for liquidity deployment.
     function WETH() external view returns (address);
+
+    /// @notice The address of the FeeCalculator contract.
+    function feeCalculator() external view returns (address);
 
     /// @notice Retrieves the liquidity deployment entity.
     function getLiquidityDeployment(address uniV2Pair) external view returns (LD.LiquidityDeployment memory);
@@ -137,6 +143,18 @@ interface ILiquidityDeployer is IACLRoles {
      * - Can only be called by the default admin role.
      */
     function pause() external;
+
+    /**
+     * @notice Set the address of the FeeCalculator contract.
+     *
+     * Requirements:
+     * - Can only be called by the default admin role.
+     * - Contract must be paused.
+     * - New FeeCalculator address must not be the zero address.
+     *
+     * @param newFeeCalculator The address of the new FeeCalculator contract.
+     */
+    function setFeeCalculator(address newFeeCalculator) external;
 
     /**
      * @notice Unpause the contract.
