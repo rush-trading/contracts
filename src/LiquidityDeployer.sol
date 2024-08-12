@@ -275,7 +275,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc ILiquidityDeployer
-    function unwindLiquidity(address uniV2Pair) external override {
+    function unwindLiquidity(address uniV2Pair) external override whenNotPaused {
         LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
         // Checks: Pair must have received liquidity before.
         if (deployment.deadline == 0) {

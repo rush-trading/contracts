@@ -181,6 +181,7 @@ interface ILiquidityDeployer is IACLRoles {
      * @notice Unwind liquidity from a given pair and return it to the LiquidityPool.
      *
      * Requirements:
+     * - Contract must not be paused.
      * - Pair must have received liquidity before.
      * - Pair must not have been unwound before.
      * - Deadline must have passed or early unwind threshold must be met.
