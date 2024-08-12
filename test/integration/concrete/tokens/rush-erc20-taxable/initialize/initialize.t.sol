@@ -3,7 +3,7 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Rush_ERC20_Taxable_Integration_Shared_Test } from "test/integration/shared/RushERC20Taxable.t.sol";
-import {IRushERC20Taxable} from "src/interfaces/IRushERC20Taxable.sol";
+import { IRushERC20Taxable } from "src/interfaces/IRushERC20Taxable.sol";
 
 contract Initialize_Integration_Concrete_Test is Rush_ERC20_Taxable_Integration_Shared_Test {
     function test_RevertGiven_AlreadyInitialized() external {
@@ -14,7 +14,7 @@ contract Initialize_Integration_Concrete_Test is Rush_ERC20_Taxable_Integration_
         address owner = users.sender;
         uint256 taxBPS = defaults.ERC20_TAXABLE_RATE_BPS();
         address exchangePool = address(0);
-        bytes memory data = abi.encode(owner,exchangePool,taxBPS);
+        bytes memory data = abi.encode(owner, exchangePool, taxBPS);
         rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: users.recipient, data: data });
 
         // Run the test.
@@ -31,7 +31,7 @@ contract Initialize_Integration_Concrete_Test is Rush_ERC20_Taxable_Integration_
         address owner = users.sender;
         uint256 taxBPS = defaults.ERC20_TAXABLE_RATE_BPS();
         address exchangePool = address(0);
-        bytes memory data = abi.encode(owner,exchangePool,taxBPS);
+        bytes memory data = abi.encode(owner, exchangePool, taxBPS);
 
         address recipient = users.recipient;
         emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
