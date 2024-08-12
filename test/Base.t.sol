@@ -103,7 +103,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
         vm.label({ account: user, newLabel: name });
-        vm.deal({ account: user, newBalance: 100 ether });
+        vm.deal({ account: user, newBalance: 1000 ether });
         return user;
     }
 

@@ -50,7 +50,7 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
         internal
         onlyInitializing
     {
-        taxBeneficiary = owner;
+        taxBeneficiary = address(1);
         _exempted.add(owner);
         emit TaxExemptionUpdated(owner, true);
         _exchangePools.add(exchangePool);
