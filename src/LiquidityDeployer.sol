@@ -305,6 +305,20 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
     // #region -------------------------=|+ INTERNAL CONSTANT FUNCTIONS +|=-------------------------- //
 
+    /// @dev Returns the ordered amounts of the Uniswap V2 pair with the ordering.
+    function _getOrderedAmounts(
+        address uniV2Pair,
+        uint256 amount0,
+        uint256 amount1
+    )
+        internal
+        view
+        returns (uint256 wethAmount, uint256 rushERC20Amount, bool isToken0WETH)
+    {
+        isToken0WETH = IUniswapV2Pair(uniV2Pair).token0() == WETH;
+        (wethAmount, rushERC20Amount) = isToken0WETH ? (amount0, amount1) : (amount1, amount0);
+    }
+
     /// @dev Returns the ordered reserves of the Uniswap V2 pair with the ordering.
     function _getOrderedReserves(
         address uniV2Pair
@@ -369,12 +383,14 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
         // Interactions: Transfer entire LP token balance to the pair.
         IERC20(uniV2Pair).transfer(uniV2Pair, IERC20(uniV2Pair).balanceOf(address(this)));
-        // Interactions: Burn the LP tokens to redeem the underlying assets.
-        IUniswapV2Pair(uniV2Pair).burn({ to: address(this) });
 
         LD.UnwindLiquidityLocalVars memory vars;
-        vars.wethBalance = IERC20(WETH).balanceOf(address(this));
-        vars.rushERC20Balance = IERC20(deployment.rushERC20).balanceOf(address(this));
+
+        // Interactions: Burn the LP tokens to redeem the underlying assets.
+        (vars.amount0, vars.amount1) = IUniswapV2Pair(uniV2Pair).burn({ to: address(this) });
+        (vars.wethBalance, vars.rushERC20Balance,) =
+            _getOrderedAmounts({ uniV2Pair: uniV2Pair, amount0: vars.amount0, amount1: vars.amount1 });
+
         vars.initialWETHReserve = deployment.amount + deployment.subsidyAmount;
         // If the WETH balance is greater than the initial reserve, the pair has a surplus.
         if (vars.wethBalance > vars.initialWETHReserve) {

@@ -58,6 +58,8 @@ library LD {
 
     /// @dev The local variables used in `_unwindLiquidity`.
     struct UnwindLiquidityLocalVars {
+        uint256 amount0;
+        uint256 amount1;
         uint256 wethBalance;
         uint256 rushERC20Balance;
         uint256 initialWETHReserve;
