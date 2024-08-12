@@ -118,7 +118,11 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
             rateSlope2: defaults.RATE_SLOPE_2()
         });
         vm.label({ account: address(feeCalculator), newLabel: "FeeCalculator" });
-        liquidityPool = new LiquidityPool({ aclManager_: address(aclManager), asset_: asset });
+        liquidityPool = new LiquidityPool({
+            aclManager_: address(aclManager),
+            asset_: asset,
+            maxTotalDeposits_: defaults.MAX_TOTAL_DEPOSITS()
+        });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
         liquidityDeployer = new LiquidityDeployer({
             aclManager_: address(aclManager),

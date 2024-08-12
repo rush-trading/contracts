@@ -10,8 +10,11 @@ contract Constructor_LiquidityPool_Integration_Concrete_Test is Base_Test {
         resetPrank({ msgSender: users.sender });
 
         // Construct the contract.
-        LiquidityPool constructedLiquidityPool =
-            new LiquidityPool({ aclManager_: address(aclManager), asset_: address(wethMock) });
+        LiquidityPool constructedLiquidityPool = new LiquidityPool({
+            aclManager_: address(aclManager),
+            asset_: address(wethMock),
+            maxTotalDeposits_: defaults.MAX_TOTAL_DEPOSITS()
+        });
 
         // Assert that the values were set correctly.
         address actualACLManager = constructedLiquidityPool.ACL_MANAGER();
@@ -25,5 +28,9 @@ contract Constructor_LiquidityPool_Integration_Concrete_Test is Base_Test {
         string memory actualSymbol = constructedLiquidityPool.symbol();
         string memory expectedSymbol = string("rWETH");
         assertEq(actualSymbol, expectedSymbol, "symbol");
+
+        uint256 actualMaxTotalDeposits = constructedLiquidityPool.maxTotalDeposits();
+        uint256 expectedMaxTotalDeposits = defaults.MAX_TOTAL_DEPOSITS();
+        assertEq(actualMaxTotalDeposits, expectedMaxTotalDeposits, "maxTotalDeposits");
     }
 }

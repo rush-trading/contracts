@@ -5,6 +5,8 @@ pragma solidity >=0.8.26;
 abstract contract Events {
     // #region -----------------------------------=|+ GENERICS +|=----------------------------------- //
 
+    event Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares);
+
     event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
 
     event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
@@ -69,6 +71,8 @@ abstract contract Events {
     event DispatchAsset(address indexed originator, address indexed to, uint256 amount);
 
     event ReturnAsset(address indexed originator, address indexed from, uint256 amount);
+
+    event SetMaxTotalDeposits(uint256 newMaxTotalDeposits);
 
     // #endregion ----------------------------------------------------------------------------------- //
 }

@@ -125,6 +125,9 @@ library Errors {
 
     // #region --------------------------------=|+ LIQUIDITY-POOL +|=-------------------------------- //
 
+    /// @notice Thrown when the maximum total deposits are exceeded.
+    error LiquidityPool_MaxTotalDepositsExceeded();
+
     /// @notice Thrown when attempting to dispatch assets to the LiquidityPool itself.
     error LiquidityPool_SelfDispatch();
 

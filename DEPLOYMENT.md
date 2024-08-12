@@ -41,6 +41,7 @@ forge script script/DeployACLManager.s.sol \
 export NETWORK="sepolia"
 export ACL_MANAGER="<ADDRESS>"
 export ASSET="<ADDRESS>"
+export MAX_TOTAL_DEPOSITS="<WAD>"
 
 # Run the script
 forge script script/DeployLiquidityPool.s.sol \
@@ -49,7 +50,8 @@ forge script script/DeployLiquidityPool.s.sol \
     --sig "run(address,address)" \
     --verify \
     ${ACL_MANAGER} \
-    ${ASSET}
+    ${ASSET} \
+    ${MAX_TOTAL_DEPOSITS}
 ```
 
 ### Deploy `RushERC20Factory`
