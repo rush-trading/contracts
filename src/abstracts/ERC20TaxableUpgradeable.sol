@@ -5,7 +5,6 @@ import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/O
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-
 /**
  * @dev Extension of {ERC20} that allows token deployers to set a tax on transfers from and to specific addresses.
  */
@@ -33,26 +32,34 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
     function __ERC20Taxable_init(
         address owner,
         address exchangePool,
-        uint256 initialTaxBasisPoints
+        uint256 initialTaxBasisPoints,
+        address liquidityDeployer,
+        address router
     )
         internal
         onlyInitializing
     {
         __Ownable_init_unchained(owner);
-        __ERC20Taxable_init_unchained(owner, exchangePool, initialTaxBasisPoints);
+        __ERC20Taxable_init_unchained(owner, exchangePool, initialTaxBasisPoints, liquidityDeployer, router);
     }
 
     function __ERC20Taxable_init_unchained(
         address owner,
         address exchangePool,
-        uint256 initialTaxBasisPoints
+        uint256 initialTaxBasisPoints,
+        address liquidityDeployer,
+        address router
     )
         internal
         onlyInitializing
     {
-        taxBeneficiary = address(1);
+        taxBeneficiary = owner;
         _exempted.add(owner);
         emit TaxExemptionUpdated(owner, true);
+        _exempted.add(liquidityDeployer);
+        emit TaxExemptionUpdated(liquidityDeployer, true);
+        _exempted.add(router);
+        emit TaxExemptionUpdated(router, true);
         _exchangePools.add(exchangePool);
         emit ExchangePoolAdded(exchangePool);
         taxBasisPoints = initialTaxBasisPoints;
@@ -137,10 +144,10 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
         // TODO: make `getTax` internal.
         uint256 tax = getTax(from, to, value);
         uint256 taxedAmount = value - tax;
-        super._update(from, to, taxedAmount);
+        ERC20Upgradeable._update(from, to, taxedAmount);
         if (tax > 0) {
             // TODO: make `taxBeneficiary` immutable if possible.
-            super._update(from, taxBeneficiary, tax);
+            ERC20Upgradeable._update(from, taxBeneficiary, tax);
         }
     }
 }
