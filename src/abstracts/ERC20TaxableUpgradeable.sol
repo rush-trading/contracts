@@ -7,7 +7,7 @@ import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC2
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 /**
- * @dev Extension of {ERC20} that allows token deployers to set a tax on transfers from and to specific addresses.
+ * @dev Extension of {ERC20} that allows setting a tax on transfers to and from specific addresses.
  */
 abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -21,7 +21,7 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
     event ExchangePoolRemoved(address exchangePool);
 
     /// @notice Emitted when an address is added to or removed from the exempted addresses set.
-    event TaxExemptionUpdated(address indexed wallet, bool exempted);
+    event TaxExemptionUpdated(address indexed wallet, bool isExempted);
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -37,7 +37,7 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
 
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
-    /// @notice Receiver of the tax (set to owner)
+    /// @notice Receiver of the tax.
     address public taxBeneficiary;
 
     /// @notice How much tax to collect in basis points. 10,000 basis points is 100%.
@@ -95,8 +95,8 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
     }
 
     /**
-     * @notice Add address to set of tax-exempted addresses.
-     * @param exemption Address to add to set of tax-exempted addresses.
+     * @notice Add address to set of tax-exempt addresses.
+     * @param exemption Address to add to set of tax-exempt addresses.
      */
     function addExemption(address exemption) external onlyOwner {
         if (_exempted.add(exemption)) {
@@ -116,8 +116,8 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
     }
 
     /**
-     * @notice Remove address from set of tax-exempted addresses.
-     * @param exemption Address to remove from set of tax-exempted addresses.
+     * @notice Remove address from set of tax-exempt addresses.
+     * @param exemption Address to remove from set of tax-exempt addresses.
      */
     function removeExemption(address exemption) external onlyOwner {
         if (_exempted.remove(exemption)) {
