@@ -52,7 +52,9 @@ contract FeeCalculator is IFeeCalculator {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /// @inheritdoc IFeeCalculator
-    function calculateFee(FC.CalculateFeeParams calldata params)
+    function calculateFee(
+        FC.CalculateFeeParams calldata params
+    )
         external
         view
         override

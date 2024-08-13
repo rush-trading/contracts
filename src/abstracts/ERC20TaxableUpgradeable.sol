@@ -8,6 +8,7 @@ import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableS
 /**
  * @dev Extension of {ERC20} that allows token deployers to set a tax on transfers from and to specific addresses.
  */
+
 abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
