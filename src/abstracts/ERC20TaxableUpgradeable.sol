@@ -12,6 +12,8 @@ import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableS
 abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
+
     /// @notice Emitted when an exchange pool address is added to the set of tracked pool addresses.
     event ExchangePoolAdded(address exchangePool);
 
@@ -21,42 +23,29 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
     /// @notice Emitted when an address is added to or removed from the exempted addresses set.
     event TaxExemptionUpdated(address indexed wallet, bool exempted);
 
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -------------------------------=|+ INTERNAL STORAGE +|=------------------------------- //
+
     /// @dev The set of addresses exempt from tax.
-    EnumerableSet.AddressSet private _exempted;
+    EnumerableSet.AddressSet internal _exempted;
+
     /// @dev Set of exchange pool addresses.
     EnumerableSet.AddressSet internal _exchangePools;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
+
     /// @notice Receiver of the tax (set to owner)
     address public taxBeneficiary;
+
     /// @notice How much tax to collect in basis points. 10,000 basis points is 100%.
     uint256 public taxBasisPoints;
 
-    function __ERC20Taxable_init(
-        address owner,
-        address exchangePool,
-        uint256 initialTaxBasisPoints
-    )
-        internal
-        onlyInitializing
-    {
-        __Ownable_init_unchained(owner);
-        __ERC20Taxable_init_unchained(owner, exchangePool, initialTaxBasisPoints);
-    }
+    // #endregion ----------------------------------------------------------------------------------- //
 
-    function __ERC20Taxable_init_unchained(
-        address owner,
-        address exchangePool,
-        uint256 initialTaxBasisPoints
-    )
-        internal
-        onlyInitializing
-    {
-        taxBeneficiary = address(1);
-        _exempted.add(owner);
-        emit TaxExemptionUpdated(owner, true);
-        _exchangePools.add(exchangePool);
-        emit ExchangePoolAdded(exchangePool);
-        taxBasisPoints = initialTaxBasisPoints;
-    }
+    // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /**
      * @notice Get list of addresses designated as exchange pools.
@@ -64,28 +53,6 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
      */
     function getExchangePoolAddresses() external view returns (address[] memory) {
         return _exchangePools.values();
-    }
-
-    /**
-     * @notice Add an address to the set of exchange pool addresses.
-     * @dev Nothing happens if the pool already exists in the set.
-     * @param exchangePool Address of exchange pool to add.
-     */
-    function addExchangePool(address exchangePool) external onlyOwner {
-        if (_exchangePools.add(exchangePool)) {
-            emit ExchangePoolAdded(exchangePool);
-        }
-    }
-
-    /**
-     * @notice Remove an address from the set of exchange pool addresses.
-     * @dev Nothing happens if the pool doesn't exist in the set.
-     * @param exchangePool Address of exchange pool to remove.
-     */
-    function removeExchangePool(address exchangePool) external onlyOwner {
-        if (_exchangePools.remove(exchangePool)) {
-            emit ExchangePoolRemoved(exchangePool);
-        }
     }
 
     /**
@@ -112,6 +79,21 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
         return (amount * taxBasisPoints) / 10_000;
     }
 
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
+
+    /**
+     * @notice Add an address to the set of exchange pool addresses.
+     * @dev Nothing happens if the pool already exists in the set.
+     * @param exchangePool Address of exchange pool to add.
+     */
+    function addExchangePool(address exchangePool) external onlyOwner {
+        if (_exchangePools.add(exchangePool)) {
+            emit ExchangePoolAdded(exchangePool);
+        }
+    }
+
     /**
      * @notice Add address to set of tax-exempted addresses.
      * @param exemption Address to add to set of tax-exempted addresses.
@@ -119,6 +101,17 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
     function addExemption(address exemption) external onlyOwner {
         if (_exempted.add(exemption)) {
             emit TaxExemptionUpdated(exemption, true);
+        }
+    }
+
+    /**
+     * @notice Remove an address from the set of exchange pool addresses.
+     * @dev Nothing happens if the pool doesn't exist in the set.
+     * @param exchangePool Address of exchange pool to remove.
+     */
+    function removeExchangePool(address exchangePool) external onlyOwner {
+        if (_exchangePools.remove(exchangePool)) {
+            emit ExchangePoolRemoved(exchangePool);
         }
     }
 
@@ -132,6 +125,40 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
         }
     }
 
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -----------------------=|+ INTERNAL NON-CONSTANT FUNCTIONS +|=------------------------ //
+
+    /// @dev Initialize the contract with calls to parent initializers.
+    function __ERC20Taxable_init(
+        address owner,
+        address exchangePool,
+        uint256 initialTaxBasisPoints
+    )
+        internal
+        onlyInitializing
+    {
+        __Ownable_init_unchained(owner);
+        __ERC20Taxable_init_unchained(owner, exchangePool, initialTaxBasisPoints);
+    }
+
+    /// @dev Initialize the contract without calling parent initializers.
+    function __ERC20Taxable_init_unchained(
+        address owner,
+        address exchangePool,
+        uint256 initialTaxBasisPoints
+    )
+        internal
+        onlyInitializing
+    {
+        taxBeneficiary = address(1);
+        _exempted.add(owner);
+        emit TaxExemptionUpdated(owner, true);
+        _exchangePools.add(exchangePool);
+        emit ExchangePoolAdded(exchangePool);
+        taxBasisPoints = initialTaxBasisPoints;
+    }
+
     /// @dev See {ERC20-_update}.
     function _update(address from, address to, uint256 value) internal virtual override {
         // TODO: make `getTax` internal.
@@ -143,4 +170,6 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
             super._update(from, taxBeneficiary, tax);
         }
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
 }
