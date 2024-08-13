@@ -22,13 +22,12 @@ contract UniswapTrade is Fork_Test {
 
         resetPrank({ msgSender: users.sender });
 
-        bytes memory initData = abi.encode(users.sender, address(0), defaults.RUSH_ERC20_TAX_BPS());
+        bytes memory initData = abi.encode(address(1), defaults.RUSH_ERC20_TAX_BPS(), liquidityDeployer, address(3));
         rushERC20.initialize("TestTaxToken", "TTT", defaults.RUSH_ERC20_SUPPLY(), users.sender, initData);
         exchangePool = uniswapV2Factory.createPair(address(rushERC20), address(weth));
-        address(weth).call{ value: 100 ether }("");
+        payable(address(weth)).transfer(100 ether);
+        resetPrank({ msgSender: address(1) });
         RushERC20Taxable(address(rushERC20)).addExchangePool(exchangePool);
-        RushERC20Taxable(address(rushERC20)).removeExemption(users.sender);
-
         // approvals
         resetPrank({ msgSender: users.sender });
         weth.approve(exchangePool, type(uint256).max);

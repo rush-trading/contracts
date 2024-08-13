@@ -133,27 +133,35 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
     function __ERC20Taxable_init(
         address owner,
         address exchangePool,
-        uint256 initialTaxBasisPoints
+        uint256 initialTaxBasisPoints,
+        address liquidityDeployer,
+        address router
     )
         internal
         onlyInitializing
     {
         __Ownable_init_unchained(owner);
-        __ERC20Taxable_init_unchained(owner, exchangePool, initialTaxBasisPoints);
+        __ERC20Taxable_init_unchained(owner, exchangePool, initialTaxBasisPoints, liquidityDeployer, router);
     }
 
     /// @dev Initialize the contract without calling parent initializers.
     function __ERC20Taxable_init_unchained(
         address owner,
         address exchangePool,
-        uint256 initialTaxBasisPoints
+        uint256 initialTaxBasisPoints,
+        address liquidityDeployer,
+        address router
     )
         internal
         onlyInitializing
     {
-        taxBeneficiary = address(1);
+        taxBeneficiary = owner;
         _exempted.add(owner);
         emit TaxExemptionUpdated(owner, true);
+        _exempted.add(liquidityDeployer);
+        emit TaxExemptionUpdated(liquidityDeployer, true);
+        _exempted.add(router);
+        emit TaxExemptionUpdated(router, true);
         _exchangePools.add(exchangePool);
         emit ExchangePoolAdded(exchangePool);
         taxBasisPoints = initialTaxBasisPoints;
