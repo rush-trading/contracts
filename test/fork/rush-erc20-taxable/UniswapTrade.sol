@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { IRushERC20Taxable } from "src/interfaces/IRushERC20Taxable.sol";
-import { Fork_Test } from "test/fork/Fork.t.sol";
-import "forge-std/src/console.sol";
-import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
 import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
+import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
+import { Fork_Test } from "test/fork/Fork.t.sol";
 
 contract UniswapTrade is Fork_Test {
-    address exchangePool;
+    address internal exchangePool;
 
     function setUp() public virtual override {
         Fork_Test.setUp();
@@ -19,7 +17,7 @@ contract UniswapTrade is Fork_Test {
         address implementation = address(new RushERC20Taxable());
 
         addTemplate({ implementation: implementation });
-        rushERC20 = IRushERC20Taxable(createRushERC20({ implementation: implementation }));
+        rushERC20 = RushERC20Taxable(createRushERC20({ implementation: implementation }));
         vm.label({ account: address(rushERC20), newLabel: "RushERC20Taxable" });
 
         resetPrank({ msgSender: users.sender });
@@ -28,9 +26,9 @@ contract UniswapTrade is Fork_Test {
         rushERC20.initialize("TestTaxToken", "TTT", defaults.RUSH_ERC20_SUPPLY(), users.sender, initData);
         exchangePool = uniswapV2Factory.createPair(address(rushERC20), address(weth));
         address(weth).call{ value: 100 ether }("");
-        IRushERC20Taxable(address(rushERC20)).addExchangePool(exchangePool);
-        IRushERC20Taxable(address(rushERC20)).removeExemption(users.sender);
-        console.log(rushERC20.balanceOf(users.sender));
+        RushERC20Taxable(address(rushERC20)).addExchangePool(exchangePool);
+        RushERC20Taxable(address(rushERC20)).removeExemption(users.sender);
+
         // approvals
         resetPrank({ msgSender: users.sender });
         weth.approve(exchangePool, type(uint256).max);
@@ -73,7 +71,7 @@ contract UniswapTrade is Fork_Test {
             nonTaxTokenAmountOut, path, users.sender, block.timestamp + 100
         );
 
-        uint256 expectedTax = (IRushERC20Taxable(address(rushERC20)).taxBasisPoints() * nonTaxTokenAmountOut) / 10_000;
+        uint256 expectedTax = (RushERC20Taxable(address(rushERC20)).taxBasisPoints() * nonTaxTokenAmountOut) / 10_000;
         uint256 endingTaxTokenbalance = rushERC20.balanceOf(users.sender);
         assertEq(startingTaxTokenBalance + nonTaxTokenAmountOut, endingTaxTokenbalance + expectedTax);
     }
@@ -143,7 +141,7 @@ contract UniswapTrade is Fork_Test {
         path[0] = address(rushERC20);
         uint256 desiredAmountIn = uniswapRouter02.getAmountIn(0.5 ether, reserveIn, reserveOut);
         uint256 actualAmountIn =
-            desiredAmountIn - (desiredAmountIn * IRushERC20Taxable(address(rushERC20)).taxBasisPoints()) / 10_000;
+            desiredAmountIn - (desiredAmountIn * RushERC20Taxable(address(rushERC20)).taxBasisPoints()) / 10_000;
         uint256 ethAmountOut = uniswapRouter02.getAmountOut(actualAmountIn, reserveOut, reserveIn);
         uniswapRouter02.swapExactTokensForETHSupportingFeeOnTransferTokens(
             desiredAmountIn, ethAmountOut, path, users.sender, block.timestamp + 100

@@ -2,8 +2,8 @@
 pragma solidity >=0.8.26 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
+import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
 import { Rush_ERC20_Taxable_Integration_Shared_Test } from "test/integration/shared/RushERC20Taxable.t.sol";
-import { IRushERC20Taxable } from "src/interfaces/IRushERC20Taxable.sol";
 
 contract Initialize_Integration_Concrete_Test is Rush_ERC20_Taxable_Integration_Shared_Test {
     function test_RevertGiven_AlreadyInitialized() external {
@@ -56,7 +56,7 @@ contract Initialize_Integration_Concrete_Test is Rush_ERC20_Taxable_Integration_
         uint256 expectedRecipientBalance = maxSupply;
         assertEq(actualRecipientBalance, expectedRecipientBalance, "balanceOf");
 
-        uint256 actualTaxRateBPS = IRushERC20Taxable(address(rushERC20)).taxBasisPoints();
+        uint256 actualTaxRateBPS = RushERC20Taxable(address(rushERC20)).taxBasisPoints();
         uint256 expectedTaxRateBPS = taxBPS;
         assertEq(actualTaxRateBPS, expectedTaxRateBPS);
     }
