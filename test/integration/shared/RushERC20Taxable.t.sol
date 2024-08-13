@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
+
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
 import { Integration_Test } from "test/integration/Integration.t.sol";
@@ -25,5 +26,4 @@ contract Rush_ERC20_Taxable_Integration_Shared_Test is Integration_Test {
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
-
 }

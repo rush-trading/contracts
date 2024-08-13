@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26;
 
-import {IRushERC20} from "./IRushERC20.sol";
+import { IRushERC20 } from "./IRushERC20.sol";
 
 interface IRushERC20Taxable is IRushERC20 {
     function addExchangePool(address exchangePool) external;
