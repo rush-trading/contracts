@@ -12,7 +12,7 @@ contract Initialize_Integration_Concrete_Test is Rush_ERC20_Taxable_Integration_
         string memory symbol = RUSH_ERC20_SYMBOL;
         uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
         address owner = users.sender;
-        uint256 taxBPS = defaults.ERC20_TAXABLE_RATE_BPS();
+        uint256 taxBPS = defaults.RUSH_ERC20_TAX_BPS();
         address exchangePool = address(0);
         bytes memory data = abi.encode(owner, exchangePool, taxBPS);
         rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: users.recipient, data: data });
@@ -29,7 +29,7 @@ contract Initialize_Integration_Concrete_Test is Rush_ERC20_Taxable_Integration_
         string memory symbol = RUSH_ERC20_SYMBOL;
         uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
         address owner = users.sender;
-        uint256 taxBPS = defaults.ERC20_TAXABLE_RATE_BPS();
+        uint256 taxBPS = defaults.RUSH_ERC20_TAX_BPS();
         address exchangePool = address(0);
         bytes memory data = abi.encode(owner, exchangePool, taxBPS);
 
