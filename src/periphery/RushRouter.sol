@@ -72,8 +72,9 @@ contract RushRouter {
         payable
     {
         // Launch the ERC20 token.
-        (address rushERC20,) = RUSH_LAUNCHER.launch{ value: msg.value }(
+        RUSH_LAUNCHER.launch{ value: msg.value }(
             RL.LaunchParams({
+                originator: msg.sender,
                 kind: RUSH_ERC20_BASIC_KIND,
                 name: name,
                 symbol: symbol,
@@ -83,12 +84,6 @@ contract RushRouter {
                 liquidityDuration: liquidityDuration
             })
         );
-
-        uint256 rushERC20Balance = IERC20(rushERC20).balanceOf(address(this));
-        if (rushERC20Balance > 0) {
-            // Transfer any received RushERC20 tokens to the sender.
-            IERC20(rushERC20).transfer({ to: msg.sender, value: rushERC20Balance });
-        }
     }
 
     /**

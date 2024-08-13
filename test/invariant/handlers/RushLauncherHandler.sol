@@ -45,6 +45,7 @@ contract RushLauncherHandler is BaseHandler {
     // #region -----------------------------------=|+ STRUCTS +|=------------------------------------ //
 
     struct LaunchParams {
+        address originator;
         string name;
         string symbol;
         uint256 maxSupply;
@@ -60,6 +61,10 @@ contract RushLauncherHandler is BaseHandler {
     // #region ------------------------------=|+ HANDLER FUNCTIONS +|=------------------------------- //
 
     function launch(LaunchParams memory params) external useNewSender(address(this)) {
+        // Skip when the `originator` address is the zero address or the WETH address.
+        if (params.originator == address(0) || params.originator == weth) {
+            return;
+        }
         // Bound the `maxSupply` to the range (MIN_SUPPLY_LIMIT, MAX_SUPPL_LIMITY).
         params.maxSupply = bound(params.maxSupply, rushLauncher.MIN_SUPPLY_LIMIT(), rushLauncher.MAX_SUPPLY_LIMIT());
         // Bound the `liquidityAmount` to the range (MIN_DEPLOYMENT_AMOUNT, MAX_DEPLOYMENT_AMOUNT).
@@ -101,6 +106,7 @@ contract RushLauncherHandler is BaseHandler {
         // Launch the RushERC20 token with its liquidity.
         (, address uniV2Pair) = rushLauncher.launch{ value: totalFee }(
             RL.LaunchParams({
+                originator: params.originator,
                 kind: RUSH_ERC20_BASIC_KIND,
                 name: params.name,
                 symbol: params.symbol,

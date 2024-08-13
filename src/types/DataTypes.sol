@@ -75,6 +75,7 @@ library LD {
 library RL {
     /**
      * @dev The parameters for launching a new ERC20 token market.
+     * @param originator The address that originated the request (i.e., the user).
      * @param kind The kind of the ERC20 token template.
      * @param name The name of the ERC20 token.
      * @param symbol The symbol of the ERC20 token.
@@ -84,6 +85,7 @@ library RL {
      * @param liquidityDuration The duration of the liquidity deployment (in seconds).
      */
     struct LaunchParams {
+        address originator;
         bytes32 kind;
         string name;
         string symbol;
