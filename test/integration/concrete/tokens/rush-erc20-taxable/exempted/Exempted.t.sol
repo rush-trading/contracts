@@ -1,12 +1,13 @@
 pragma solidity >=0.8.26 < 0.9.0;
 
-import { RushERC20Taxable_Integration_Shared_Test } from "test/integration/shared/RushERC20Taxable.t.sol";
 import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
+import { RushERC20Taxable_Integration_Shared_Test } from "test/integration/shared/RushERC20Taxable.t.sol";
 
 contract Exempted_Integration_Concrete_Test is RushERC20Taxable_Integration_Shared_Test {
-    event ExchangePoolAdded(address exchangePool);
-    event ExchangePoolRemoved(address exchangePool);
-    event TaxExemptionUpdated(address indexed wallet, bool isExempted);
+    event ExchangePoolAdded(address indexed exchangePool);
+    event ExchangePoolRemoved(address indexed exchangePool);
+    event ExemptionAdded(address indexed exemption);
+    event ExemptionRemoved(address indexed exemption);
 
     function setUp() public virtual override {
         RushERC20Taxable_Integration_Shared_Test.setUp();
@@ -32,7 +33,7 @@ contract Exempted_Integration_Concrete_Test is RushERC20Taxable_Integration_Shar
         address[] memory exchangePools = RushERC20Taxable(address(rushERC20)).getExchangePoolAddresses();
 
         vm.expectEmit({ emitter: address(rushERC20) });
-        emit TaxExemptionUpdated(users.sender, false);
+        emit ExemptionRemoved(users.sender);
         RushERC20Taxable(address(rushERC20)).removeExemption(users.sender);
     }
 
@@ -40,8 +41,9 @@ contract Exempted_Integration_Concrete_Test is RushERC20Taxable_Integration_Shar
         resetPrank({ msgSender: users.sender });
         vm.assume(newExemption != users.sender);
         vm.assume(newExemption != address(0));
+        vm.assume(newExemption != address(liquidityDeployer));
         vm.expectEmit({ emitter: address(rushERC20) });
-        emit TaxExemptionUpdated(newExemption, true);
+        emit ExemptionAdded(newExemption);
         RushERC20Taxable(address(rushERC20)).addExemption(newExemption);
     }
 

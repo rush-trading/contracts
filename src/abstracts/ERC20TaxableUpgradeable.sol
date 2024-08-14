@@ -7,41 +7,56 @@ import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC2
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 /**
- * @dev Extension of {ERC20} that allows setting a tax on transfers to and from specific addresses.
+ * @dev Extension of {ERC20} that adds a tax to transfers to and from specific addresses.
  */
 abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
-    /// @notice Emitted when an exchange pool address is added to the set of tracked pool addresses.
-    event ExchangePoolAdded(address exchangePool);
+    /**
+     * @notice Emitted when an exchange pool address is added to the set of tracked pool addresses.
+     * @param exchangePool Address of the exchange pool added.
+     */
+    event ExchangePoolAdded(address indexed exchangePool);
 
-    /// @notice Emitted when an exchange pool address is removed from the set of tracked pool addresses.
-    event ExchangePoolRemoved(address exchangePool);
+    /**
+     * @notice Emitted when an exchange pool address is removed from the set of tracked pool addresses.
+     * @param exchangePool Address of the exchange pool removed.
+     */
+    event ExchangePoolRemoved(address indexed exchangePool);
 
-    /// @notice Emitted when an address is added to or removed from the exempted addresses set.
-    event TaxExemptionUpdated(address indexed wallet, bool isExempted);
+    /**
+     * @notice Emitted when an address is added to the set of tax-exempt addresses.
+     * @param exemption Address of the tax-exempt address added.
+     */
+    event ExemptionAdded(address indexed exemption);
+
+    /**
+     * @notice Emitted when an address is removed from the set of tax-exempt addresses.
+     * @param exemption Address of the tax-exempt address removed.
+     */
+    event ExemptionRemoved(address indexed exemption);
 
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region -------------------------------=|+ INTERNAL STORAGE +|=------------------------------- //
 
-    /// @dev The set of addresses exempt from tax.
-    EnumerableSet.AddressSet internal _exempted;
-
     /// @dev Set of exchange pool addresses.
     EnumerableSet.AddressSet internal _exchangePools;
+
+    /// @dev Set of addresses exempt from tax.
+    EnumerableSet.AddressSet internal _exempted;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
+    /// @notice How much tax to collect in basis points. 10,000 bps = 100% tax.
+    uint256 public taxBasisPoints;
+
     /// @notice Receiver of the tax.
     address public taxBeneficiary;
-
-    /// @notice How much tax to collect in basis points. 10,000 basis points is 100%.
-    uint256 public taxBasisPoints;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -56,17 +71,73 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
     }
 
     /**
-     * @notice Get number of tokens to pay as tax.
+     * @notice Get list of addresses designated as tax-exempt.
+     * @return An array of tax-exempt addresses.
+     */
+    function getExemptedAddresses() external view returns (address[] memory) {
+        return _exempted.values();
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
+
+    /**
+     * @notice Add an address to the set of exchange pool addresses.
+     * @dev Nothing happens if the pool already exists in the set.
+     * @param exchangePool Address to add to set of exchange pool addresses.
+     */
+    function addExchangePool(address exchangePool) external onlyOwner {
+        _addExchangePool(exchangePool);
+    }
+
+    /**
+     * @notice Add address to set of tax-exempt addresses.
+     * @dev Nothing happens if the address is already in the set.
+     * @param exemption Address to add to set of tax-exempt addresses.
+     */
+    function addExemption(address exemption) external onlyOwner {
+        _addExemption(exemption);
+    }
+
+    /**
+     * @notice Remove an address from the set of exchange pool addresses.
+     * @dev Nothing happens if the pool doesn't exist in the set.
+     * @param exchangePool Address to remove from set of exchange pool addresses.
+     */
+    function removeExchangePool(address exchangePool) external onlyOwner {
+        if (_exchangePools.remove(exchangePool)) {
+            emit ExchangePoolRemoved(exchangePool);
+        }
+    }
+
+    /**
+     * @notice Remove address from set of tax-exempt addresses.
+     * @dev Nothing happens if the address is not in the set.
+     * @param exemption Address to remove from set of tax-exempt addresses.
+     */
+    function removeExemption(address exemption) external onlyOwner {
+        if (_exempted.remove(exemption)) {
+            emit ExemptionRemoved(exemption);
+        }
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -------------------------=|+ INTERNAL CONSTANT FUNCTIONS +|=-------------------------- //
+
+    /**
+     * @dev Get number of tokens to pay as tax.
      * @dev There is no easy way to differentiate between a user selling tokens and a user adding liquidity to the pool.
      * In both cases tokens are transferred to the pool. This is an unfortunate case where users have to accept being
-     * taxed on liquidity additions. To get around this issue, a separate liquidity addition contract can be deployed.
-     * This contract can be exempt from taxes if its functionality is verified to only add liquidity.
+     * taxed on liquidity additions. To avoid this issue, a separate liquidity addition contract can be deployed and
+     * exempted from taxes if its functionality is verified to only add liquidity.
      * @param benefactor Address of the benefactor.
      * @param beneficiary Address of the beneficiary.
      * @param amount Number of tokens in the transfer.
      * @return Number of tokens to pay as tax.
      */
-    function getTax(address benefactor, address beneficiary, uint256 amount) public view returns (uint256) {
+    function _getTax(address benefactor, address beneficiary, uint256 amount) internal view returns (uint256) {
         if (_exempted.contains(benefactor) || _exempted.contains(beneficiary)) {
             return 0;
         }
@@ -77,52 +148,6 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
         }
 
         return (amount * taxBasisPoints) / 10_000;
-    }
-
-    // #endregion ----------------------------------------------------------------------------------- //
-
-    // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
-
-    /**
-     * @notice Add an address to the set of exchange pool addresses.
-     * @dev Nothing happens if the pool already exists in the set.
-     * @param exchangePool Address of exchange pool to add.
-     */
-    function addExchangePool(address exchangePool) external onlyOwner {
-        if (_exchangePools.add(exchangePool)) {
-            emit ExchangePoolAdded(exchangePool);
-        }
-    }
-
-    /**
-     * @notice Add address to set of tax-exempt addresses.
-     * @param exemption Address to add to set of tax-exempt addresses.
-     */
-    function addExemption(address exemption) external onlyOwner {
-        if (_exempted.add(exemption)) {
-            emit TaxExemptionUpdated(exemption, true);
-        }
-    }
-
-    /**
-     * @notice Remove an address from the set of exchange pool addresses.
-     * @dev Nothing happens if the pool doesn't exist in the set.
-     * @param exchangePool Address of exchange pool to remove.
-     */
-    function removeExchangePool(address exchangePool) external onlyOwner {
-        if (_exchangePools.remove(exchangePool)) {
-            emit ExchangePoolRemoved(exchangePool);
-        }
-    }
-
-    /**
-     * @notice Remove address from set of tax-exempt addresses.
-     * @param exemption Address to remove from set of tax-exempt addresses.
-     */
-    function removeExemption(address exemption) external onlyOwner {
-        if (_exempted.remove(exemption)) {
-            emit TaxExemptionUpdated(exemption, false);
-        }
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -159,23 +184,31 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
         onlyInitializing
     {
         taxBeneficiary = owner;
-        _exempted.add(owner);
-        emit TaxExemptionUpdated(owner, true);
-        _exempted.add(liquidityDeployer);
-        emit TaxExemptionUpdated(liquidityDeployer, true);
-        _exchangePools.add(exchangePool);
-        emit ExchangePoolAdded(exchangePool);
+        _addExemption(owner);
+        _addExchangePool(exchangePool);
+        _addExemption(liquidityDeployer);
         taxBasisPoints = initialTaxBasisPoints;
+    }
+
+    /// @dev Add an address to the set of exchange pool addresses.
+    function _addExchangePool(address exchangePool) internal {
+        if (_exchangePools.add(exchangePool)) {
+            emit ExchangePoolAdded(exchangePool);
+        }
+    }
+
+    /// @dev Add address to set of tax-exempt addresses.
+    function _addExemption(address exemption) internal {
+        if (_exempted.add(exemption)) {
+            emit ExemptionAdded(exemption);
+        }
     }
 
     /// @dev See {ERC20-_update}.
     function _update(address from, address to, uint256 value) internal virtual override {
-        // TODO: make `getTax` internal.
-        uint256 tax = getTax(from, to, value);
-        uint256 taxedAmount = value - tax;
-        super._update(from, to, taxedAmount);
+        uint256 tax = _getTax(from, to, value);
+        super._update(from, to, value - tax);
         if (tax > 0) {
-            // TODO: make `taxBeneficiary` immutable if possible.
             super._update(from, taxBeneficiary, tax);
         }
     }

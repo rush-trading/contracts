@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import { RL } from "src/types/DataTypes.sol";
-import { Fork_Test } from "test/fork/Fork.t.sol";
 import "forge-std/src/console.sol";
-import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
 import { IRushLauncher } from "src/interfaces/IRushLauncher.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
+import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
+import { RL } from "src/types/DataTypes.sol";
+import { Fork_Test } from "test/fork/Fork.t.sol";
 
 contract LauncherPoolInteraction is Fork_Test {
     address exchangePool;
@@ -55,11 +55,10 @@ contract LauncherPoolInteraction is Fork_Test {
         exchangePool = _exchangePool;
         rushERC20 = RushERC20Taxable(tokenAddy);
         uint256 taxBeneficiaryPreBalance = rushERC20.balanceOf(_owner);
-        console.log(taxBeneficiaryPreBalance);
+
         vm.warp(block.timestamp + 10_000);
         liquidityDeployer.unwindLiquidity(exchangePool);
         uint256 taxBeneficiaryPostBalance = rushERC20.balanceOf(_owner);
-        console.log(taxBeneficiaryPostBalance);
 
         assertEq(taxBeneficiaryPreBalance, taxBeneficiaryPostBalance);
     }

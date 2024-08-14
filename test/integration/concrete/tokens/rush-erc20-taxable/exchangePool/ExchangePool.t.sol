@@ -1,11 +1,11 @@
 pragma solidity >=0.8.26 < 0.9.0;
 
-import { RushERC20Taxable_Integration_Shared_Test } from "test/integration/shared/RushERC20Taxable.t.sol";
 import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
+import { RushERC20Taxable_Integration_Shared_Test } from "test/integration/shared/RushERC20Taxable.t.sol";
 
 contract ExchangePool_Integration_Concrete_Test is RushERC20Taxable_Integration_Shared_Test {
-    event ExchangePoolAdded(address exchangePool);
-    event ExchangePoolRemoved(address exchangePool);
+    event ExchangePoolAdded(address indexed exchangePool);
+    event ExchangePoolRemoved(address indexed exchangePool);
 
     function setUp() public virtual override {
         RushERC20Taxable_Integration_Shared_Test.setUp();
