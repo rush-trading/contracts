@@ -342,6 +342,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: vars.amount,
+            totalFee: vars.feeAmount,
+            reserveFee: Math.mulDiv(vars.feeAmount, defaults.RESERVE_FACTOR(), 1e18),
             deadline: block.timestamp + vars.duration
         });
 
@@ -429,6 +431,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: vars.amount,
+            totalFee: vars.feeAmount,
+            reserveFee: Math.mulDiv(vars.feeAmount, defaults.RESERVE_FACTOR(), 1e18),
             deadline: block.timestamp + vars.duration
         });
 

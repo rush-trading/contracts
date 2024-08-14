@@ -90,7 +90,8 @@ contract RushLauncher is IRushLauncher, ACLRoles {
         }
 
         // Interactions: Create a new RushERC20 token.
-        rushERC20 = IRushERC20Factory(RUSH_ERC20_FACTORY).createRushERC20({ originator: msg.sender, kind: params.kind });
+        rushERC20 =
+            IRushERC20Factory(RUSH_ERC20_FACTORY).createRushERC20({ originator: params.originator, kind: params.kind });
         // Interactions: Create the Uniswap V2 pair.
         uniV2Pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).createPair({ tokenA: rushERC20, tokenB: WETH });
         // Interactions: Initialize the RushERC20 token.
@@ -103,7 +104,7 @@ contract RushLauncher is IRushLauncher, ACLRoles {
         });
         // Interactions: Deploy the liquidity.
         ILiquidityDeployer(LIQUIDITY_DEPLOYER).deployLiquidity{ value: msg.value }({
-            originator: msg.sender,
+            originator: params.originator,
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20,
             amount: params.liquidityAmount,

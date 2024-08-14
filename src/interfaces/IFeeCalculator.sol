@@ -6,6 +6,8 @@ import { FC } from "src/types/DataTypes.sol";
 /**
  * @title IFeeCalculator
  * @notice Calculates liquidity deployment fees.
+ * @dev All rates and ratios in this contract are expressed with WAD precision, which means they use 18 decimal places.
+ * For example, 1e18 represents 100%, 0.5e18 represents 50%, and so on.
  */
 interface IFeeCalculator {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //

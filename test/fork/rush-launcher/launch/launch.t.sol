@@ -31,6 +31,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         vm.expectRevert(abi.encodeWithSelector(Errors.OnlyRouterRole.selector, users.eve));
         rushLauncher.launch(
             RL.LaunchParams({
+                originator: users.eve,
                 kind: kind,
                 name: "MyToken",
                 symbol: "MTK",
@@ -56,6 +57,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         vm.expectRevert(abi.encodeWithSelector(Errors.RushLauncher_LowMaxSupply.selector, maxSupply));
         rushLauncher.launch(
             RL.LaunchParams({
+                originator: users.sender,
                 kind: kind,
                 name: "MyToken",
                 symbol: "MTK",
@@ -84,6 +86,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         vm.expectRevert(abi.encodeWithSelector(Errors.RushLauncher_HighMaxSupply.selector, maxSupply));
         rushLauncher.launch(
             RL.LaunchParams({
+                originator: users.sender,
                 kind: kind,
                 name: "MyToken",
                 symbol: "MTK",
@@ -134,6 +137,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
         // Launch the RushERC20 token with its liquidity.
         rushLauncher.launch{ value: fee }(
             RL.LaunchParams({
+                originator: users.sender,
                 kind: kind,
                 name: "MyToken",
                 symbol: "MTK",

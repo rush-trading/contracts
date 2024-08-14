@@ -1,0 +1,9 @@
+setMaxTotalDeposits.t.sol
+├── when caller does not have admin role
+│  └── it should revert
+└── when caller has admin role
+    ├── when amount is zero
+    │  └── it should revert
+    └── when amount is not zero
+        ├── it should set the max total deposits
+        └── it should emit a {SetMaxTotalDeposits} event

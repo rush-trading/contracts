@@ -6,7 +6,17 @@ import { LiquidityPool } from "src/LiquidityPool.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployLiquidityPool is BaseScript {
-    function run(address aclManager, address asset) public virtual broadcast returns (ILiquidityPool liquidityPool) {
-        liquidityPool = new LiquidityPool({ aclManager_: aclManager, asset_: asset });
+    function run(
+        address aclManager,
+        address asset,
+        uint256 maxTotalDeposits
+    )
+        public
+        virtual
+        broadcast
+        returns (ILiquidityPool liquidityPool)
+    {
+        liquidityPool =
+            new LiquidityPool({ aclManager_: aclManager, asset_: asset, maxTotalDeposits_: maxTotalDeposits });
     }
 }

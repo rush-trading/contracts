@@ -61,7 +61,11 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         });
         vm.label({ account: address(feeCalculator), newLabel: "FeeCalculator" });
 
-        liquidityPool = new LiquidityPool({ aclManager_: address(aclManager), asset_: address(wethMock) });
+        liquidityPool = new LiquidityPool({
+            aclManager_: address(aclManager),
+            asset_: address(wethMock),
+            maxTotalDeposits_: defaults.MAX_TOTAL_DEPOSITS()
+        });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
 
         liquidityDeployer = new LiquidityDeployer({

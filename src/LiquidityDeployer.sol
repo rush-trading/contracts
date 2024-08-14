@@ -27,9 +27,6 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     uint256 public immutable override EARLY_UNWIND_THRESHOLD;
 
     /// @inheritdoc ILiquidityDeployer
-    address public immutable override FEE_CALCULATOR;
-
-    /// @inheritdoc ILiquidityDeployer
     address public immutable override LIQUIDITY_POOL;
 
     /// @inheritdoc ILiquidityDeployer
@@ -59,6 +56,13 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
     /// @dev A mapping of liquidity deployments.
     mapping(address uniV2Pair => LD.LiquidityDeployment) internal _liquidityDeployments;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
+
+    /// @inheritdoc ILiquidityDeployer
+    address public override feeCalculator;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -92,7 +96,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         ACLRoles(aclManager_)
     {
         EARLY_UNWIND_THRESHOLD = earlyUnwindThreshold_;
-        FEE_CALCULATOR = feeCalculator_;
+        feeCalculator = feeCalculator_;
         LIQUIDITY_POOL = liquidityPool_;
         MAX_DEPLOYMENT_AMOUNT = maxDeploymentAmount_;
         MAX_DURATION = maxDuration_;
@@ -167,7 +171,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             revert Errors.LiquidityDeployer_MaxDuration(duration);
         }
         // Checks: `msg.value` must be at least the liquidity deployment fee.
-        (vars.totalFee, vars.reserveFee) = IFeeCalculator(FEE_CALCULATOR).calculateFee(
+        (vars.totalFee, vars.reserveFee) = IFeeCalculator(feeCalculator).calculateFee(
             FC.CalculateFeeParams({
                 duration: duration,
                 newLiquidity: amount,
@@ -213,6 +217,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             rushERC20: rushERC20,
             uniV2Pair: uniV2Pair,
             amount: amount,
+            totalFee: vars.totalFee,
+            reserveFee: vars.reserveFee,
             deadline: vars.deadline
         });
     }
@@ -223,6 +229,20 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
         // Emit an event.
         emit Pause();
+    }
+
+    /// @inheritdoc ILiquidityDeployer
+    function setFeeCalculator(address newFeeCalculator) external override onlyAdminRole whenPaused {
+        // Checks: New FeeCalculator address must not be the zero address.
+        if (newFeeCalculator == address(0)) {
+            revert Errors.LiquidityDeployer_FeeCalculatorZeroAddress();
+        }
+
+        // Effects: Set the new FeeCalculator address.
+        feeCalculator = newFeeCalculator;
+
+        // Emit an event.
+        emit SetFeeCalculator({ newFeeCalculator: newFeeCalculator });
     }
 
     /// @inheritdoc ILiquidityDeployer
@@ -257,7 +277,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc ILiquidityDeployer
-    function unwindLiquidity(address uniV2Pair) external override {
+    function unwindLiquidity(address uniV2Pair) external override whenNotPaused {
         LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
         // Checks: Pair must have received liquidity before.
         if (deployment.deadline == 0) {
@@ -286,6 +306,20 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region -------------------------=|+ INTERNAL CONSTANT FUNCTIONS +|=-------------------------- //
+
+    /// @dev Returns the ordered amounts of the Uniswap V2 pair with the ordering.
+    function _getOrderedAmounts(
+        address uniV2Pair,
+        uint256 amount0,
+        uint256 amount1
+    )
+        internal
+        view
+        returns (uint256 wethAmount, uint256 rushERC20Amount, bool isToken0WETH)
+    {
+        isToken0WETH = IUniswapV2Pair(uniV2Pair).token0() == WETH;
+        (wethAmount, rushERC20Amount) = isToken0WETH ? (amount0, amount1) : (amount1, amount0);
+    }
 
     /// @dev Returns the ordered reserves of the Uniswap V2 pair with the ordering.
     function _getOrderedReserves(
@@ -351,12 +385,14 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
         // Interactions: Transfer entire LP token balance to the pair.
         IERC20(uniV2Pair).transfer(uniV2Pair, IERC20(uniV2Pair).balanceOf(address(this)));
-        // Interactions: Burn the LP tokens to redeem the underlying assets.
-        IUniswapV2Pair(uniV2Pair).burn({ to: address(this) });
 
         LD.UnwindLiquidityLocalVars memory vars;
-        vars.wethBalance = IERC20(WETH).balanceOf(address(this));
-        vars.rushERC20Balance = IERC20(deployment.rushERC20).balanceOf(address(this));
+
+        // Interactions: Burn the LP tokens to redeem the underlying assets.
+        (vars.amount0, vars.amount1) = IUniswapV2Pair(uniV2Pair).burn({ to: address(this) });
+        (vars.wethBalance, vars.rushERC20Balance,) =
+            _getOrderedAmounts({ uniV2Pair: uniV2Pair, amount0: vars.amount0, amount1: vars.amount1 });
+
         vars.initialWETHReserve = deployment.amount + deployment.subsidyAmount;
         // If the WETH balance is greater than the initial reserve, the pair has a surplus.
         if (vars.wethBalance > vars.initialWETHReserve) {
@@ -374,8 +410,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             IERC20(WETH).transfer(uniV2Pair, vars.wethToResupply);
             // Interactions: Transfer the RushERC20 to resupply to the pair.
             IERC20(deployment.rushERC20).transfer(uniV2Pair, vars.rushERC20ToResupply);
-            // Interactions: Mint LP tokens send them to a burn address to lock them forever.
-            IUniswapV2Pair(uniV2Pair).mint(address(1));
+            // Interactions: Mint LP tokens and send them to the RushERC20 token address to lock them forever.
+            IUniswapV2Pair(uniV2Pair).mint(deployment.rushERC20);
         }
         // Else, the pair had no swaps and the total reserve fee is whatever is left of the fee after subsidy.
         else {
@@ -383,8 +419,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             vars.totalReserveFee = vars.wethBalance - deployment.amount;
         }
 
-        // Interactions: Burn entire remaining balance of the RushERC20 token.
-        IERC20(deployment.rushERC20).transfer(address(1), vars.rushERC20Balance - vars.rushERC20ToResupply);
+        // Interactions: Burn entire remaining balance of the RushERC20 token by sending it to the token address itself.
+        IERC20(deployment.rushERC20).transfer(deployment.rushERC20, vars.rushERC20Balance - vars.rushERC20ToResupply);
         // Interactions: Transfer the total reserve fee to the reserve.
         IERC20(WETH).transfer(RESERVE, vars.totalReserveFee);
         // Interactions: Approve the LiquidityPool to transfer the liquidity deployment amount.

@@ -1,0 +1,5 @@
+deposit.t.sol
+├── given max total deposits are exceeded
+│  └── it should return zero
+└── given max total deposits are not exceeded
+   └── it should succeed

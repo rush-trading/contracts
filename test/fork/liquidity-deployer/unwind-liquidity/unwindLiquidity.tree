@@ -1,22 +1,25 @@
 unwindLiquidity.t.sol
-├── given pair has not received liquidity
+├── when contract is paused
 │   └── it should revert
-└── given pair has received liquidity
-    ├── given pair has already been unwound
+└── when contract is not paused
+    ├── given pair has not received liquidity
     │   └── it should revert
-    └── given pair has not been unwound
-        ├── given deadline has not passed and early unwind threshold is not reached
+    └── given pair has received liquidity
+        ├── given pair has already been unwound
         │   └── it should revert
-        ├── given deadline has not passed but early unwind threshold is reached
-        │   ├── it should unwind the liquidity
-        │   └── it should emit a {UnwindLiquidity} event
-        ├── given deadline has passed but early unwind threshold is not reached
-        │   ├── when asset balance of pair is still same as initial balance
-        │   │   ├── it should unwind the liquidity
-        │   │   └── it should emit a {UnwindLiquidity} event
-        │   └── when asset balance of pair is above initial balance
-        │       ├── it should unwind the liquidity
-        │       └── it should emit a {UnwindLiquidity} event
-        └── given deadline has passed and early unwind threshold is reached
-            ├── it should unwind the liquidity
-            └── it should emit a {UnwindLiquidity} event
+        └── given pair has not been unwound
+            ├── given deadline has not passed and early unwind threshold is not reached
+            │   └── it should revert
+            ├── given deadline has not passed but early unwind threshold is reached
+            │   ├── it should unwind the liquidity
+            │   └── it should emit a {UnwindLiquidity} event
+            ├── given deadline has passed but early unwind threshold is not reached
+            │   ├── when asset balance of pair is still same as initial balance
+            │   │   ├── it should unwind the liquidity
+            │   │   └── it should emit a {UnwindLiquidity} event
+            │   └── when asset balance of pair is above initial balance
+            │       ├── it should unwind the liquidity
+            │       └── it should emit a {UnwindLiquidity} event
+            └── given deadline has passed and early unwind threshold is reached
+                ├── it should unwind the liquidity
+                └── it should emit a {UnwindLiquidity} event

@@ -17,6 +17,8 @@ interface ILiquidityDeployer is IACLRoles {
      * @param rushERC20 The address of the RushERC20 token.
      * @param uniV2Pair The address of the Uniswap V2 pair that received liquidity.
      * @param amount The amount of base asset liquidity deployed.
+     * @param totalFee The total fee collected for the deployment.
+     * @param reserveFee The reserve portion of the total fee.
      * @param deadline The timestamp after which the liquidity can be unwound.
      */
     event DeployLiquidity(
@@ -24,6 +26,8 @@ interface ILiquidityDeployer is IACLRoles {
         address indexed rushERC20,
         address indexed uniV2Pair,
         uint256 amount,
+        uint256 totalFee,
+        uint256 reserveFee,
         uint256 deadline
     );
 
@@ -31,6 +35,12 @@ interface ILiquidityDeployer is IACLRoles {
      * @notice Emitted when the contract is paused.
      */
     event Pause();
+
+    /**
+     * @notice Emitted when the FeeCalculator contract address is updated.
+     * @param newFeeCalculator The address of the new FeeCalculator contract.
+     */
+    event SetFeeCalculator(address newFeeCalculator);
 
     /**
      * @notice Emitted when the contract is unpaused.
@@ -51,9 +61,6 @@ interface ILiquidityDeployer is IACLRoles {
 
     /// @notice The level of base asset liquidity in a Uniswap V2 pair at which early unwinding is allowed.
     function EARLY_UNWIND_THRESHOLD() external view returns (uint256);
-
-    /// @notice The address of the FeeCalculator contract.
-    function FEE_CALCULATOR() external view returns (address);
 
     /// @notice The address of the LiquidityPool contract.
     function LIQUIDITY_POOL() external view returns (address);
@@ -82,6 +89,9 @@ interface ILiquidityDeployer is IACLRoles {
     /// @notice The WETH contract address.
     /// @dev WETH is used as the base asset for liquidity deployment.
     function WETH() external view returns (address);
+
+    /// @notice The address of the FeeCalculator contract.
+    function feeCalculator() external view returns (address);
 
     /// @notice Retrieves the liquidity deployment entity.
     function getLiquidityDeployment(address uniV2Pair) external view returns (LD.LiquidityDeployment memory);
@@ -139,6 +149,18 @@ interface ILiquidityDeployer is IACLRoles {
     function pause() external;
 
     /**
+     * @notice Set the address of the FeeCalculator contract.
+     *
+     * Requirements:
+     * - Can only be called by the default admin role.
+     * - Contract must be paused.
+     * - New FeeCalculator address must not be the zero address.
+     *
+     * @param newFeeCalculator The address of the new FeeCalculator contract.
+     */
+    function setFeeCalculator(address newFeeCalculator) external;
+
+    /**
      * @notice Unpause the contract.
      *
      * Requirements:
@@ -163,6 +185,7 @@ interface ILiquidityDeployer is IACLRoles {
      * @notice Unwind liquidity from a given pair and return it to the LiquidityPool.
      *
      * Requirements:
+     * - Contract must not be paused.
      * - Pair must have received liquidity before.
      * - Pair must not have been unwound before.
      * - Deadline must have passed or early unwind threshold must be met.
@@ -174,8 +197,8 @@ interface ILiquidityDeployer is IACLRoles {
      * 4. Calculate the total reserve fee and the amount of WETH and RushERC20 to lock in the pair.
      * 5. Transfer the WETH to lock to the pair.
      * 6. Transfer the RushERC20 to lock to the pair.
-     * 7. Mint LP tokens and send them to a burn address to lock them.
-     * 8. Burn entire remaining balance of the RushERC20 token.
+     * 7. Mint LP tokens and send them to the RushERC20 token itself to lock them.
+     * 8. Burn entire remaining balance of the RushERC20 token by sending it to the token address itself.
      * 9. Transfer the total reserve fee to the reserve.
      * 10. Approve the LiquidityPool to transfer the original liquidity deployment amount.
      * 11. Return asset to the LiquidityPool.
