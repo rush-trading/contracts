@@ -13,10 +13,8 @@ contract RushERC20Taxable is ERC20TaxableUpgradeable, RushERC20Abstract {
 
     struct InitializeLocalVars {
         address owner;
-        address exchangePool;
-        uint256 initialTaxBasisPoints;
         address liquidityDeployer;
-        address router;
+        uint256 initialTaxBasisPoints;
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -52,10 +50,13 @@ contract RushERC20Taxable is ERC20TaxableUpgradeable, RushERC20Abstract {
         InitializeLocalVars memory vars;
         __ERC20_init(name, symbol);
         _mint(recipient, maxSupply);
-        // TODO: Don't like the fact that owner is passed in calldata, it should be propogated via msg.sender...
-        (vars.owner, vars.initialTaxBasisPoints, vars.liquidityDeployer, vars.router) =
-            abi.decode(data, (address, uint256, address, address));
-        __ERC20Taxable_init(vars.owner, recipient, vars.initialTaxBasisPoints, vars.liquidityDeployer, vars.router);
+        (vars.owner, vars.liquidityDeployer, vars.initialTaxBasisPoints) = abi.decode(data, (address, address, uint256));
+        __ERC20Taxable_init({
+            owner: vars.owner,
+            exchangePool: recipient,
+            liquidityDeployer: vars.liquidityDeployer,
+            initialTaxBasisPoints: vars.initialTaxBasisPoints
+        });
         emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
     }
 

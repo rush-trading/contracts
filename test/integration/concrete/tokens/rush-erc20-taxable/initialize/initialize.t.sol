@@ -3,23 +3,23 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
-import { Rush_ERC20_Taxable_Integration_Shared_Test } from "test/integration/shared/RushERC20Taxable.t.sol";
+import { RushERC20Taxable_Integration_Shared_Test } from "test/integration/shared/RushERC20Taxable.t.sol";
 
-contract Initialize_Integration_Concrete_Test is Rush_ERC20_Taxable_Integration_Shared_Test {
+contract Initialize_Integration_Concrete_Test is RushERC20Taxable_Integration_Shared_Test {
     function test_RevertGiven_AlreadyInitialized() external {
         // Initialize the contract.
         string memory name = RUSH_ERC20_NAME;
         string memory symbol = RUSH_ERC20_SYMBOL;
         uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
+        address recipient = users.recipient;
         address owner = users.sender;
         uint256 taxBPS = defaults.RUSH_ERC20_TAX_BPS();
-        address exchangePool = address(0);
-        bytes memory data = abi.encode(owner, exchangePool, taxBPS);
-        rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: users.recipient, data: data });
+        bytes memory data = abi.encode(owner, address(liquidityDeployer), taxBPS);
+        rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.InvalidInitialization.selector));
-        rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: users.recipient, data: data });
+        rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
     }
 
     function test_GivenNotInitialized() external {
@@ -28,12 +28,11 @@ contract Initialize_Integration_Concrete_Test is Rush_ERC20_Taxable_Integration_
         string memory name = RUSH_ERC20_NAME;
         string memory symbol = RUSH_ERC20_SYMBOL;
         uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
+        address recipient = users.recipient;
         address owner = users.sender;
         uint256 taxBPS = defaults.RUSH_ERC20_TAX_BPS();
-        address exchangePool = address(0);
-        bytes memory data = abi.encode(owner, exchangePool, taxBPS);
+        bytes memory data = abi.encode(owner, address(liquidityDeployer), taxBPS);
 
-        address recipient = users.recipient;
         emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
 
         // Initialize the contract.
