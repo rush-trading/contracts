@@ -16,6 +16,7 @@ contract Defaults {
     uint256 public constant MAX_LIQUIDITY_AMOUNT = 100_000 ether; // 100k WETH
     uint256 public constant MAX_LIQUIDITY_DURATION = 365 days; // 1 year
     uint256 public constant MAX_RUSH_ERC20_SUPPLY = 1_000_000_000_000_000e18; // 1q tokens
+    uint256 public constant MAX_TOTAL_DEPOSITS = 1_000_000_000_000 ether; // 1t WETH
     uint256 public constant MAX_TOTAL_LIQUIDITY = 1_000_000_000 ether; // 1b WETH
     uint256 public constant MIN_LIQUIDITY_AMOUNT = 0.00001 ether; // 0.00001 WETH
     uint256 public constant MIN_LIQUIDITY_DURATION = 1 seconds; // 1 seconds

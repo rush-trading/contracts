@@ -37,7 +37,11 @@ contract LiquidityPool_Invariant_Test is Invariant_Test {
 
     /// @dev Deploys the contract.
     function deploy() internal {
-        liquidityPool = new LiquidityPool({ aclManager_: address(aclManager), asset_: address(wethMock) });
+        liquidityPool = new LiquidityPool({
+            aclManager_: address(aclManager),
+            asset_: address(wethMock),
+            maxTotalDeposits_: defaults.MAX_TOTAL_DEPOSITS()
+        });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
         liquidityPoolStore = new LiquidityPoolStore();
         vm.label({ account: address(liquidityPoolStore), newLabel: "LiquidityPoolStore" });

@@ -39,6 +39,11 @@ library Errors {
     // #region ------------------------------=|+ LIQUIDITY-DEPLOYER +|=------------------------------ //
 
     /**
+     * @notice Thrown when the new FeeCalculator address is the zero address.
+     */
+    error LiquidityDeployer_FeeCalculatorZeroAddress();
+
+    /**
      * @notice Thrown when the received deployment fee does not match the expected fee.
      * @param expected The expected fee.
      * @param received The received fee.
@@ -119,6 +124,9 @@ library Errors {
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region --------------------------------=|+ LIQUIDITY-POOL +|=-------------------------------- //
+
+    /// @notice Thrown when the maximum total deposits are exceeded.
+    error LiquidityPool_MaxTotalDepositsExceeded();
 
     /// @notice Thrown when attempting to dispatch assets to the LiquidityPool itself.
     error LiquidityPool_SelfDispatch();

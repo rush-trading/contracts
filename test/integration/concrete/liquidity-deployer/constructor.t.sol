@@ -56,9 +56,9 @@ contract Constructor_LiquidityDeployer_Integration_Concrete_Test is Integration_
         vars.expectedEarlyUnwindThreshold = defaults.EARLY_UNWIND_THRESHOLD();
         assertEq(vars.actualEarlyUnwindThreshold, vars.expectedEarlyUnwindThreshold, "EARLY_UNWIND_THRESHOLD");
 
-        vars.actualFeeCalculator = constructedLiquidityDeployer.FEE_CALCULATOR();
+        vars.actualFeeCalculator = constructedLiquidityDeployer.feeCalculator();
         vars.expectedFeeCalculator = address(feeCalculator);
-        assertEq(vars.actualFeeCalculator, vars.expectedFeeCalculator, "FEE_CALCULATOR");
+        assertEq(vars.actualFeeCalculator, vars.expectedFeeCalculator, "feeCalculator");
 
         vars.actualLiquidityPool = constructedLiquidityDeployer.LIQUIDITY_POOL();
         vars.expectedLiquidityPool = address(liquidityPool);

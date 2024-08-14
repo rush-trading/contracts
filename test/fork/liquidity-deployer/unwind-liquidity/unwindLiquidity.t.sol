@@ -9,7 +9,23 @@ import { LD } from "src/types/DataTypes.sol";
 import { LiquidityDeployer_Fork_Test } from "../LiquidityDeployer.t.sol";
 
 contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
-    function test_RevertGiven_PairHasNotReceivedLiquidity() external {
+    function test_RevertWhen_ContractIsPaused() external {
+        // Set Admin as the caller.
+        resetPrank({ msgSender: users.admin });
+
+        // Pause the contract.
+        liquidityDeployer.pause();
+
+        // Run the test.
+        vm.expectRevert(abi.encodeWithSelector(Errors.EnforcedPause.selector));
+        liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
+    }
+
+    modifier whenContractIsNotPaused() {
+        _;
+    }
+
+    function test_RevertGiven_PairHasNotReceivedLiquidity() external whenContractIsNotPaused {
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.LiquidityDeployer_PairNotReceivedLiquidity.selector, uniV2Pair));
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
@@ -33,7 +49,11 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         _;
     }
 
-    function test_RevertGiven_PairHasAlreadyBeenUnwound() external givenPairHasReceivedLiquidity {
+    function test_RevertGiven_PairHasAlreadyBeenUnwound()
+        external
+        whenContractIsNotPaused
+        givenPairHasReceivedLiquidity
+    {
         // Simulate the passage of time.
         LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
         vm.warp(liquidityDeployment.deadline);
@@ -52,6 +72,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_RevertGiven_DeadlineHasNotPassedAndEarlyUnwindThresholdIsNotReached()
         external
+        whenContractIsNotPaused
         givenPairHasReceivedLiquidity
         givenPairHasNotBeenUnwound
     {
@@ -74,6 +95,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_GivenDeadlineHasNotPassedButEarlyUnwindThresholdIsReached()
         external
+        whenContractIsNotPaused
         givenPairHasReceivedLiquidity
         givenPairHasNotBeenUnwound
     {
@@ -113,6 +135,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_WhenAssetBalanceOfPairIsStillSameAsInitialBalance()
         external
+        whenContractIsNotPaused
         givenPairHasReceivedLiquidity
         givenPairHasNotBeenUnwound
         givenDeadlineHasPassedButEarlyUnwindThresholdIsNotReached
@@ -141,6 +164,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_WhenAssetBalanceOfPairIsAboveInitialBalance()
         external
+        whenContractIsNotPaused
         givenPairHasReceivedLiquidity
         givenPairHasNotBeenUnwound
         givenDeadlineHasPassedButEarlyUnwindThresholdIsNotReached
@@ -192,6 +216,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
     function test_GivenDeadlineHasPassedAndEarlyUnwindThresholdIsReached()
         external
+        whenContractIsNotPaused
         givenPairHasReceivedLiquidity
         givenPairHasNotBeenUnwound
     {
@@ -212,10 +237,12 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         emit UnwindLiquidity({ uniV2Pair: uniV2Pair, originator: users.sender, amount: defaults.LIQUIDITY_AMOUNT() });
 
         // Unwind the liquidity.
-        uint256 address1LPBalanceBefore = IERC20(uniV2Pair).balanceOf(address(1));
+        uint256 lpBalanceBefore = IERC20(uniV2Pair).balanceOf(address(rushERC20Mock));
+        uint256 tokenBalanceBefore = IERC20(rushERC20Mock).balanceOf(address(rushERC20Mock));
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
-        uint256 address1LPBalanceAfter = IERC20(uniV2Pair).balanceOf(address(1));
+        uint256 lpBalanceAfter = IERC20(uniV2Pair).balanceOf(address(rushERC20Mock));
+        uint256 tokenBalanceAfter = IERC20(rushERC20Mock).balanceOf(address(rushERC20Mock));
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
 
         // Assert that the liquidity was unwound.
@@ -223,10 +250,13 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         vm.assertEq(
             liquidityPoolWETHBalanceAfter - liquidityPoolWETHBalanceBefore,
             expectedLiquidtyPoolWETHBalanceDiff,
-            "balanceOf"
+            "liquidtyPoolWETHBalanceDiff"
         );
-        // Assert that excess liquidity was re-added to the pair.
-        vm.assertEq(address1LPBalanceBefore, 0, "balanceOf");
-        vm.assertGt(address1LPBalanceAfter, 0, "balanceOf");
+        // Assert that excess liquidity was re-added to the pair and tokens locked in token contract itself.
+        vm.assertEq(lpBalanceBefore, 0, "lpBalanceBefore");
+        vm.assertGt(lpBalanceAfter, 0, "lpBalanceAfter");
+        // Assert that tokens were burned by sending them to the token contract itself.
+        vm.assertEq(tokenBalanceBefore, 0, "tokenBalanceBefore");
+        vm.assertGt(tokenBalanceAfter, 0, "tokenBalanceAfter");
     }
 }

@@ -15,6 +15,9 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
     /// @inheritdoc ILiquidityPool
+    uint256 public override maxTotalDeposits;
+
+    /// @inheritdoc ILiquidityPool
     uint256 public override outstandingAssets;
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -25,10 +28,12 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
      * @dev Constructor
      * @param aclManager_ The address of the ACLManager contract.
      * @param asset_ The address of the base asset.
+     * @param maxTotalDeposits_ The maximum total deposits allowed in the pool.
      */
     constructor(
         address aclManager_,
-        address asset_
+        address asset_,
+        uint256 maxTotalDeposits_
     )
         ACLRoles(aclManager_)
         ERC4626(ERC20(asset_))
@@ -36,7 +41,9 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
             string(abi.encodePacked("Rush ", ERC20(asset_).name(), " Liquidity Pool")),
             string(abi.encodePacked("r", ERC20(asset_).symbol()))
         )
-    { }
+    {
+        maxTotalDeposits = maxTotalDeposits_;
+    }
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -99,6 +106,33 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
 
         // Emit an event.
         emit ReturnAsset({ originator: msg.sender, from: from, amount: amount });
+    }
+
+    /// @inheritdoc ILiquidityPool
+    function setMaxTotalDeposits(uint256 newMaxTotalDeposits) external override onlyAdminRole {
+        // Checks: `newMaxTotalDeposits` must be greater than zero.
+        if (newMaxTotalDeposits == 0) {
+            revert Errors.LiquidityPool_ZeroAmount();
+        }
+
+        // Effects: Set the maximum total deposits allowed in the pool.
+        maxTotalDeposits = newMaxTotalDeposits;
+
+        // Emit an event.
+        emit SetMaxTotalDeposits({ newMaxTotalDeposits: newMaxTotalDeposits });
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
+
+    function deposit(uint256 assets, address receiver) public override(ERC4626, IERC4626) returns (uint256) {
+        // Checks: total deposits must not exceed the maximum limit.
+        if (assets + totalAssets() > maxTotalDeposits) {
+            revert Errors.LiquidityPool_MaxTotalDepositsExceeded();
+        }
+
+        return super.deposit(assets, receiver);
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

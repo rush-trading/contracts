@@ -27,9 +27,18 @@ interface ILiquidityPool is IERC4626, IACLRoles {
      */
     event ReturnAsset(address indexed originator, address indexed from, uint256 amount);
 
+    /**
+     * @notice Emitted when the maximum total deposits allowed in the pool is updated.
+     * @param newMaxTotalDeposits The new maximum total deposits allowed in the pool.
+     */
+    event SetMaxTotalDeposits(uint256 newMaxTotalDeposits);
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
+
+    /// @notice The maximum total deposits allowed in the pool.
+    function maxTotalDeposits() external view returns (uint256);
 
     /// @notice The total amount of outstanding assets.
     function outstandingAssets() external view returns (uint256);
@@ -73,6 +82,17 @@ interface ILiquidityPool is IERC4626, IACLRoles {
      * @param amount The amount of assets to return.
      */
     function returnAsset(address from, uint256 amount) external;
+
+    /**
+     * @notice Sets the maximum total deposits allowed in the pool.
+     *
+     * Requirements:
+     * - The caller must have the admin role.
+     * - The new maximum total deposits must be greater than zero.
+     *
+     * @param newMaxTotalDeposits The new maximum total deposits allowed in the pool.
+     */
+    function setMaxTotalDeposits(uint256 newMaxTotalDeposits) external;
 
     // #endregion ----------------------------------------------------------------------------------- //
 }

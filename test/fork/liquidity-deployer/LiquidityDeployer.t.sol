@@ -84,8 +84,19 @@ contract LiquidityDeployer_Fork_Test is Fork_Test {
     /// @dev Unwinds the liquidity from the Uniswap V2 pair.
     function unwindLiquidity(address uniV2Pair_) internal {
         (, address caller,) = vm.readCallers();
+        (bool success, bytes memory data) = address(liquidityDeployer).call(abi.encodeWithSignature("paused()"));
+        assert(success);
+        bool isPaused = abi.decode(data, (bool));
+        if (isPaused) {
+            resetPrank({ msgSender: users.admin });
+            liquidityDeployer.unpause();
+        }
         resetPrank({ msgSender: users.launcher });
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair_ });
+        if (isPaused) {
+            resetPrank({ msgSender: users.admin });
+            liquidityDeployer.pause();
+        }
         resetPrank({ msgSender: caller });
     }
 
