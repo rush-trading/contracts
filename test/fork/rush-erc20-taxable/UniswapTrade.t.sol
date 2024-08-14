@@ -33,10 +33,10 @@ contract UniswapTrade is Fork_Test {
         resetPrank({ msgSender: users.sender });
         weth.approve(exchangePool, type(uint256).max);
         rushERC20.approve(exchangePool, type(uint256).max);
-        weth.approve(address(uniswapRouter02), type(uint256).max);
-        rushERC20.approve(address(uniswapRouter02), type(uint256).max);
+        weth.approve(address(uniswapV2Router02), type(uint256).max);
+        rushERC20.approve(address(uniswapV2Router02), type(uint256).max);
 
-        uniswapRouter02.addLiquidity(
+        uniswapV2Router02.addLiquidity(
             address(rushERC20),
             address(weth),
             rushERC20.balanceOf(users.sender) / 2,
@@ -66,8 +66,8 @@ contract UniswapTrade is Fork_Test {
         path[0] = address(weth);
         path[1] = address(rushERC20);
 
-        uint256 nonTaxTokenAmountOut = uniswapRouter02.getAmountOut(0.5 ether, reserveIn, reserveOut);
-        uniswapRouter02.swapExactETHForTokens{ value: 0.5 ether }(
+        uint256 nonTaxTokenAmountOut = uniswapV2Router02.getAmountOut(0.5 ether, reserveIn, reserveOut);
+        uniswapV2Router02.swapExactETHForTokens{ value: 0.5 ether }(
             nonTaxTokenAmountOut, path, users.sender, block.timestamp + 100
         );
 
@@ -95,9 +95,9 @@ contract UniswapTrade is Fork_Test {
         address[] memory path = new address[](2);
         path[1] = address(weth);
         path[0] = address(rushERC20);
-        uint256 requiredAmountIn = uniswapRouter02.getAmountIn(0.5 ether, reserveIn, reserveOut);
+        uint256 requiredAmountIn = uniswapV2Router02.getAmountIn(0.5 ether, reserveIn, reserveOut);
         vm.expectRevert();
-        uniswapRouter02.swapTokensForExactETH(0.5 ether, requiredAmountIn, path, users.sender, block.timestamp + 100);
+        uniswapV2Router02.swapTokensForExactETH(0.5 ether, requiredAmountIn, path, users.sender, block.timestamp + 100);
     }
 
     // Fee specific swap, should fail because we don't factor in the tax in request
@@ -116,9 +116,9 @@ contract UniswapTrade is Fork_Test {
         address[] memory path = new address[](2);
         path[1] = address(weth);
         path[0] = address(rushERC20);
-        uint256 requiredAmountIn = uniswapRouter02.getAmountIn(0.5 ether, reserveIn, reserveOut);
+        uint256 requiredAmountIn = uniswapV2Router02.getAmountIn(0.5 ether, reserveIn, reserveOut);
         vm.expectRevert();
-        uniswapRouter02.swapExactTokensForETHSupportingFeeOnTransferTokens(
+        uniswapV2Router02.swapExactTokensForETHSupportingFeeOnTransferTokens(
             requiredAmountIn, 0.5 ether, path, users.sender, block.timestamp + 100
         );
     }
@@ -139,11 +139,11 @@ contract UniswapTrade is Fork_Test {
         address[] memory path = new address[](2);
         path[1] = address(weth);
         path[0] = address(rushERC20);
-        uint256 desiredAmountIn = uniswapRouter02.getAmountIn(0.5 ether, reserveIn, reserveOut);
+        uint256 desiredAmountIn = uniswapV2Router02.getAmountIn(0.5 ether, reserveIn, reserveOut);
         uint256 actualAmountIn =
             desiredAmountIn - (desiredAmountIn * RushERC20Taxable(address(rushERC20)).taxBasisPoints()) / 10_000;
-        uint256 ethAmountOut = uniswapRouter02.getAmountOut(actualAmountIn, reserveOut, reserveIn);
-        uniswapRouter02.swapExactTokensForETHSupportingFeeOnTransferTokens(
+        uint256 ethAmountOut = uniswapV2Router02.getAmountOut(actualAmountIn, reserveOut, reserveIn);
+        uniswapV2Router02.swapExactTokensForETHSupportingFeeOnTransferTokens(
             desiredAmountIn, ethAmountOut, path, users.sender, block.timestamp + 100
         );
     }
