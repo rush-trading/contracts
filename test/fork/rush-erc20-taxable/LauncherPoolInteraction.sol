@@ -45,7 +45,7 @@ contract LauncherPoolInteraction is Fork_Test {
         resetPrank(users.launcher);
         bytes32 _kind = 0xfa3f84d263ed55bc45f8e22cdb3a7481292f68ee28ab539b69876f8dc1535b40;
         address _owner = address(2);
-        bytes memory _data = abi.encode(_owner, defaults.RUSH_ERC20_TAX_BPS(), address(liquidityDeployer), users.router);
+        bytes memory _data = abi.encode(_owner, address(liquidityDeployer), defaults.RUSH_ERC20_TAX_BPS());
         deposit(address(weth), 10 ether);
         RL.LaunchParams memory launchParams =
             RL.LaunchParams(_kind, "TestTaxToken", "TTT", defaults.RUSH_ERC20_SUPPLY(), _data, 1 ether, 1000);

@@ -71,9 +71,7 @@ contract RushLauncher is IRushLauncher, ACLRoles {
     // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc IRushLauncher
-    function launch(
-        RL.LaunchParams calldata params
-    )
+    function launch(RL.LaunchParams calldata params)
         external
         payable
         override
