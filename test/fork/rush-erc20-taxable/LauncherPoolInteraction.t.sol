@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
-import "forge-std/src/console.sol";
 import { IRushLauncher } from "src/interfaces/IRushLauncher.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
 import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";

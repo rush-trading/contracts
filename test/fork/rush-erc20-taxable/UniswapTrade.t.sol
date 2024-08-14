@@ -25,7 +25,7 @@ contract UniswapTrade is Fork_Test {
         bytes memory initData = abi.encode(address(1), liquidityDeployer, defaults.RUSH_ERC20_TAX_BPS());
         rushERC20.initialize("TestTaxToken", "TTT", defaults.RUSH_ERC20_SUPPLY(), users.sender, initData);
         exchangePool = uniswapV2Factory.createPair(address(rushERC20), address(weth));
-        address(weth).call{ value: 100 ether }("");
+        payable(address(weth)).transfer(100 ether);
 
         resetPrank({ msgSender: address(1) });
         RushERC20Taxable(address(rushERC20)).addExchangePool(exchangePool);
