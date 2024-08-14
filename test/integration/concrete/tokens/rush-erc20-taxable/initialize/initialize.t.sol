@@ -12,9 +12,10 @@ contract Initialize_Integration_Concrete_Test is RushERC20Taxable_Integration_Sh
         string memory symbol = RUSH_ERC20_SYMBOL;
         uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
         address recipient = users.recipient;
-        address owner = users.sender;
-        uint256 taxBPS = defaults.RUSH_ERC20_TAX_BPS();
-        bytes memory data = abi.encode(owner, address(liquidityDeployer), taxBPS);
+        address initialOwner = users.sender;
+        address initialExemption = address(liquidityDeployer);
+        uint256 initialTaxBasisPoints = defaults.RUSH_ERC20_TAX_BPS();
+        bytes memory data = abi.encode(initialOwner, initialExemption, initialTaxBasisPoints);
         rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
 
         // Run the test.
@@ -29,9 +30,10 @@ contract Initialize_Integration_Concrete_Test is RushERC20Taxable_Integration_Sh
         string memory symbol = RUSH_ERC20_SYMBOL;
         uint256 maxSupply = defaults.MAX_RUSH_ERC20_SUPPLY();
         address recipient = users.recipient;
-        address owner = users.sender;
-        uint256 taxBPS = defaults.RUSH_ERC20_TAX_BPS();
-        bytes memory data = abi.encode(owner, address(liquidityDeployer), taxBPS);
+        address initialOwner = users.sender;
+        address initialExemption = address(liquidityDeployer);
+        uint256 initialTaxBasisPoints = defaults.RUSH_ERC20_TAX_BPS();
+        bytes memory data = abi.encode(initialOwner, initialExemption, initialTaxBasisPoints);
 
         emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
 
@@ -55,8 +57,16 @@ contract Initialize_Integration_Concrete_Test is RushERC20Taxable_Integration_Sh
         uint256 expectedRecipientBalance = maxSupply;
         assertEq(actualRecipientBalance, expectedRecipientBalance, "balanceOf");
 
-        uint256 actualTaxRateBPS = RushERC20Taxable(address(rushERC20)).taxBasisPoints();
-        uint256 expectedTaxRateBPS = taxBPS;
-        assertEq(actualTaxRateBPS, expectedTaxRateBPS);
+        address actualOwner = RushERC20Taxable(address(rushERC20)).owner();
+        address expectedOwner = initialOwner;
+        assertEq(actualOwner, expectedOwner, "initialOwner");
+
+        address actualExemption = RushERC20Taxable(address(rushERC20)).getExemptedAddresses()[1];
+        address expectedExemption = initialExemption;
+        assertEq(actualExemption, expectedExemption, "initialExemption");
+
+        uint256 actualTaxBasisPoints = RushERC20Taxable(address(rushERC20)).taxBasisPoints();
+        uint256 expectedTaxBasisPoints = initialTaxBasisPoints;
+        assertEq(actualTaxBasisPoints, expectedTaxBasisPoints, "initialTaxBasisPoints");
     }
 }
