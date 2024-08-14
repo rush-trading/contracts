@@ -4,7 +4,6 @@ import { RushERC20Taxable_Integration_Shared_Test } from "test/integration/share
 import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
 
 contract ExchangePool_Integration_Concrete_Test is RushERC20Taxable_Integration_Shared_Test {
-
     event ExchangePoolAdded(address exchangePool);
     event ExchangePoolRemoved(address exchangePool);
 
@@ -16,10 +15,10 @@ contract ExchangePool_Integration_Concrete_Test is RushERC20Taxable_Integration_
     function test_RevertWhenNotOwner_addExchangePool(address fakeOwner, address newExchange) external {
         vm.assume(fakeOwner != users.sender);
         address[] memory exchangePools = RushERC20Taxable(address(rushERC20)).getExchangePoolAddresses();
-        for (uint i = 0; i < exchangePools.length; i++) {
+        for (uint256 i = 0; i < exchangePools.length; i++) {
             vm.assume(newExchange != exchangePools[i]);
         }
-        resetPrank({msgSender: fakeOwner});
+        resetPrank({ msgSender: fakeOwner });
         vm.expectRevert();
         RushERC20Taxable(address(rushERC20)).addExchangePool(newExchange);
     }
@@ -27,40 +26,35 @@ contract ExchangePool_Integration_Concrete_Test is RushERC20Taxable_Integration_
     function test_RevertWhenNotOwner_removeExchangePool(address fakeOwner) external {
         vm.assume(fakeOwner != users.sender);
         address[] memory exchangePools = RushERC20Taxable(address(rushERC20)).getExchangePoolAddresses();
-        resetPrank({msgSender: fakeOwner});
+        resetPrank({ msgSender: fakeOwner });
         vm.expectRevert();
         RushERC20Taxable(address(rushERC20)).removeExchangePool(exchangePools[0]);
     }
 
     function test_ExchangePoolAddedEvent(address newExchange) external {
-        resetPrank({msgSender: users.sender});
+        resetPrank({ msgSender: users.sender });
         address[] memory exchangePools = RushERC20Taxable(address(rushERC20)).getExchangePoolAddresses();
         vm.assume(newExchange != address(0));
-        for (uint i = 0; i < exchangePools.length; i++) {
+        for (uint256 i = 0; i < exchangePools.length; i++) {
             vm.assume(newExchange != exchangePools[i]);
         }
-        vm.expectEmit({emitter: address(rushERC20)});
+        vm.expectEmit({ emitter: address(rushERC20) });
         emit ExchangePoolAdded(newExchange);
         RushERC20Taxable(address(rushERC20)).addExchangePool(newExchange);
     }
 
     function test_ExchangePoolRemovedEvent() external {
-        resetPrank({msgSender: users.sender});
+        resetPrank({ msgSender: users.sender });
         address[] memory exchangePools = RushERC20Taxable(address(rushERC20)).getExchangePoolAddresses();
-        vm.expectEmit({emitter: address(rushERC20)});
+        vm.expectEmit({ emitter: address(rushERC20) });
         emit ExchangePoolRemoved(exchangePools[0]);
         RushERC20Taxable(address(rushERC20)).removeExchangePool(exchangePools[0]);
     }
 
-
     function initialize() internal {
         bytes memory initData = abi.encode(users.sender, address(liquidityDeployer), defaults.RUSH_ERC20_TAX_BPS());
         RushERC20Taxable(address(rushERC20)).initialize(
-            "TaxTokenTest",
-            "TTT",
-            defaults.RUSH_ERC20_SUPPLY(),
-            address(500),
-            initData
+            "TaxTokenTest", "TTT", defaults.RUSH_ERC20_SUPPLY(), address(500), initData
         );
     }
 }
