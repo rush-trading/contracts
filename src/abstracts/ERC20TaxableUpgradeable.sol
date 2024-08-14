@@ -117,9 +117,7 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
      * @param exemption Address to remove from set of tax-exempt addresses.
      */
     function removeExemption(address exemption) external onlyOwner {
-        if (_exempted.remove(exemption)) {
-            emit ExemptionRemoved(exemption);
-        }
+        _removeExemption(exemption);
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -156,37 +154,33 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
 
     /// @dev Initialize the contract with calls to parent initializers.
     function __ERC20Taxable_init(
-        address owner,
-        address exchangePool,
-        address liquidityDeployer,
+        address initialOwner,
+        address initialExchangePool,
+        address initialExemption,
         uint256 initialTaxBasisPoints
     )
         internal
         onlyInitializing
     {
-        __Ownable_init_unchained(owner);
+        __Ownable_init_unchained(initialOwner);
         __ERC20Taxable_init_unchained({
-            owner: owner,
-            exchangePool: exchangePool,
-            liquidityDeployer: liquidityDeployer,
+            initialExchangePool: initialExchangePool,
+            initialExemption: initialExemption,
             initialTaxBasisPoints: initialTaxBasisPoints
         });
     }
 
     /// @dev Initialize the contract without calling parent initializers.
     function __ERC20Taxable_init_unchained(
-        address owner,
-        address exchangePool,
-        address liquidityDeployer,
+        address initialExchangePool,
+        address initialExemption,
         uint256 initialTaxBasisPoints
     )
         internal
         onlyInitializing
     {
-        taxBeneficiary = owner;
-        _addExemption(owner);
-        _addExchangePool(exchangePool);
-        _addExemption(liquidityDeployer);
+        _addExchangePool(initialExchangePool);
+        _addExemption(initialExemption);
         taxBasisPoints = initialTaxBasisPoints;
     }
 
@@ -202,6 +196,20 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
         if (_exempted.add(exemption)) {
             emit ExemptionAdded(exemption);
         }
+    }
+
+    /// @dev Remove an address from the set of tax-exempt addresses.
+    function _removeExemption(address exemption) internal {
+        if (_exempted.remove(exemption)) {
+            emit ExemptionRemoved(exemption);
+        }
+    }
+
+    /// @dev See {OwnableUpgradeable-_transferOwnership}.
+    function _transferOwnership(address newOwner) internal virtual override {
+        taxBeneficiary = newOwner;
+        _addExemption(newOwner);
+        super._transferOwnership(newOwner);
     }
 
     /// @dev See {ERC20-_update}.
