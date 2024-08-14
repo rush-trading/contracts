@@ -6,7 +6,7 @@ struct Users {
     address payable admin;
     // Asset manager role assignee.
     address payable assetManager;
-    // Malicious user.
+    // Regular user.
     address payable eve;
     // Launcher role assignee.
     address payable launcher;

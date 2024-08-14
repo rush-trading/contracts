@@ -25,5 +25,21 @@ contract RushERC20Taxable_Integration_Shared_Test is Integration_Test {
         vm.label({ account: address(rushERC20), newLabel: "RushERC20Taxable" });
     }
 
+    /// @dev Initializes the contract.
+    function initialize(
+        string memory name,
+        string memory symbol,
+        uint256 maxSupply,
+        address recipient,
+        address initialOwner,
+        address initialExemption,
+        uint256 initialTaxBasisPoints
+    )
+        internal
+    {
+        bytes memory data = abi.encode(initialOwner, initialExemption, initialTaxBasisPoints);
+        rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
+    }
+
     // #endregion ----------------------------------------------------------------------------------- //
 }

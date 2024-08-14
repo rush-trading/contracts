@@ -1,0 +1,9 @@
+removeExemption.t.sol
+├── when caller is not owner
+│   └── it should revert
+└── when caller is owner
+    ├── given exemption does not exist
+    │   └── it should do nothing
+    └── given exemption exists
+        ├── it should remove address from set of tax exemptions
+        └── it should emit a {ExemptionRemoved} event

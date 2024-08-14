@@ -1,0 +1,9 @@
+addExchangePool.t.sol
+├── when caller is not owner
+│   └── it should revert
+└── when caller is owner
+    ├── given exchange pool already exists
+    │   └── it should do nothing
+    └── given exchange pool does not exist
+        ├── it should add address to set of exchange pools
+        └── it should emit a {ExchangePoolAdded} event
