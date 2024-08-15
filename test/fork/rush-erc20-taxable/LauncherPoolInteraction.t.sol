@@ -7,6 +7,7 @@ import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
 import { RL } from "src/types/DataTypes.sol";
 import { Fork_Test } from "test/fork/Fork.t.sol";
 
+// TODO: refactor to apply repo test style
 contract LauncherPoolInteraction is Fork_Test {
     address exchangePool;
     IRushLauncher rushLauncher;
