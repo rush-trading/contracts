@@ -56,6 +56,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         // Create users for testing.
         users = Users({
             admin: createUser("Admin"),
+            alice: createUser("Alice"),
             assetManager: createUser("AssetManager"),
             eve: createUser("Eve"),
             launcher: createUser("Launcher"),

@@ -4,6 +4,8 @@ pragma solidity >=0.8.26;
 struct Users {
     // Default admin for all protocol contracts.
     address payable admin;
+    // Regular user.
+    address payable alice;
     // Asset manager role assignee.
     address payable assetManager;
     // Regular user.
