@@ -53,7 +53,7 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
     /// @notice How much tax to collect in basis points. 10,000 bps = 100% tax.
-    uint256 public taxBasisPoints;
+    uint96 public taxBasisPoints;
 
     /// @notice Receiver of the tax.
     address public taxBeneficiary;
@@ -157,7 +157,7 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
         address initialOwner,
         address initialExchangePool,
         address initialExemption,
-        uint256 initialTaxBasisPoints
+        uint96 initialTaxBasisPoints
     )
         internal
         onlyInitializing
@@ -174,7 +174,7 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
     function __ERC20Taxable_init_unchained(
         address initialExchangePool,
         address initialExemption,
-        uint256 initialTaxBasisPoints
+        uint96 initialTaxBasisPoints
     )
         internal
         onlyInitializing

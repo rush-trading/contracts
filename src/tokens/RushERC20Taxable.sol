@@ -14,7 +14,7 @@ contract RushERC20Taxable is ERC20TaxableUpgradeable, RushERC20Abstract {
     struct InitializeLocalVars {
         address initialOwner;
         address initialExemption;
-        uint256 initialTaxBasisPoints;
+        uint96 initialTaxBasisPoints;
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -51,7 +51,7 @@ contract RushERC20Taxable is ERC20TaxableUpgradeable, RushERC20Abstract {
         __ERC20_init(name, symbol);
         _mint(recipient, maxSupply);
         (vars.initialOwner, vars.initialExemption, vars.initialTaxBasisPoints) =
-            abi.decode(data, (address, address, uint256));
+            abi.decode(data, (address, address, uint96));
         __ERC20Taxable_init({
             initialOwner: vars.initialOwner,
             initialExchangePool: recipient,
