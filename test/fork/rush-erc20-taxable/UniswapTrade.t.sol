@@ -2,6 +2,7 @@
 pragma solidity >=0.8.26 <0.9.0;
 
 import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
+import { IWETH } from "src/external/IWETH.sol";
 import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
 import { Fork_Test } from "test/fork/Fork.t.sol";
 
@@ -26,7 +27,7 @@ contract UniswapTrade is Fork_Test {
         bytes memory initData = abi.encode(address(1), liquidityDeployer, defaults.RUSH_ERC20_TAX_BPS());
         rushERC20.initialize("TestTaxToken", "TTT", defaults.RUSH_ERC20_SUPPLY(), users.sender, initData);
         exchangePool = uniswapV2Factory.createPair(address(rushERC20), address(weth));
-        payable(address(weth)).transfer(100 ether);
+        IWETH(address(weth)).deposit{ value: 100 ether }();
 
         resetPrank({ msgSender: address(1) });
         RushERC20Taxable(address(rushERC20)).addExchangePool(exchangePool);
