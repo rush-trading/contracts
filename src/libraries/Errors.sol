@@ -18,6 +18,9 @@ library Errors {
     /// @notice Thrown when the contract is already initialized.
     error InvalidInitialization();
 
+    /// @notice Thrown when the caller is not authorized to perform an operation.
+    error OwnableUnauthorizedAccount(address account);
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------------=|+ ROLES +|=------------------------------------- //

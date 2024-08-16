@@ -15,8 +15,23 @@ import { RL } from "src/types/DataTypes.sol";
 contract RushRouter {
     // #region ----------------------------------=|+ CONSTANTS +|=----------------------------------- //
 
-    /// @dev The RushERC20Basic kind.
+    /// @dev The RushERC20Basic kind (i.e., keccak256("RushERC20Basic")).
     bytes32 internal constant RUSH_ERC20_BASIC_KIND = 0xcac1368504ad87313cdd2f6dcf30ca9b9464d5bcb5a8a0613bbe9dce5b33a365;
+
+    /// @dev The RushERC20Taxable kind (i.e., keccak256("RushERC20Taxable")).
+    bytes32 internal constant RUSH_ERC20_TAXABLE_KIND =
+        0xfa3f84d263ed55bc45f8e22cdb3a7481292f68ee28ab539b69876f8dc1535b40;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ------------------------------------=|+ ENUMS +|=------------------------------------- //
+
+    /// @dev The tax tier of a taxable ERC20 token.
+    enum TaxTier {
+        Small,
+        Medium,
+        Large
+    }
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -80,6 +95,45 @@ contract RushRouter {
                 symbol: symbol,
                 maxSupply: maxSupply,
                 data: "",
+                liquidityAmount: liquidityAmount,
+                liquidityDuration: liquidityDuration
+            })
+        );
+    }
+
+    /**
+     * @notice Launch a taxable ERC20 token.
+     * @param name The name of the launched ERC20 token.
+     * @param symbol The symbol of the launched ERC20 token.
+     * @param maxSupply The maximum supply of the launched ERC20 token.
+     * @param taxTier The tax tier of the launched ERC20 token.
+     * @param liquidityAmount The amount of WETH liquidity to deploy.
+     * @param liquidityDuration The duration of the liquidity deployment.
+     */
+    function launchERC20Taxable(
+        string calldata name,
+        string calldata symbol,
+        uint256 maxSupply,
+        TaxTier taxTier,
+        uint256 liquidityAmount,
+        uint256 liquidityDuration
+    )
+        external
+        payable
+    {
+        // Launch the ERC20 token.
+        RUSH_LAUNCHER.launch{ value: msg.value }(
+            RL.LaunchParams({
+                originator: msg.sender,
+                kind: RUSH_ERC20_TAXABLE_KIND,
+                name: name,
+                symbol: symbol,
+                maxSupply: maxSupply,
+                data: abi.encode(
+                    msg.sender,
+                    address(LIQUIDITY_DEPLOYER),
+                    taxTier == TaxTier.Small ? 100 : taxTier == TaxTier.Medium ? 300 : 500
+                ),
                 liquidityAmount: liquidityAmount,
                 liquidityDuration: liquidityDuration
             })

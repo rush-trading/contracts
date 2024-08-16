@@ -26,6 +26,7 @@ contract Defaults {
     uint256 public constant RATE_SLOPE_1 = 317_097_919; // ~1% annual
     uint256 public constant RATE_SLOPE_2 = 23_782_343_987; // ~75% annual
     uint256 public constant RUSH_ERC20_SUPPLY = 1_000_000e18; // 1m tokens
+    uint96 public constant RUSH_ERC20_TAX_BPS = 500; // 5% tax basis points
     uint256 public constant RESERVE_FACTOR = 0.1e18; // 10%
 
     // #endregion ----------------------------------------------------------------------------------- //

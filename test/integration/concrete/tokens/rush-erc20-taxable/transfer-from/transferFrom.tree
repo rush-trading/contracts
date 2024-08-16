@@ -1,0 +1,14 @@
+transferFrom.t.sol
+├── when sender is exempt
+│   └── it should transfer tokens without tax
+└── when sender is not exempt
+    ├── when recipient is exempt
+    │   └── it should transfer tokens without tax
+    └── when recipient is not exempt
+        ├── when sender is exchange pool
+        │   └── it should transfer tokens with tax
+        └── when sender is not exchange pool
+            ├── when recipient is exchange pool
+            │   └── it should transfer tokens with tax
+            └── when recipient is not exchange pool
+                └── it should transfer tokens without tax

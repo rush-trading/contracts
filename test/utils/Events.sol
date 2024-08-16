@@ -23,6 +23,18 @@ abstract contract Events {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region ------------------------------=|+ RUSH-ERC20-TAXABLE +|=------------------------------ //
+
+    event ExchangePoolAdded(address indexed exchangePool);
+
+    event ExchangePoolRemoved(address indexed exchangePool);
+
+    event ExemptionAdded(address indexed exemption);
+
+    event ExemptionRemoved(address indexed exemption);
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ------------------------------=|+ RUSH-ERC20-FACTORY +|=------------------------------ //
 
     event AddTemplate(bytes32 indexed kind, uint256 indexed version, address implementation);

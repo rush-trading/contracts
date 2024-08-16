@@ -51,7 +51,7 @@ To make it easier to perform some tasks within the repo, a few scripts are avail
 | `bun run build`          | Compile all contracts.                                      |
 | `bun run clean`          | Remove all cached and compiled files.                       |
 | `bun run lint`           | Lint all files in the project.                              |
-| `bun run lint:sol"`      | Lint all Solidity files in the project.                     |
+| `bun run lint:sol`       | Lint all Solidity files in the project.                     |
 | `bun run prettier:check` | Check formatting for all non-Solidity files in the project. |
 | `bun run prettier:write` | Fix formatting for all non-Solidity files in the project.   |
 
