@@ -105,12 +105,10 @@ contract RushRouterAlpha {
         payable
     {
         // Check the ECDSA signature is valid.
-        bytes32 signedMessageHash = keccak256(
-            abi.encodePacked(msg.sender, maxSupply, liquidityAmount, liquidityDuration)
-        ).toEthSignedMessageHash();
-        if (signedMessageHash.recover(signature) != VERIFIER_ADDRESS) {
-            revert RushRouterAlpha_InvalidSignature();
-        }
+        _checkSignature({
+            message: abi.encodePacked(msg.sender, maxSupply, liquidityAmount, liquidityDuration),
+            signature: signature
+        });
 
         // Launch the ERC20 token.
         RUSH_LAUNCHER.launch{ value: msg.value }(
@@ -150,12 +148,10 @@ contract RushRouterAlpha {
         payable
     {
         // Check the ECDSA signature is valid.
-        bytes32 signedMessageHash = keccak256(
-            abi.encodePacked(msg.sender, maxSupply, taxTier, liquidityAmount, liquidityDuration)
-        ).toEthSignedMessageHash();
-        if (signedMessageHash.recover(signature) != VERIFIER_ADDRESS) {
-            revert RushRouterAlpha_InvalidSignature();
-        }
+        _checkSignature({
+            message: abi.encodePacked(msg.sender, maxSupply, taxTier, liquidityAmount, liquidityDuration),
+            signature: signature
+        });
 
         // Launch the ERC20 token.
         RUSH_LAUNCHER.launch{ value: msg.value }(
@@ -250,6 +246,18 @@ contract RushRouterAlpha {
     function unwindLiquidity(address uniV2Pair) external {
         // Unwind the liquidity deployment.
         LIQUIDITY_DEPLOYER.unwindLiquidity({ uniV2Pair: uniV2Pair });
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -------------------------=|+ INTERNAL CONSTANT FUNCTIONS +|=-------------------------- //
+
+    /// @dev Check the ECDSA signature is valid.
+    function _checkSignature(bytes memory message, bytes memory signature) internal view {
+        bytes32 signedMessageHash = keccak256(message).toEthSignedMessageHash();
+        if (signedMessageHash.recover(signature) != VERIFIER_ADDRESS) {
+            revert RushRouterAlpha_InvalidSignature();
+        }
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
