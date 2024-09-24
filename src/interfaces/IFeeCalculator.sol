@@ -49,9 +49,7 @@ interface IFeeCalculator {
      * @return totalFee The total fee to be paid.
      * @return reserveFee The reserve portion of the total fee.
      */
-    function calculateFee(
-        FC.CalculateFeeParams calldata params
-    )
+    function calculateFee(FC.CalculateFeeParams calldata params)
         external
         view
         returns (uint256 totalFee, uint256 reserveFee);
