@@ -15,10 +15,33 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
     /// @inheritdoc ILiquidityPool
+    uint256 public override lastSnapshotTotalAssets;
+
+    /// @inheritdoc ILiquidityPool
     uint256 public override maxTotalDeposits;
 
     /// @inheritdoc ILiquidityPool
     uint256 public override outstandingAssets;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -------------------------------=|+ INTERNAL STORAGE +|=------------------------------- //
+
+    /// @dev The latest block number at which a `totalAssets` snapshot was taken.
+    uint256 internal _lastSnapshotBlock;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ----------------------------------=|+ MODIFIERS +|=----------------------------------- //
+
+    /// @dev Takes a snapshot of the `totalAssets` once per block.
+    modifier snapshot() {
+        // Take the block snapshot pre-execution.
+        if (block.number > _lastSnapshotBlock) {
+            _takeSnapshotTotalAssets();
+        }
+        _;
+    }
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -59,7 +82,7 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
     // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc ILiquidityPool
-    function dispatchAsset(address to, uint256 amount) external override onlyAssetManagerRole {
+    function dispatchAsset(address to, uint256 amount) external override onlyAssetManagerRole snapshot {
         // Checks: `to` must not be the zero address.
         if (to == address(0)) {
             revert Errors.LiquidityPool_ZeroAddress();
@@ -84,7 +107,7 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
     }
 
     /// @inheritdoc ILiquidityPool
-    function returnAsset(address from, uint256 amount) external override onlyAssetManagerRole {
+    function returnAsset(address from, uint256 amount) external override onlyAssetManagerRole snapshot {
         // Checks: `from` must not be the zero address.
         if (from == address(0)) {
             revert Errors.LiquidityPool_ZeroAddress();
@@ -122,17 +145,50 @@ contract LiquidityPool is ILiquidityPool, ERC4626, ACLRoles {
         emit SetMaxTotalDeposits({ newMaxTotalDeposits: newMaxTotalDeposits });
     }
 
+    /// @inheritdoc ILiquidityPool
+    function takeSnapshotTotalAssets() external override onlyAdminRole {
+        _takeSnapshotTotalAssets();
+    }
+
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
+    // #region -----------------------=|+ INTERNAL NON-CONSTANT FUNCTIONS +|=------------------------ //
 
-    function deposit(uint256 assets, address receiver) public override(ERC4626, IERC4626) returns (uint256) {
+    function _takeSnapshotTotalAssets() internal {
+        lastSnapshotTotalAssets = totalAssets();
+        _lastSnapshotBlock = block.number;
+    }
+
+    function _deposit(
+        address caller,
+        address receiver,
+        uint256 assets,
+        uint256 shares
+    )
+        internal
+        override(ERC4626)
+        snapshot
+    {
         // Checks: total deposits must not exceed the maximum limit.
         if (assets + totalAssets() > maxTotalDeposits) {
             revert Errors.LiquidityPool_MaxTotalDepositsExceeded();
         }
 
-        return super.deposit(assets, receiver);
+        return super._deposit({ caller: caller, receiver: receiver, assets: assets, shares: shares });
+    }
+
+    function _withdraw(
+        address caller,
+        address receiver,
+        address owner,
+        uint256 assets,
+        uint256 shares
+    )
+        internal
+        override(ERC4626)
+        snapshot
+    {
+        return super._withdraw({ caller: caller, receiver: receiver, owner: owner, assets: assets, shares: shares });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

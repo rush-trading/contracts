@@ -37,6 +37,9 @@ interface ILiquidityPool is IERC4626, IACLRoles {
 
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
+    /// @notice The latest snapshot of the total assets managed by the pool.
+    function lastSnapshotTotalAssets() external view returns (uint256);
+
     /// @notice The maximum total deposits allowed in the pool.
     function maxTotalDeposits() external view returns (uint256);
 
@@ -93,6 +96,14 @@ interface ILiquidityPool is IERC4626, IACLRoles {
      * @param newMaxTotalDeposits The new maximum total deposits allowed in the pool.
      */
     function setMaxTotalDeposits(uint256 newMaxTotalDeposits) external;
+
+    /**
+     * @notice Takes a snapshot of the total assets managed by the pool.
+     *
+     * Requirements:
+     * - The caller must have the admin role.
+     */
+    function takeSnapshotTotalAssets() external;
 
     // #endregion ----------------------------------------------------------------------------------- //
 }

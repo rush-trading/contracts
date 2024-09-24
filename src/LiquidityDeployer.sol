@@ -177,7 +177,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
                 newLiquidity: amount,
                 outstandingLiquidity: ILiquidityPool(LIQUIDITY_POOL).outstandingAssets(),
                 reserveFactor: RESERVE_FACTOR,
-                totalLiquidity: ILiquidityPool(LIQUIDITY_POOL).totalAssets()
+                totalLiquidity: ILiquidityPool(LIQUIDITY_POOL).lastSnapshotTotalAssets()
             })
         );
         if (msg.value < vars.totalFee) {
