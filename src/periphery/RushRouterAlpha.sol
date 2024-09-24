@@ -82,6 +82,15 @@ contract RushRouterAlpha {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region ------------------------------=|+ FALLBACK FUNCTIONS +|=------------------------------ //
+
+    receive() external payable {
+        // Only accept ETH via fallback from the WETH contract.
+        assert(msg.sender == WETH);
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /**
