@@ -189,3 +189,14 @@ aclManager.addRouter({
     account: address(rushRouter)
 });
 ```
+
+### Take a Snapshot After First Deposit
+
+After the very first deposit is made to the `LiquidityPool`, the `ADMIN` role recipient should invoke the
+`takeSnapshotTotalAssets` function on the `LiquidityPool` contract to take a snapshot of the total assets and enable
+proper deployment fee calculation for the `FeeCalculator` contract. The function is only needed to be called once after
+the first deposit, as subsequent LiquidityPool interactions will automatically update the snapshot.
+
+```solidity
+liquidityPool.takeSnapshotTotalAssets();
+```
