@@ -91,7 +91,10 @@ contract RushLauncher is IRushLauncher, ACLRoles {
         rushERC20 =
             IRushERC20Factory(RUSH_ERC20_FACTORY).createRushERC20({ originator: params.originator, kind: params.kind });
         // Interactions: Create the Uniswap V2 pair.
-        uniV2Pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).createPair({ tokenA: rushERC20, tokenB: WETH });
+        uniV2Pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair({ tokenA: rushERC20, tokenB: WETH });
+        if (uniV2Pair == address(0)) {
+            uniV2Pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).createPair({ tokenA: rushERC20, tokenB: WETH });
+        }
         // Interactions: Initialize the RushERC20 token.
         IRushERC20(rushERC20).initialize({
             name: params.name,
