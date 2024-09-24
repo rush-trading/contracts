@@ -68,7 +68,7 @@ contract LiquidityDeployer_Fork_Test is Fork_Test {
                 newLiquidity: amount,
                 outstandingLiquidity: liquidityPool.outstandingAssets(),
                 reserveFactor: liquidityDeployer.RESERVE_FACTOR(),
-                totalLiquidity: liquidityPool.totalAssets()
+                totalLiquidity: liquidityPool.lastSnapshotTotalAssets()
             })
         );
     }

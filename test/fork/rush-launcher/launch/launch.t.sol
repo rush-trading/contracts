@@ -113,7 +113,7 @@ contract Launch_Fork_Test is RushLauncher_Test {
                 newLiquidity: liquidityAmount,
                 outstandingLiquidity: liquidityPool.outstandingAssets(),
                 reserveFactor: defaults.RESERVE_FACTOR(),
-                totalLiquidity: liquidityPool.totalAssets()
+                totalLiquidity: liquidityPool.lastSnapshotTotalAssets()
             })
         );
 

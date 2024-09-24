@@ -114,6 +114,7 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
     function grantRoles() internal {
         (, address caller,) = vm.readCallers();
         resetPrank({ msgSender: users.admin });
+        aclManager.addAdmin({ account: address(rushLauncherHandler) });
         aclManager.addRouter({ account: address(rushLauncherHandler) });
         aclManager.addLauncher({ account: address(rushLauncher) });
         aclManager.addAssetManager({ account: address(liquidityDeployer) });

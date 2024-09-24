@@ -234,6 +234,8 @@ contract RushLauncherHandler is BaseHandler {
             approveFrom({ asset: weth, owner: address(this), spender: address(liquidityPool), amount: amount });
             // Deposit the assets into the LiquidityPool.
             liquidityPool.deposit(amount, address(this));
+            // Take a snapshot of the total assets.
+            liquidityPool.takeSnapshotTotalAssets();
         }
         // Supply the fee.
         (uint256 totalFee,) = feeCalculator.calculateFee(
@@ -242,7 +244,7 @@ contract RushLauncherHandler is BaseHandler {
                 newLiquidity: params.liquidityAmount,
                 outstandingLiquidity: liquidityPool.outstandingAssets(),
                 reserveFactor: liquidityDeployer.RESERVE_FACTOR(),
-                totalLiquidity: liquidityPool.totalAssets()
+                totalLiquidity: liquidityPool.lastSnapshotTotalAssets()
             })
         );
         // Add the excess fee if enabled.

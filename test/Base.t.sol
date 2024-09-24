@@ -147,6 +147,8 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
         deal({ token: asset, to: users.sender, give: amount });
         IERC20(asset).approve({ spender: address(liquidityPool), value: amount });
         liquidityPool.deposit({ assets: amount, receiver: users.sender });
+        resetPrank({ msgSender: users.admin });
+        liquidityPool.takeSnapshotTotalAssets();
         resetPrank({ msgSender: caller });
     }
 
