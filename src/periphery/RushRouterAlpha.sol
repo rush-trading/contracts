@@ -46,6 +46,9 @@ contract RushRouterAlpha {
     /// @dev Thrown when the signature is invalid.
     error RushRouterAlpha_InvalidSignature();
 
+    /// @dev Thrown when the minimum shares out is not met.
+    error RushRouterAlpha_MinSharesError();
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
@@ -185,7 +188,7 @@ contract RushRouterAlpha {
      * @notice Lend WETH to the LiquidityPool.
      * @param amount The amount of WETH to lend.
      */
-    function lend(uint256 amount) external {
+    function lend(uint256 amount, uint256 minSharesOut) external returns (uint256 sharesOut) {
         // Transfer the amount of WETH to this contract.
         IERC20(WETH).transferFrom({ from: msg.sender, to: address(this), value: amount });
 
@@ -193,13 +196,15 @@ contract RushRouterAlpha {
         IERC20(WETH).approve({ spender: address(LIQUIDITY_POOL), value: amount });
 
         // Deposit the WETH into the LiquidityPool and mint the corresponding amount of shares to the sender.
-        LIQUIDITY_POOL.deposit({ assets: amount, receiver: msg.sender });
+        if ((sharesOut = LIQUIDITY_POOL.deposit({ assets: amount, receiver: msg.sender })) < minSharesOut) {
+            revert RushRouterAlpha_MinSharesError();
+        }
     }
 
     /**
      * @notice Lend ETH to the LiquidityPool.
      */
-    function lendETH() external payable {
+    function lendETH(uint256 minSharesOut) external payable returns (uint256 sharesOut) {
         // Deposit the ETH into WETH.
         IWETH(WETH).deposit{ value: msg.value }();
 
@@ -207,7 +212,9 @@ contract RushRouterAlpha {
         IERC20(WETH).approve({ spender: address(LIQUIDITY_POOL), value: msg.value });
 
         // Deposit the WETH into the LiquidityPool and mint the corresponding amount of shares to the sender.
-        LIQUIDITY_POOL.deposit({ assets: msg.value, receiver: msg.sender });
+        if ((sharesOut = LIQUIDITY_POOL.deposit({ assets: msg.value, receiver: msg.sender })) < minSharesOut) {
+            revert RushRouterAlpha_MinSharesError();
+        }
     }
 
     /**
