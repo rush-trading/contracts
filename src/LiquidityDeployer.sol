@@ -409,7 +409,12 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             // Interactions: Transfer the RushERC20 to resupply to the pair.
             IERC20(deployment.rushERC20).transfer(uniV2Pair, vars.rushERC20ToResupply);
             // Interactions: Mint LP tokens and send them to the RushERC20 token address to lock them forever.
-            IUniswapV2Pair(uniV2Pair).mint(deployment.rushERC20);
+            try IUniswapV2Pair(uniV2Pair).mint(deployment.rushERC20) { }
+            catch {
+                // If minting fails, gracefully recover by syncing the pair without minting LP tokens.
+                // Interactions: Sync the pair.
+                IUniswapV2Pair(uniV2Pair).sync();
+            }
         }
         // Else, the pair had no swaps and the total reserve fee is whatever is left of the fee after subsidy.
         else {
