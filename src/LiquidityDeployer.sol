@@ -206,7 +206,9 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         // Interactions: Mint LP tokens to the contract.
         IUniswapV2Pair(uniV2Pair).mint(address(this));
         // Interactions: Swap any excess ETH to RushERC20.
-        vars.excessValue = msg.value - vars.totalFee;
+        unchecked {
+            vars.excessValue = msg.value - vars.totalFee;
+        }
         if (vars.excessValue > 0) {
             _swapETHToRushERC20({ uniV2Pair: uniV2Pair, originator: originator, ethAmountIn: vars.excessValue });
         }
@@ -395,13 +397,19 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         // If the WETH balance is greater than the initial reserve, the pair has a surplus.
         if (vars.wethBalance > vars.initialWETHReserve) {
             // Calculate the surplus.
-            vars.wethSurplus = vars.wethBalance - vars.initialWETHReserve;
+            unchecked {
+                vars.wethSurplus = vars.wethBalance - vars.initialWETHReserve;
+            }
             // Tax the surplus to the reserve.
             vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, RESERVE_FACTOR, 1e18);
             // Calculate the total reserve fee.
-            vars.totalReserveFee = deployment.subsidyAmount + vars.wethSurplusTax;
+            unchecked {
+                vars.totalReserveFee = deployment.subsidyAmount + vars.wethSurplusTax;
+            }
             // Calculate the amount of WETH to resupply to the pair.
-            vars.wethToResupply = vars.wethSurplus - vars.wethSurplusTax;
+            unchecked {
+                vars.wethToResupply = vars.wethSurplus - vars.wethSurplusTax;
+            }
             // Calculate the amount of RushERC20 to resupply to the pair.
             vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance);
             // Interactions: Transfer the WETH to resupply to the pair.
