@@ -209,6 +209,7 @@ abstract contract ERC20TaxableUpgradeable is Initializable, ERC20Upgradeable, Ow
     function _transferOwnership(address newOwner) internal virtual override {
         taxBeneficiary = newOwner;
         _addExemption(newOwner);
+        _removeExemption(owner());
         super._transferOwnership(newOwner);
     }
 
