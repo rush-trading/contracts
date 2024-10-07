@@ -54,7 +54,8 @@ contract LiquidityDeployer_Fork_Test is Fork_Test {
             uniV2Pair: uniV2Pair_,
             rushERC20: rushERC20_,
             amount: wethAmount_,
-            duration: duration_
+            duration: duration_,
+            maxTotalFee: type(uint256).max
         });
         IUniswapV2Pair(uniV2Pair_).sync();
         resetPrank({ msgSender: caller });

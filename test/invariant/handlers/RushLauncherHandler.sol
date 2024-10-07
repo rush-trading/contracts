@@ -265,7 +265,8 @@ contract RushLauncherHandler is BaseHandler {
                 maxSupply: params.maxSupply,
                 data: initData,
                 liquidityAmount: params.liquidityAmount,
-                liquidityDuration: params.liquidityDuration
+                liquidityDuration: params.liquidityDuration,
+                maxTotalFee: type(uint256).max
             })
         );
         // Push the deployment to the store.

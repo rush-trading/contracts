@@ -38,7 +38,8 @@ contract Launch_Fork_Test is RushLauncher_Test {
                 maxSupply: maxSupply,
                 data: abi.encodePacked(users.recipient, ""),
                 liquidityAmount: liquidityAmount,
-                liquidityDuration: liquidityDuration
+                liquidityDuration: liquidityDuration,
+                maxTotalFee: type(uint256).max
             })
         );
     }
@@ -64,7 +65,8 @@ contract Launch_Fork_Test is RushLauncher_Test {
                 maxSupply: maxSupply,
                 data: abi.encodePacked(users.recipient, ""),
                 liquidityAmount: liquidityAmount,
-                liquidityDuration: liquidityDuration
+                liquidityDuration: liquidityDuration,
+                maxTotalFee: type(uint256).max
             })
         );
     }
@@ -93,7 +95,8 @@ contract Launch_Fork_Test is RushLauncher_Test {
                 maxSupply: maxSupply,
                 data: abi.encodePacked(users.recipient, ""),
                 liquidityAmount: liquidityAmount,
-                liquidityDuration: liquidityDuration
+                liquidityDuration: liquidityDuration,
+                maxTotalFee: type(uint256).max
             })
         );
     }
@@ -144,7 +147,8 @@ contract Launch_Fork_Test is RushLauncher_Test {
                 maxSupply: maxSupply,
                 data: abi.encodePacked(users.recipient, ""),
                 liquidityAmount: liquidityAmount,
-                liquidityDuration: liquidityDuration
+                liquidityDuration: liquidityDuration,
+                maxTotalFee: type(uint256).max
             })
         );
     }

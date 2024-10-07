@@ -29,10 +29,13 @@ deployLiquidity.t.sol
                                     ├── given passed msg value is less than deployment fee
                                     │   └── it should revert
                                     └── given passed msg value is greater than or equal to deployment fee
-                                        ├── given excess msg value is equal to zero
-                                        │   ├── it should deploy liquidity
-                                        │   └── it should emit a {DeployLiquidity} event
-                                        └── given excess msg value is greater than zero
-                                            ├── it should swap excess msg value for RushERC20
-                                            ├── it should deploy liquidity
-                                            └── it should emit a {DeployLiquidity} event
+                                        ├── given total fee is greater than maximum limit
+                                        │   └── it should revert
+                                        └── given total fee is less than or equal to maximum limit
+                                            ├── given excess msg value is equal to zero
+                                            │   ├── it should deploy liquidity
+                                            │   └── it should emit a {DeployLiquidity} event
+                                            └── given excess msg value is greater than zero
+                                                ├── it should swap excess msg value for RushERC20
+                                                ├── it should deploy liquidity
+                                                └── it should emit a {DeployLiquidity} event

@@ -21,7 +21,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: amount,
-            duration: duration
+            duration: duration,
+            maxTotalFee: type(uint256).max
         });
     }
 
@@ -44,7 +45,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: amount,
-            duration: duration
+            duration: duration,
+            maxTotalFee: type(uint256).max
         });
     }
 
@@ -83,7 +85,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: amount,
-            duration: duration
+            duration: duration,
+            maxTotalFee: type(uint256).max
         });
     }
 
@@ -108,7 +111,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: amount,
-            duration: duration
+            duration: duration,
+            maxTotalFee: type(uint256).max
         });
     }
 
@@ -143,7 +147,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: amount,
-            duration: duration
+            duration: duration,
+            maxTotalFee: type(uint256).max
         });
     }
 
@@ -169,7 +174,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: amount,
-            duration: duration
+            duration: duration,
+            maxTotalFee: type(uint256).max
         });
     }
 
@@ -195,7 +201,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: amount,
-            duration: duration
+            duration: duration,
+            maxTotalFee: type(uint256).max
         });
     }
 
@@ -222,7 +229,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: amount,
-            duration: duration
+            duration: duration,
+            maxTotalFee: type(uint256).max
         });
     }
 
@@ -250,7 +258,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: amount,
-            duration: duration
+            duration: duration,
+            maxTotalFee: type(uint256).max
         });
     }
 
@@ -281,12 +290,9 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: amount,
-            duration: duration
+            duration: duration,
+            maxTotalFee: type(uint256).max
         });
-    }
-
-    modifier givenPassedMsgValueIsGreaterThanOrEqualToDeploymentFee() {
-        _;
     }
 
     struct Vars {
@@ -316,6 +322,46 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         uint256 expectedRushERC20Amount;
     }
 
+    modifier givenPassedMsgValueIsGreaterThanOrEqualToDeploymentFee() {
+        _;
+    }
+
+    function test_RevertGiven_TotalFeeIsGreaterThanMaximumLimit()
+        external
+        whenCallerHasLauncherRole
+        whenContractIsNotPaused
+        givenPairHasNotReceivedLiquidity
+        givenTotalSupplyOfRushERC20IsNotZero
+        givenPairHoldsEntireSupplyOfRushERC20
+        givenAmountToDeployIsGreaterThanOrEqualToMinimumAmount
+        givenAmountToDeployIsLessThanOrEqualToMaximumAmount
+        givenDurationOfDeploymentIsGreaterThanOrEqualToMinimumDuration
+        givenDurationOfDeploymentIsLessThanOrEqualToMaximumDuration
+        givenPassedMsgValueIsGreaterThanOrEqualToDeploymentFee
+    {
+        // Run the test.
+        uint256 amount = defaults.LIQUIDITY_AMOUNT();
+        uint256 duration = defaults.LIQUIDITY_DURATION();
+        uint256 feeAmount = getDeployLiquidityFee({ amount: amount, duration: duration });
+        uint256 msgValue = feeAmount;
+        uint256 maxTotalFee = feeAmount - 1;
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.LiquidityDeployer_MaxTotalFeeExceeded.selector, feeAmount, maxTotalFee)
+        );
+        liquidityDeployer.deployLiquidity{ value: msgValue }({
+            originator: users.sender,
+            uniV2Pair: uniV2Pair,
+            rushERC20: rushERC20Mock,
+            amount: amount,
+            duration: duration,
+            maxTotalFee: maxTotalFee
+        });
+    }
+
+    modifier givenTotalFeeIsLessThanOrEqualToMaximumLimit() {
+        _;
+    }
+
     function test_GivenExcessMsgValueIsEqualToZero()
         external
         whenCallerHasLauncherRole
@@ -328,6 +374,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenDurationOfDeploymentIsGreaterThanOrEqualToMinimumDuration
         givenDurationOfDeploymentIsLessThanOrEqualToMaximumDuration
         givenPassedMsgValueIsGreaterThanOrEqualToDeploymentFee
+        givenTotalFeeIsLessThanOrEqualToMaximumLimit
     {
         Vars memory vars;
         vars.amount = defaults.LIQUIDITY_AMOUNT();
@@ -356,7 +403,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: vars.amount,
-            duration: vars.duration
+            duration: vars.duration,
+            maxTotalFee: type(uint256).max
         });
         vars.wethBalanceOfPairAfter = weth.balanceOf({ account: uniV2Pair });
         vars.wethBalanceOfLiquidtyPoolAfter = weth.balanceOf({ account: liquidityDeployer.LIQUIDITY_POOL() });
@@ -416,6 +464,7 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenDurationOfDeploymentIsGreaterThanOrEqualToMinimumDuration
         givenDurationOfDeploymentIsLessThanOrEqualToMaximumDuration
         givenPassedMsgValueIsGreaterThanOrEqualToDeploymentFee
+        givenTotalFeeIsLessThanOrEqualToMaximumLimit
     {
         Vars memory vars;
         vars.amount = defaults.LIQUIDITY_AMOUNT();
@@ -445,7 +494,8 @@ contract DeployLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20Mock,
             amount: vars.amount,
-            duration: vars.duration
+            duration: vars.duration,
+            maxTotalFee: type(uint256).max
         });
         vars.wethBalanceOfPairAfter = weth.balanceOf({ account: uniV2Pair });
         vars.wethBalanceOfLiquidtyPoolAfter = weth.balanceOf({ account: liquidityDeployer.LIQUIDITY_POOL() });
