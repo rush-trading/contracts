@@ -103,6 +103,7 @@ contract RushRouterAlpha {
      * @param maxSupply The maximum supply of the launched ERC20 token.
      * @param liquidityAmount The amount of WETH liquidity to deploy.
      * @param liquidityDuration The duration of the liquidity deployment.
+     * @param maxTotalFee The maximum total fee that can be collected for the liquidity deployment.
      * @param signature The ECDSA signature of the launch parameters.
      */
     function launchERC20(
@@ -111,6 +112,7 @@ contract RushRouterAlpha {
         uint256 maxSupply,
         uint256 liquidityAmount,
         uint256 liquidityDuration,
+        uint256 maxTotalFee,
         bytes calldata signature
     )
         external
@@ -132,7 +134,8 @@ contract RushRouterAlpha {
                 maxSupply: maxSupply,
                 data: "",
                 liquidityAmount: liquidityAmount,
-                liquidityDuration: liquidityDuration
+                liquidityDuration: liquidityDuration,
+                maxTotalFee: maxTotalFee
             })
         );
     }
@@ -145,6 +148,7 @@ contract RushRouterAlpha {
      * @param taxTier The tax tier of the launched ERC20 token.
      * @param liquidityAmount The amount of WETH liquidity to deploy.
      * @param liquidityDuration The duration of the liquidity deployment.
+     * @param maxTotalFee The maximum total fee that can be collected for the liquidity deployment.
      * @param signature The ECDSA signature of the launch parameters.
      */
     function launchERC20Taxable(
@@ -154,6 +158,7 @@ contract RushRouterAlpha {
         TaxTier taxTier,
         uint256 liquidityAmount,
         uint256 liquidityDuration,
+        uint256 maxTotalFee,
         bytes calldata signature
     )
         external
@@ -179,7 +184,8 @@ contract RushRouterAlpha {
                     taxTier == TaxTier.Small ? 100 : taxTier == TaxTier.Medium ? 300 : 500
                 ),
                 liquidityAmount: liquidityAmount,
-                liquidityDuration: liquidityDuration
+                liquidityDuration: liquidityDuration,
+                maxTotalFee: maxTotalFee
             })
         );
     }

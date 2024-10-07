@@ -114,6 +114,7 @@ interface ILiquidityDeployer is IACLRoles {
      * - Duration must not be less than minimum limit.
      * - Duration must not be greater than maximum limit.
      * - `msg.value` must be greater than or equal to the liquidity deployment fee.
+     * - Liquidity deployment fee must not exceed the maximum total fee.
      *
      * Actions:
      * 1. Store the liquidity deployment entity.
@@ -129,13 +130,15 @@ interface ILiquidityDeployer is IACLRoles {
      * @param rushERC20 The address of the RushERC20 token.
      * @param amount The amount of base asset (i.e., WETH) liquidity to deploy.
      * @param duration The duration over which the liquidity will be deployed (in seconds).
+     * @param maxTotalFee The maximum total fee that can be collected for the deployment.
      */
     function deployLiquidity(
         address originator,
         address uniV2Pair,
         address rushERC20,
         uint256 amount,
-        uint256 duration
+        uint256 duration,
+        uint256 maxTotalFee
     )
         external
         payable;

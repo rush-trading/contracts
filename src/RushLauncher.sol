@@ -109,7 +109,8 @@ contract RushLauncher is IRushLauncher, ACLRoles {
             uniV2Pair: uniV2Pair,
             rushERC20: rushERC20,
             amount: params.liquidityAmount,
-            duration: params.liquidityDuration
+            duration: params.liquidityDuration,
+            maxTotalFee: params.maxTotalFee
         });
 
         // Emit an event.

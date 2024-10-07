@@ -126,7 +126,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         address uniV2Pair,
         address rushERC20,
         uint256 amount,
-        uint256 duration
+        uint256 duration,
+        uint256 maxTotalFee
     )
         external
         payable
@@ -182,6 +183,10 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         );
         if (msg.value < vars.totalFee) {
             revert Errors.LiquidityDeployer_FeeMismatch({ expected: vars.totalFee, received: msg.value });
+        }
+        // Checks: Maximum total fee must not be exceeded.
+        if (vars.totalFee > maxTotalFee) {
+            revert Errors.LiquidityDeployer_MaxTotalFeeExceeded({ totalFee: vars.totalFee, maxTotalFee: maxTotalFee });
         }
 
         // Effects: Store the liquidity deployment.

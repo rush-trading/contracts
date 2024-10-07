@@ -83,6 +83,7 @@ library RL {
      * @param data Additional data for the token initialization.
      * @param liquidityAmount The amount of base asset liquidity to deploy.
      * @param liquidityDuration The duration of the liquidity deployment (in seconds).
+     * @param maxTotalFee The maximum total fee that can be collected for the liquidity deployment..
      */
     struct LaunchParams {
         address originator;
@@ -93,5 +94,6 @@ library RL {
         bytes data;
         uint256 liquidityAmount;
         uint256 liquidityDuration;
+        uint256 maxTotalFee;
     }
 }

@@ -66,6 +66,13 @@ library Errors {
     error LiquidityDeployer_MaxLiquidtyAmount(uint256 amount);
 
     /**
+     * @notice Thrown when the deployment fee is greater than the maximum limit.
+     * @param totalFee The total fee collected.
+     * @param maxTotalFee The maximum total fee allowed.
+     */
+    error LiquidityDeployer_MaxTotalFeeExceeded(uint256 totalFee, uint256 maxTotalFee);
+
+    /**
      * @notice Thrown when the duration is less than the minimum limit.
      * @param duration The duration attempted to set.
      */
