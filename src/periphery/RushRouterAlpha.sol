@@ -75,9 +75,11 @@ contract RushRouterAlpha {
     /**
      * @dev Constructor
      * @param rushLauncher_ The address of the RushLauncher contract.
+     * @param verifierAddress The ECDSA verifier address.
      */
-    constructor(IRushLauncher rushLauncher_) {
+    constructor(IRushLauncher rushLauncher_, address verifierAddress) {
         RUSH_LAUNCHER = rushLauncher_;
+        VERIFIER_ADDRESS = verifierAddress;
         LIQUIDITY_DEPLOYER = ILiquidityDeployer(rushLauncher_.LIQUIDITY_DEPLOYER());
         LIQUIDITY_POOL = ILiquidityPool(LIQUIDITY_DEPLOYER.LIQUIDITY_POOL());
         WETH = LIQUIDITY_DEPLOYER.WETH();
