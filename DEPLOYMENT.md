@@ -216,3 +216,31 @@ the first deposit, as subsequent LiquidityPool interactions will automatically u
 ```solidity
 liquidityPool.takeSnapshotTotalAssets();
 ```
+
+### Add Token Templates
+
+To allow the `RushLauncher` contract to launch new RushERC20 tokens, the `ADMIN` role recipient should add the token
+templates to the `RushERC20Factory` contract. The token templates are added by calling the `addTemplate` function on the
+`RushERC20Factory` contract. But first, the token templates should be deployed to the network.
+
+```shell
+# Set the deployment variables
+export NETWORK="sepolia"
+
+# Run the scripts
+forge script script/DeployTokenRushERC20Basic.s.sol \
+    --broadcast \
+    --rpc-url ${NETWORK} \
+    --sig "run()" \
+    --verify
+
+forge script script/DeployTokenRushERC20Taxable.s.sol \
+    --broadcast \
+    --rpc-url ${NETWORK} \
+    --sig "run()" \
+    --verify
+```
+
+```solidity
+rushERC20Factory.addTemplate(address(rushERC20Basic));
+```
