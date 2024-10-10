@@ -47,7 +47,7 @@ export MAX_TOTAL_DEPOSITS="<WAD>"
 forge script script/DeployLiquidityPool.s.sol \
     --broadcast \
     --rpc-url ${NETWORK} \
-    --sig "run(address,address)" \
+    --sig "run(address,address,uint256)" \
     --verify \
     ${ACL_MANAGER} \
     ${ASSET} \
@@ -150,6 +150,22 @@ forge script script/DeployRushLauncher.s.sol \
     ${MIN_SUPPLY_LIMIT} \
     ${RUSH_ERC20_FACTORY} \
     ${UNISWAP_V2_FACTORY}
+```
+
+### Deploy `RushRouter`
+
+```shell
+# Set the deployment variables
+export NETWORK="sepolia"
+export RUSH_LAUNCHER="<ADDRESS>"
+
+# Run the script
+forge script script/DeployRushRouter.s.sol \
+    --broadcast \
+    --rpc-url ${NETWORK} \
+    --sig "run(address)" \
+    --verify \
+    ${RUSH_LAUNCHER}
 ```
 
 ### Assign Roles
