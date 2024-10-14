@@ -14,7 +14,6 @@ import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployACLManager is BaseScript {
-
     // WETH on Base
     address public constant ASSET = 0x4200000000000000000000000000000000000006;
 
@@ -50,7 +49,8 @@ contract DeployACLManager is BaseScript {
     // Max deployment amount is 0.01 WETH - suggest 5 ETH
     uint256 public maxDeploymentAmount = 1e16;
 
-    // Min deployment amount is 0.001 WETH - everything less than $1k has a 'This pair has very little liquidity' msg on Dexscreener, 0.05 ETH on G8keep, suggest no less than 0.05 ETH
+    // Min deployment amount is 0.001 WETH - everything less than $1k has a 'This pair has very little liquidity' msg
+    // on Dexscreener, 0.05 ETH on G8keep, suggest no less than 0.05 ETH
     uint256 public minDeploymentAmount = 1e15;
 
     // Max deployment duration is 10 hrs - suggest 1d

@@ -4,6 +4,7 @@ pragma solidity >=0.8.26;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import { Nonces } from "@openzeppelin/contracts/utils/Nonces.sol";
 import { IWETH } from "src/external/IWETH.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
@@ -15,7 +16,7 @@ import { RL } from "src/types/DataTypes.sol";
  * @notice A periphery contract that acts as a router for Rush protocol operations with gated access to RushLauncher
  * functions.
  */
-contract RushRouterAlpha {
+contract RushRouterAlpha is Nonces {
     using ECDSA for bytes32;
     using MessageHashUtils for bytes32;
 
@@ -122,7 +123,7 @@ contract RushRouterAlpha {
     {
         // Check the ECDSA signature is valid.
         _checkSignature({
-            message: abi.encodePacked(msg.sender, maxSupply, liquidityAmount, liquidityDuration),
+            message: abi.encodePacked(msg.sender, _useNonce(msg.sender), liquidityAmount, liquidityDuration),
             signature: signature
         });
 
