@@ -5,13 +5,30 @@ Instructions are also provided below for running the deployment scripts using th
 Before running the deployment scripts, you should first set up a `.env` file with the necessary environment variables.
 You can use the provided [`.env.example`](./.env.example) file as a template.
 
-## Instructions
-
 The instructions are organized by recommended order of deployment. They showcase how to deploy the contracts to the
 Sepolia testnet, but you can pick any other chain listed under the `[rpc_endpoints]` section in
 [`foundry.toml`](./foundry.toml#L61).
 
-You should replace placeholders with the actual arguments you want to pass as follows:
+## Single Step
+
+All protocol contracts can be deployed in a single step by running the following script:
+
+```shell
+# Set the deployment variables
+export NETWORK="sepolia"
+
+# Run the script
+forge script script/DeployMaster.s.sol \
+    --broadcast \
+    --rpc-url ${NETWORK} \
+    --sig "run()" \
+    --verify
+```
+
+## Step-by-Step
+
+The following sections provide step-by-step instructions for deploying each contract individually. You should replace
+placeholders with the actual arguments you want to pass as follows:
 
 - `<ADDRESS>`: An Ethereum address (e.g., `0x1234567890abcdef1234567890abcdef12345678`).
 - `<WAD>`: A number in 18 decimal format (e.g., `1000000000000000000` representing 1 RushERC20 token, 1 ETH, or 100%
@@ -243,4 +260,5 @@ forge script script/DeployTokenRushERC20Taxable.s.sol \
 
 ```solidity
 rushERC20Factory.addTemplate(address(rushERC20Basic));
+rushERC20Factory.addTemplate(address(rushERC20Taxable));
 ```

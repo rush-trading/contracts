@@ -13,112 +13,149 @@ import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
 import { BaseScript } from "./Base.s.sol";
 
-contract DeployACLManager is BaseScript {
+contract DeployMaster is BaseScript {
+    // #region ----------------------------------=|+ CONSTANTS +|=----------------------------------- //
+
     // WETH on Base
-    address public constant ASSET = 0x4200000000000000000000000000000000000006;
-
-    // Uni v2 factory on Base
-    address public constant UNISWAP_V2_FACTORY = 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6;
-
-    // Admin address
-    address public admin = broadcaster;
-
-    // Reserve address
-    address public reserve = broadcaster;
-
-    //////////////////////////////////////////////////////////////
-
-    // 1 WETH max deposit - suggest 250 WETH
-    uint256 public maxTotalDeposits = 1 * 1e18;
+    address internal constant ASSET = 0x4200000000000000000000000000000000000006;
 
     // 100% annual base fee rate - looks good
-    uint256 public baseFeeRate = 31_709_791_983;
-
-    // 60% optimal utilization - looks good
-    uint256 public optimalUtilizationRatio = 6e17;
-
-    // ~1% annual slope when U is less than U_optimal - maybe bump it a bit
-    uint256 public rateSlope1 = 317_097_919;
-
-    // ~75% annual slope when U is greater than U_optimal - looks good
-    uint256 public rateSlope2 = 23_782_343_987;
+    uint256 internal constant BASE_FEE_RATE = 31_709_791_983;
 
     // 5 WETH for early unwind threshold - good to go imo, in line with Pump
-    uint256 public earlyUnwindThreshold = 5 * 1e18;
+    uint256 internal constant EARLY_UNWIND_THRESHOLD = 5 ether;
 
     // Max deployment amount is 0.01 WETH - suggest 5 ETH
-    uint256 public maxDeploymentAmount = 1e16;
+    uint256 internal constant MAX_DEPLOYMENT_AMOUNT = 0.01 ether;
+
+    // Max deployment duration is 10 hrs - suggest 1d
+    uint256 internal constant MAX_DURATION = 10 hours;
+
+    // Max rushERC20 supply is 100B - suggest 100T
+    uint256 internal constant MAX_SUPPLY_LIMIT = 100_000_000_000e18;
+
+    // 1 WETH max deposit - suggest 250 WETH
+    uint256 internal constant MAX_TOTAL_DEPOSITS = 1 ether;
 
     // Min deployment amount is 0.001 WETH - everything less than $1k has a 'This pair has very little liquidity' msg
     // on Dexscreener, 0.05 ETH on G8keep, suggest no less than 0.05 ETH
-    uint256 public minDeploymentAmount = 1e15;
-
-    // Max deployment duration is 10 hrs - suggest 1d
-    uint256 public maxDuration = 10 hours;
+    uint256 internal constant MIN_DEPLOYMENT_AMOUNT = 0.001 ether;
 
     // Min deployment duration is 1 minute - suggest 1h
-    uint256 public minDuration = 1 minutes;
-
-    // 10% reserve factor - suggest 15-20%, in line with Compound/Aave
-    uint256 public reserveFactor = 1e17;
-
-    // Max rushERC20 supply is 100B - suggest 100T
-    uint256 public maxSupplyLimit = 100_000_000_000 * 1e18;
+    uint256 internal constant MIN_DURATION = 1 minutes;
 
     // Min rushERC20 supply is 1M - suggest 1B
-    uint256 public minSupplyLimit = 1_000_000 * 1e18;
+    uint256 internal constant MIN_SUPPLY_LIMIT = 1_000_000e18;
 
-    function run() public virtual broadcast {
-        ACLManager aclManager = new ACLManager({ admin_: admin });
+    // 60% optimal utilization - looks good
+    uint256 internal constant OPTIMAL_UTILIZATION_RATIO = 0.6e18;
 
-        LiquidityPool liquidityPool =
-            new LiquidityPool({ aclManager_: address(aclManager), asset_: ASSET, maxTotalDeposits_: maxTotalDeposits });
+    // ~1% annual slope when U is less than U_optimal - maybe bump it a bit
+    uint256 internal constant RATE_SLOPE_1 = 317_097_919;
 
-        RushERC20Factory rushERC20Factory = new RushERC20Factory({ aclManager_: address(aclManager) });
+    // ~75% annual slope when U is greater than U_optimal - looks good
+    uint256 internal constant RATE_SLOPE_2 = 23_782_343_987;
 
-        FeeCalculator feeCalculator = new FeeCalculator({
-            baseFeeRate: baseFeeRate,
-            optimalUtilizationRatio: optimalUtilizationRatio,
-            rateSlope1: rateSlope1,
-            rateSlope2: rateSlope2
+    // 10% reserve factor - suggest 15-20%, in line with Compound/Aave
+    uint256 internal constant RESERVE_FACTOR = 0.1e18;
+
+    // Uni v2 factory on Base
+    address internal constant UNISWAP_V2_FACTORY = 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
+
+    // Admin address
+    address internal immutable ADMIN;
+
+    // Reserve address
+    address internal immutable RESERVE;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ---------------------------------=|+ CONSTRUCTOR +|=---------------------------------- //
+
+    constructor() BaseScript() {
+        ADMIN = broadcaster;
+        RESERVE = broadcaster;
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    /// @notice Deploys all contracts
+    function run()
+        public
+        virtual
+        broadcast
+        returns (
+            ACLManager aclManager,
+            LiquidityPool liquidityPool,
+            RushERC20Factory rushERC20Factory,
+            FeeCalculator feeCalculator,
+            LiquidityDeployer liquidityDeployer,
+            RushLauncher rushLauncher,
+            RushRouter rushRouter
+        )
+    {
+        // Deploy ACLManager
+        aclManager = new ACLManager({ admin_: ADMIN });
+
+        // Deploy LiquidityPool
+        liquidityPool = new LiquidityPool({
+            aclManager_: address(aclManager),
+            asset_: ASSET,
+            maxTotalDeposits_: MAX_TOTAL_DEPOSITS
         });
 
-        LiquidityDeployer liquidityDeployer = new LiquidityDeployer({
+        // Deploy RushERC20Factory
+        rushERC20Factory = new RushERC20Factory({ aclManager_: address(aclManager) });
+
+        // Deploy FeeCalculator
+        feeCalculator = new FeeCalculator({
+            baseFeeRate: BASE_FEE_RATE,
+            optimalUtilizationRatio: OPTIMAL_UTILIZATION_RATIO,
+            rateSlope1: RATE_SLOPE_1,
+            rateSlope2: RATE_SLOPE_2
+        });
+
+        // Deploy LiquidityDeployer
+        liquidityDeployer = new LiquidityDeployer({
             aclManager_: address(aclManager),
-            earlyUnwindThreshold_: earlyUnwindThreshold,
+            earlyUnwindThreshold_: EARLY_UNWIND_THRESHOLD,
             feeCalculator_: address(feeCalculator),
             liquidityPool_: address(liquidityPool),
-            maxDeploymentAmount_: maxDeploymentAmount,
-            maxDuration_: maxDuration,
-            minDeploymentAmount_: minDeploymentAmount,
-            minDuration_: minDuration,
-            reserve_: reserve,
-            reserveFactor_: reserveFactor
+            maxDeploymentAmount_: MAX_DEPLOYMENT_AMOUNT,
+            maxDuration_: MAX_DURATION,
+            minDeploymentAmount_: MIN_DEPLOYMENT_AMOUNT,
+            minDuration_: MIN_DURATION,
+            reserve_: RESERVE,
+            reserveFactor_: RESERVE_FACTOR
         });
 
-        RushLauncher rushLauncher = new RushLauncher({
+        // Deploy RushLauncher
+        rushLauncher = new RushLauncher({
             aclManager_: address(aclManager),
             liquidityDeployer_: address(liquidityDeployer),
-            maxSupplyLimit_: maxSupplyLimit,
-            minSupplyLimit_: minSupplyLimit,
+            maxSupplyLimit_: MAX_SUPPLY_LIMIT,
+            minSupplyLimit_: MIN_SUPPLY_LIMIT,
             rushERC20Factory_: address(rushERC20Factory),
             uniswapV2Factory_: UNISWAP_V2_FACTORY
         });
 
-        RushRouter rushRouter = new RushRouter({ rushLauncher_: IRushLauncher(rushLauncher) });
+        // Deploy RushRouter
+        rushRouter = new RushRouter({ rushLauncher_: IRushLauncher(rushLauncher) });
 
+        // Set ACLManager roles
         aclManager.addAssetManager({ account: address(liquidityDeployer) });
-
         aclManager.addLauncher({ account: address(rushLauncher) });
-
         aclManager.addRouter({ account: address(rushRouter) });
 
+        // Set RushERC20Factory templates
         RushERC20Basic rushERC20Basic = new RushERC20Basic();
-
         RushERC20Taxable rushERC20Taxable = new RushERC20Taxable();
 
         rushERC20Factory.addTemplate(address(rushERC20Basic));
-
         rushERC20Factory.addTemplate(address(rushERC20Taxable));
     }
 }
