@@ -14,10 +14,7 @@ import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployMaster is BaseScript {
-    // #region ----------------------------------=|+ CONSTANTS +|=----------------------------------- //
-
-    // WETH on Base
-    address internal constant ASSET = 0x4200000000000000000000000000000000000006;
+    // #region ----------------------------=|+ CONFIGURABLE CONSTANTS +|=---------------------------- //
 
     // 100% annual base fee rate - looks good
     uint256 internal constant BASE_FEE_RATE = 31_709_791_983;
@@ -58,6 +55,13 @@ contract DeployMaster is BaseScript {
 
     // 10% reserve factor - suggest 15-20%, in line with Compound/Aave
     uint256 internal constant RESERVE_FACTOR = 0.1e18;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -------------------------------=|+ STATIC CONSTANTS +|=------------------------------- //
+
+    // WETH on Base
+    address internal constant ASSET = 0x4200000000000000000000000000000000000006;
 
     // Uni v2 factory on Base
     address internal constant UNISWAP_V2_FACTORY = 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6;
