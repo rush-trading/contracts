@@ -126,7 +126,6 @@ contract RushRouterAlpha is Nonces {
         external
         payable
     {
-
         RushTokenType tokenType = RushTokenType.Basic;
         // Check the ECDSA signature is valid.
         _checkSignature({
@@ -174,14 +173,15 @@ contract RushRouterAlpha is Nonces {
         external
         payable
     {
-
         {
-        RushTokenType tokenType = RushTokenType.TaxToken;
-        // Check the ECDSA signature is valid.
-        _checkSignature({
-            message: abi.encodePacked(msg.sender, _useNonce(msg.sender),  maxSupply, taxTier, liquidityAmount, liquidityDuration, tokenType),
-            signature: signature
-        });
+            RushTokenType tokenType = RushTokenType.TaxToken;
+            // Check the ECDSA signature is valid.
+            _checkSignature({
+                message: abi.encodePacked(
+                    msg.sender, _useNonce(msg.sender), maxSupply, taxTier, liquidityAmount, liquidityDuration, tokenType
+                ),
+                signature: signature
+            });
         }
 
         // Launch the ERC20 token.
