@@ -40,6 +40,11 @@ contract RushRouterAlpha is Nonces {
         Large
     }
 
+    /// @dev Enum of Rush token types currently supported.
+    enum RushTokenType {
+        Basic,
+        TaxToken
+    }
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------------=|+ ERRORS +|=------------------------------------ //
@@ -121,9 +126,11 @@ contract RushRouterAlpha is Nonces {
         external
         payable
     {
+
+        RushTokenType tokenType = RushTokenType.Basic;
         // Check the ECDSA signature is valid.
         _checkSignature({
-            message: abi.encodePacked(msg.sender, _useNonce(msg.sender), liquidityAmount, liquidityDuration),
+            message: abi.encodePacked(msg.sender, _useNonce(msg.sender), liquidityAmount, liquidityDuration, tokenType),
             signature: signature
         });
 
@@ -167,11 +174,15 @@ contract RushRouterAlpha is Nonces {
         external
         payable
     {
+
+        {
+        RushTokenType tokenType = RushTokenType.TaxToken;
         // Check the ECDSA signature is valid.
         _checkSignature({
-            message: abi.encodePacked(msg.sender, maxSupply, taxTier, liquidityAmount, liquidityDuration),
+            message: abi.encodePacked(msg.sender, maxSupply, taxTier, liquidityAmount, liquidityDuration, tokenType),
             signature: signature
         });
+        }
 
         // Launch the ERC20 token.
         RUSH_LAUNCHER.launch{ value: msg.value }(
