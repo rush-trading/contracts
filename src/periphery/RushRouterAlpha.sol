@@ -179,7 +179,7 @@ contract RushRouterAlpha is Nonces {
         RushTokenType tokenType = RushTokenType.TaxToken;
         // Check the ECDSA signature is valid.
         _checkSignature({
-            message: abi.encodePacked(msg.sender, maxSupply, taxTier, liquidityAmount, liquidityDuration, tokenType),
+            message: abi.encodePacked(msg.sender, _useNonce(msg.sender),  maxSupply, taxTier, liquidityAmount, liquidityDuration, tokenType),
             signature: signature
         });
         }
