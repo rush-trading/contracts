@@ -50,7 +50,8 @@ abstract contract Events {
     event Launch(
         address indexed rushERC20,
         bytes32 indexed kind,
-        address indexed uniV2Pair,
+        address indexed originator,
+        address uniV2Pair,
         uint256 maxSupply,
         uint256 liquidityAmount,
         uint256 liquidityDuration

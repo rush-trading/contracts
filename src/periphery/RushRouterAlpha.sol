@@ -82,11 +82,11 @@ contract RushRouterAlpha is Nonces {
     /**
      * @dev Constructor
      * @param rushLauncher_ The address of the RushLauncher contract.
-     * @param verifierAddress The ECDSA verifier address.
+     * @param verifierAddress_ The ECDSA verifier address.
      */
-    constructor(IRushLauncher rushLauncher_, address verifierAddress) {
+    constructor(IRushLauncher rushLauncher_, address verifierAddress_) {
         RUSH_LAUNCHER = rushLauncher_;
-        VERIFIER_ADDRESS = verifierAddress;
+        VERIFIER_ADDRESS = verifierAddress_;
         LIQUIDITY_DEPLOYER = ILiquidityDeployer(rushLauncher_.LIQUIDITY_DEPLOYER());
         LIQUIDITY_POOL = ILiquidityPool(LIQUIDITY_DEPLOYER.LIQUIDITY_POOL());
         WETH = LIQUIDITY_DEPLOYER.WETH();
@@ -130,7 +130,7 @@ contract RushRouterAlpha is Nonces {
         // Check the ECDSA signature is valid.
         _checkSignature({
             message: abi.encodePacked(
-                msg.sender, _useNonce(msg.sender), liquidityAmount, liquidityDuration, ERC20Type.Basic
+                msg.sender, _useNonce(msg.sender), maxSupply, liquidityAmount, liquidityDuration, ERC20Type.Basic
             ),
             signature: signature
         });

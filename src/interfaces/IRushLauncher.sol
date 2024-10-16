@@ -15,6 +15,7 @@ interface IRushLauncher is IACLRoles {
      * @notice Emitted when a new ERC20 token market is launched.
      * @param rushERC20 The address of the RushERC20 token.
      * @param kind The kind of the ERC20 token template.
+     * @param originator The address that originated the request (i.e., the user).
      * @param uniV2Pair The address of the Uniswap V2 pair.
      * @param maxSupply The maximum supply of the ERC20 token.
      * @param liquidityAmount The amount of base asset liquidity deployed.
@@ -23,7 +24,8 @@ interface IRushLauncher is IACLRoles {
     event Launch(
         address indexed rushERC20,
         bytes32 indexed kind,
-        address indexed uniV2Pair,
+        address indexed originator,
+        address uniV2Pair,
         uint256 maxSupply,
         uint256 liquidityAmount,
         uint256 liquidityDuration

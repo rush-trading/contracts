@@ -117,6 +117,7 @@ contract RushLauncher is IRushLauncher, ACLRoles {
         emit Launch({
             rushERC20: rushERC20,
             kind: params.kind,
+            originator: params.originator,
             uniV2Pair: uniV2Pair,
             maxSupply: params.maxSupply,
             liquidityAmount: params.liquidityAmount,

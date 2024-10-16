@@ -125,12 +125,13 @@ contract Launch_Fork_Test is RushLauncher_Test {
             emitter: address(rushLauncher),
             checkTopic1: false, // Ignore `rushERC20` field.
             checkTopic2: true, // Check `kind` field.
-            checkTopic3: false, // Ignore `uniV2Pair` field.
-            checkData: true // Check `maxSupply`, `liquidityAmount`, and `liquidityDuration` fields.
+            checkTopic3: true, // Check `originator` field.
+            checkData: false // Ignor `uniV2Pair`, `maxSupply`, `liquidityAmount`, and `liquidityDuration` fields.
          });
         emit Launch({
             rushERC20: address(0),
             kind: kind,
+            originator: users.sender,
             uniV2Pair: address(0),
             maxSupply: maxSupply,
             liquidityAmount: liquidityAmount,
