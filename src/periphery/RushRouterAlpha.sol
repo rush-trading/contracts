@@ -33,17 +33,17 @@ contract RushRouterAlpha is Nonces {
 
     // #region ------------------------------------=|+ ENUMS +|=------------------------------------- //
 
+    /// @dev Enum of Rush token types currently supported.
+    enum ERC20Type {
+        Basic,
+        Taxable
+    }
+
     /// @dev The tax tier of a taxable ERC20 token.
     enum TaxTier {
         Small,
         Medium,
         Large
-    }
-
-    /// @dev Enum of Rush token types currently supported.
-    enum RushTokenType {
-        Basic,
-        TaxToken
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -127,10 +127,11 @@ contract RushRouterAlpha is Nonces {
         external
         payable
     {
-        RushTokenType tokenType = RushTokenType.Basic;
         // Check the ECDSA signature is valid.
         _checkSignature({
-            message: abi.encodePacked(msg.sender, _useNonce(msg.sender), liquidityAmount, liquidityDuration, tokenType),
+            message: abi.encodePacked(
+                msg.sender, _useNonce(msg.sender), liquidityAmount, liquidityDuration, ERC20Type.Basic
+            ),
             signature: signature
         });
 
@@ -175,11 +176,16 @@ contract RushRouterAlpha is Nonces {
         payable
     {
         {
-            RushTokenType tokenType = RushTokenType.TaxToken;
             // Check the ECDSA signature is valid.
             _checkSignature({
                 message: abi.encodePacked(
-                    msg.sender, _useNonce(msg.sender), maxSupply, taxTier, liquidityAmount, liquidityDuration, tokenType
+                    msg.sender,
+                    _useNonce(msg.sender),
+                    maxSupply,
+                    taxTier,
+                    liquidityAmount,
+                    liquidityDuration,
+                    ERC20Type.Taxable
                 ),
                 signature: signature
             });
