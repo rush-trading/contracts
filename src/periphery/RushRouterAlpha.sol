@@ -29,6 +29,9 @@ contract RushRouterAlpha is Nonces {
     bytes32 internal constant RUSH_ERC20_TAXABLE_KIND =
         0xfa3f84d263ed55bc45f8e22cdb3a7481292f68ee28ab539b69876f8dc1535b40;
 
+    /// @dev The maximum supply of a RushERC20 token.
+    uint256 internal constant MAX_SUPPLY = 1_000_000_000e18;
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------------=|+ ENUMS +|=------------------------------------- //
@@ -109,7 +112,6 @@ contract RushRouterAlpha is Nonces {
      * @notice Launch an ERC20 token.
      * @param name The name of the launched ERC20 token.
      * @param symbol The symbol of the launched ERC20 token.
-     * @param maxSupply The maximum supply of the launched ERC20 token.
      * @param liquidityAmount The amount of WETH liquidity to deploy.
      * @param liquidityDuration The duration of the liquidity deployment.
      * @param maxTotalFee The maximum total fee that can be collected for the liquidity deployment.
@@ -118,7 +120,6 @@ contract RushRouterAlpha is Nonces {
     function launchERC20(
         string calldata name,
         string calldata symbol,
-        uint256 maxSupply,
         uint256 liquidityAmount,
         uint256 liquidityDuration,
         uint256 maxTotalFee,
@@ -130,7 +131,7 @@ contract RushRouterAlpha is Nonces {
         // Check the ECDSA signature is valid.
         _checkSignature({
             message: abi.encodePacked(
-                msg.sender, _useNonce(msg.sender), maxSupply, liquidityAmount, liquidityDuration, ERC20Type.Basic
+                msg.sender, _useNonce(msg.sender), address(this), liquidityAmount, liquidityDuration, ERC20Type.Basic
             ),
             signature: signature
         });
@@ -142,7 +143,7 @@ contract RushRouterAlpha is Nonces {
                 kind: RUSH_ERC20_BASIC_KIND,
                 name: name,
                 symbol: symbol,
-                maxSupply: maxSupply,
+                maxSupply: MAX_SUPPLY,
                 data: "",
                 liquidityAmount: liquidityAmount,
                 liquidityDuration: liquidityDuration,
@@ -155,7 +156,6 @@ contract RushRouterAlpha is Nonces {
      * @notice Launch a taxable ERC20 token.
      * @param name The name of the launched ERC20 token.
      * @param symbol The symbol of the launched ERC20 token.
-     * @param maxSupply The maximum supply of the launched ERC20 token.
      * @param taxTier The tax tier of the launched ERC20 token.
      * @param liquidityAmount The amount of WETH liquidity to deploy.
      * @param liquidityDuration The duration of the liquidity deployment.
@@ -165,7 +165,6 @@ contract RushRouterAlpha is Nonces {
     function launchERC20Taxable(
         string calldata name,
         string calldata symbol,
-        uint256 maxSupply,
         TaxTier taxTier,
         uint256 liquidityAmount,
         uint256 liquidityDuration,
@@ -181,7 +180,7 @@ contract RushRouterAlpha is Nonces {
                 message: abi.encodePacked(
                     msg.sender,
                     _useNonce(msg.sender),
-                    maxSupply,
+                    address(this),
                     taxTier,
                     liquidityAmount,
                     liquidityDuration,
@@ -198,7 +197,7 @@ contract RushRouterAlpha is Nonces {
                 kind: RUSH_ERC20_TAXABLE_KIND,
                 name: name,
                 symbol: symbol,
-                maxSupply: maxSupply,
+                maxSupply: MAX_SUPPLY,
                 data: abi.encode(
                     msg.sender,
                     address(LIQUIDITY_DEPLOYER),

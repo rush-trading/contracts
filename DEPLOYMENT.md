@@ -185,6 +185,26 @@ forge script script/DeployRushRouter.s.sol \
     ${RUSH_LAUNCHER}
 ```
 
+### Upgrade `RushRouter`
+
+```shell
+# Set the deployment variables
+export NETWORK="sepolia"
+export ACL_MANAGER="<ADDRESS>"
+export RUSH_LAUNCHER="<ADDRESS>"
+export OLD_RUSH_ROUTER="<ADDRESS>"
+
+# Run the script
+forge script script/UpgradeRushRouter.s.sol \
+    --broadcast \
+    --rpc-url ${NETWORK} \
+    --sig "run(address,address,address)" \
+    --verify \
+    ${ACL_MANAGER} \
+    ${RUSH_LAUNCHER} \
+    ${OLD_RUSH_ROUTER}
+```
+
 ### Assign Roles
 
 The `ACLManager` contract is used to manage roles and permissions. Once the contracts are deployed, the `ADMIN` role
