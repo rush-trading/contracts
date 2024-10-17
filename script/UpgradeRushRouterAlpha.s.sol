@@ -3,21 +3,22 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { IACLManager } from "src/interfaces/IACLManager.sol";
 import { IRushLauncher } from "src/interfaces/IRushLauncher.sol";
-import { RushRouter } from "src/periphery/RushRouter.sol";
+import { RushRouterAlpha } from "src/periphery/RushRouterAlpha.sol";
 import { BaseScript } from "./Base.s.sol";
 
-contract UpgradeRushRouter is BaseScript {
+contract UpgradeRushRouterAlpha is BaseScript {
     function run(
         IACLManager aclManager,
         IRushLauncher rushLauncher,
-        address oldRushRouter
+        address oldRushRouter,
+        address verifierAddress
     )
         public
         virtual
         broadcast
-        returns (RushRouter rushRouter)
+        returns (RushRouterAlpha rushRouter)
     {
-        rushRouter = new RushRouter({ rushLauncher_: rushLauncher });
+        rushRouter = new RushRouterAlpha({ verifierAddress_: verifierAddress, rushLauncher_: rushLauncher });
         aclManager.addRouter({ account: address(rushRouter) });
         aclManager.removeRouter({ account: oldRushRouter });
     }
