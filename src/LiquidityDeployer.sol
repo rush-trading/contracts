@@ -329,7 +329,9 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     }
 
     /// @dev Returns the ordered reserves of the Uniswap V2 pair with the ordering.
-    function _getOrderedReserves(address uniV2Pair)
+    function _getOrderedReserves(
+        address uniV2Pair
+    )
         internal
         view
         returns (uint256 wethReserve, uint256 rushERC20Reserve, bool isToken0WETH)
@@ -414,7 +416,14 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
                 vars.wethToResupply = vars.wethSurplus - vars.wethSurplusTax;
             }
             // Calculate the amount of RushERC20 to resupply to the pair.
-            vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance);
+            (uint256 wethReserve,,) = _getOrderedReserves(uniV2Pair);
+            uint256 targetWETHReserve = deployment.amount + EARLY_UNWIND_THRESHOLD;
+            if (wethReserve < targetWETHReserve) {
+                vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance * 4);
+            } else {
+                vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance);
+            }
+
             // Interactions: Transfer the WETH to resupply to the pair.
             IERC20(WETH).transfer(uniV2Pair, vars.wethToResupply);
             // Interactions: Transfer the RushERC20 to resupply to the pair.
