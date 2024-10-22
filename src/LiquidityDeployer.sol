@@ -275,7 +275,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             }
 
             // Unwind the liquidity deployment.
-            _unwindLiquidity({ uniV2Pair: uniV2Pair });
+            _unwindLiquidity({ uniV2Pair: uniV2Pair, isUnwindThresholdMet: _getIsUnwindThresholdMet(uniV2Pair) });
         }
     }
 
@@ -295,24 +295,29 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             revert Errors.LiquidityDeployer_PairAlreadyUnwound({ uniV2Pair: uniV2Pair });
         }
         // Checks: Deadline must have passed or early unwind threshold must be met.
-        (uint256 wethReserve,,) = _getOrderedReserves(uniV2Pair);
-        uint256 targetWETHReserve = deployment.amount + EARLY_UNWIND_THRESHOLD;
-        if (block.timestamp < deployment.deadline && wethReserve < targetWETHReserve) {
+        bool isUnwindThresholdMet = _getIsUnwindThresholdMet(uniV2Pair);
+        if (block.timestamp < deployment.deadline && !isUnwindThresholdMet) {
             revert Errors.LiquidityDeployer_UnwindNotReady({
                 uniV2Pair: uniV2Pair,
                 deadline: deployment.deadline,
-                currentReserve: wethReserve,
-                targetReserve: targetWETHReserve
+                isUnwindThresholdMet: isUnwindThresholdMet
             });
         }
 
         // Unwind the liquidity deployment.
-        _unwindLiquidity({ uniV2Pair: uniV2Pair });
+        _unwindLiquidity({ uniV2Pair: uniV2Pair, isUnwindThresholdMet: isUnwindThresholdMet });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region -------------------------=|+ INTERNAL CONSTANT FUNCTIONS +|=-------------------------- //
+
+    function _getIsUnwindThresholdMet(address uniV2Pair) internal view returns (bool isUnwindThresholdMet) {
+        LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
+        (uint256 currentReserve,,) = _getOrderedReserves(uniV2Pair);
+        uint256 targetReserve = deployment.amount + EARLY_UNWIND_THRESHOLD;
+        isUnwindThresholdMet = currentReserve >= targetReserve;
+    }
 
     /// @dev Returns the ordered amounts of the Uniswap V2 pair with the ordering.
     function _getOrderedAmounts(
@@ -379,8 +384,11 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
      * `UniswapV2Pair.mint` from reverting with `INSUFFICIENT_LIQUIDITY_MINTED`.
      * Reference:
      * https://github.com/Uniswap/v2-core/blob/ee547b17853e71ed4e0101ccfd52e70d5acded58/contracts/UniswapV2Pair.sol#L110
+     *
+     * @param uniV2Pair The address of the Uniswap V2 pair.
+     * @param isUnwindThresholdMet Whether the early unwind threshold is met.
      */
-    function _unwindLiquidity(address uniV2Pair) internal {
+    function _unwindLiquidity(address uniV2Pair, bool isUnwindThresholdMet) internal {
         LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
 
         // Effects: Set deployment as unwound.
@@ -414,12 +422,10 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
                 vars.wethToResupply = vars.wethSurplus - vars.wethSurplusTax;
             }
             // Calculate the amount of RushERC20 to resupply to the pair.
-            (uint256 wethReserve,,) = _getOrderedReserves(uniV2Pair);
-            uint256 targetWETHReserve = deployment.amount + EARLY_UNWIND_THRESHOLD;
-            if (wethReserve < targetWETHReserve) {
-                vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance * 4);
-            } else {
+            if (isUnwindThresholdMet) {
                 vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance);
+            } else {
+                vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance * 4);
             }
 
             // Interactions: Transfer the WETH to resupply to the pair.
