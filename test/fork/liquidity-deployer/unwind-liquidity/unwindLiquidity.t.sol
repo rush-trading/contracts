@@ -79,6 +79,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
         uint256 currentReserve = IERC20(weth).balanceOf(uniV2Pair);
         uint256 targetReserve = defaults.LIQUIDITY_AMOUNT() + liquidityDeployer.EARLY_UNWIND_THRESHOLD();
+        bool isUnwindThresholdMet = currentReserve >= targetReserve;
 
         // Run the test.
         vm.expectRevert(
@@ -86,8 +87,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
                 Errors.LiquidityDeployer_UnwindNotReady.selector,
                 uniV2Pair,
                 liquidityDeployment.deadline,
-                currentReserve,
-                targetReserve
+                isUnwindThresholdMet
             )
         );
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
@@ -184,7 +184,7 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         // Calculate the amounts of WETH and RUSH ERC20 to be resupplied to the pair.
         uint256 wethAmountToResupply = Math.mulDiv(wethAmount, 1e18 - defaults.RESERVE_FACTOR(), 1e18) - 1;
         (uint256 wethReserve, uint256 rushERC20Reserve,) = IUniswapV2Pair(uniV2Pair).getReserves();
-        uint256 rushERC20ToResupply = Math.mulDiv(wethAmountToResupply, rushERC20Reserve, wethReserve);
+        uint256 rushERC20ToResupply = Math.mulDiv(rushERC20Reserve, wethAmountToResupply, wethReserve * 4);
 
         // Expect the relevant event to be emitted on the pair.
         vm.expectEmit({
