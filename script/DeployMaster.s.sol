@@ -22,24 +22,24 @@ contract DeployMaster is BaseScript {
     // 5 WETH for early unwind threshold - good to go imo, 2x less than Pump
     uint256 internal constant EARLY_UNWIND_THRESHOLD = 2.5 ether;
 
-    // Max deployment amount is 0.01 WETH - suggest 5 ETH
-    uint256 internal constant MAX_DEPLOYMENT_AMOUNT = 0.01 ether;
+    // Max deployment amount is 0.01 WETH - suggest 2.5 ETH
+    uint256 internal constant MAX_DEPLOYMENT_AMOUNT = 2.5 ether;
 
     // Max deployment duration is 10 hrs - suggest 1d
-    uint256 internal constant MAX_DURATION = 2 hours;
+    uint256 internal constant MAX_DURATION = 24 hours;
 
     // Max rushERC20 supply is 100B - suggest 100T
     uint256 internal constant MAX_SUPPLY_LIMIT = 100_000_000_000e18;
 
-    // 1 WETH max deposit - suggest 250 WETH
-    uint256 internal constant MAX_TOTAL_DEPOSITS = 1 ether;
+    // 1 WETH max deposit - suggest 75 WETH
+    uint256 internal constant MAX_TOTAL_DEPOSITS = 75 ether;
 
     // Min deployment amount is 0.001 WETH - everything less than $1k has a 'This pair has very little liquidity' msg
     // on Dexscreener, seems like 0.5 ETH is our go-to option
-    uint256 internal constant MIN_DEPLOYMENT_AMOUNT = 0.001 ether;
+    uint256 internal constant MIN_DEPLOYMENT_AMOUNT = 0.5 ether;
 
     // Min deployment duration is 1 minute - suggest 1h
-    uint256 internal constant MIN_DURATION = 1 minutes;
+    uint256 internal constant MIN_DURATION = 1 hours;
 
     // Min rushERC20 supply is 1M - suggest 1B
     uint256 internal constant MIN_SUPPLY_LIMIT = 1_000_000e18;
