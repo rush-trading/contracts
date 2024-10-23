@@ -19,14 +19,14 @@ contract DeployMaster is BaseScript {
     // 100% annual base fee rate - looks good
     uint256 internal constant BASE_FEE_RATE = 31_709_791_983;
 
-    // 5 WETH for early unwind threshold - good to go imo, in line with Pump
-    uint256 internal constant EARLY_UNWIND_THRESHOLD = 5 ether;
+    // 5 WETH for early unwind threshold - good to go imo, 2x less than Pump
+    uint256 internal constant EARLY_UNWIND_THRESHOLD = 2.5 ether;
 
     // Max deployment amount is 0.01 WETH - suggest 5 ETH
     uint256 internal constant MAX_DEPLOYMENT_AMOUNT = 0.01 ether;
 
     // Max deployment duration is 10 hrs - suggest 1d
-    uint256 internal constant MAX_DURATION = 10 hours;
+    uint256 internal constant MAX_DURATION = 2 hours;
 
     // Max rushERC20 supply is 100B - suggest 100T
     uint256 internal constant MAX_SUPPLY_LIMIT = 100_000_000_000e18;
@@ -35,7 +35,7 @@ contract DeployMaster is BaseScript {
     uint256 internal constant MAX_TOTAL_DEPOSITS = 1 ether;
 
     // Min deployment amount is 0.001 WETH - everything less than $1k has a 'This pair has very little liquidity' msg
-    // on Dexscreener, 0.05 ETH on G8keep, suggest no less than 0.05 ETH
+    // on Dexscreener, seems like 0.5 ETH is our go-to option
     uint256 internal constant MIN_DEPLOYMENT_AMOUNT = 0.001 ether;
 
     // Min deployment duration is 1 minute - suggest 1h
@@ -54,7 +54,7 @@ contract DeployMaster is BaseScript {
     uint256 internal constant RATE_SLOPE_2 = 23_782_343_987;
 
     // 10% reserve factor - suggest 15-20%, in line with Compound/Aave
-    uint256 internal constant RESERVE_FACTOR = 0.1e18;
+    uint256 internal constant RESERVE_FACTOR = 0.2e18;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
