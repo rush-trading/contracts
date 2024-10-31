@@ -92,6 +92,13 @@ contract RushLauncherHandler is BaseHandler {
         bool isToken0WETH = token0 == weth;
         address rushERC20 = isToken0WETH ? token1 : token0;
         uint256 rushERC20Balance = IERC20(rushERC20).balanceOf(address(this));
+        // When `rushERC20Amount` is zero, swap the WETH for RushERC20.
+        if (rushERC20Balance == 0) {
+            // Give the required WETH to this contract.
+            deal({ token: weth, to: address(this), give: 1 ether });
+            _swapWETHForRushERC20(pair, 1 ether);
+            rushERC20Balance = IERC20(rushERC20).balanceOf(address(this));
+        }
         // Bound the `rushERC20Amount` to the range (0, rushERC20Balance).
         rushERC20Amount = bound(rushERC20Amount, 0, rushERC20Balance);
         // Skip when `rushERC20Amount` is zero.
@@ -186,24 +193,8 @@ contract RushLauncherHandler is BaseHandler {
         amount = bound(amount, 1 wei, 10_000 ether);
         // Give required assets to this contract.
         deal({ token: weth, to: address(this), give: amount });
-        // Transfer the assets to the pair.
-        IERC20(weth).transfer(pair, amount);
-        // Calculate the expected amount of RushERC20 to receive.
-        bool isToken0WETH = IUniswapV2Pair(pair).token0() == weth;
-        (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
-        (uint256 wethReserve, uint256 rushERC20Reserve) = isToken0WETH ? (reserve0, reserve1) : (reserve1, reserve0);
-        uint256 amountInWithFee = amount * 997;
-        uint256 numerator = amountInWithFee * rushERC20Reserve;
-        uint256 denominator = wethReserve * 1000 + amountInWithFee;
-        uint256 maxRushERC20Amount = numerator / denominator;
-        // Skip when the expected amount is zero.
-        if (maxRushERC20Amount == 0) {
-            return;
-        }
         // Swap the WETH for RushERC20.
-        IUniswapV2Pair(pair).swap(
-            isToken0WETH ? 0 : maxRushERC20Amount, isToken0WETH ? maxRushERC20Amount : 0, address(this), new bytes(0)
-        );
+        _swapWETHForRushERC20(pair, amount);
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -271,6 +262,27 @@ contract RushLauncherHandler is BaseHandler {
         );
         // Push the deployment to the store.
         rushLauncherStore.pushDeployment(uniV2Pair);
+    }
+
+    function _swapWETHForRushERC20(address pair, uint256 amount) internal {
+        // Transfer the assets to the pair.
+        IERC20(weth).transfer(pair, amount);
+        // Calculate the expected amount of RushERC20 to receive.
+        bool isToken0WETH = IUniswapV2Pair(pair).token0() == weth;
+        (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
+        (uint256 wethReserve, uint256 rushERC20Reserve) = isToken0WETH ? (reserve0, reserve1) : (reserve1, reserve0);
+        uint256 amountInWithFee = amount * 997;
+        uint256 numerator = amountInWithFee * rushERC20Reserve;
+        uint256 denominator = wethReserve * 1000 + amountInWithFee;
+        uint256 maxRushERC20Amount = numerator / denominator;
+        // Skip when the expected amount is zero.
+        if (maxRushERC20Amount == 0) {
+            return;
+        }
+        // Swap the WETH for RushERC20.
+        IUniswapV2Pair(pair).swap(
+            isToken0WETH ? 0 : maxRushERC20Amount, isToken0WETH ? maxRushERC20Amount : 0, address(this), new bytes(0)
+        );
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
