@@ -411,26 +411,38 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             _getOrderedAmounts({ uniV2Pair: uniV2Pair, amount0: vars.amount0, amount1: vars.amount1 });
 
         vars.initialWETHReserve = deployment.amount + deployment.subsidyAmount;
+
         // If the WETH balance is greater than the initial reserve, the pair has a surplus.
         if (vars.wethBalance > vars.initialWETHReserve) {
             // Calculate the surplus.
             unchecked {
                 vars.wethSurplus = vars.wethBalance - vars.initialWETHReserve;
             }
-            // Tax the surplus to the reserve.
-            vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, SURPLUS_FACTOR, 1e18);
-            // Calculate the total reserve fee.
-            unchecked {
-                vars.totalReserveFee = deployment.subsidyAmount + vars.wethSurplusTax;
-            }
-            // Calculate the amount of WETH to resupply to the pair.
-            unchecked {
-                vars.wethToResupply = vars.wethSurplus - vars.wethSurplusTax;
-            }
-            // Calculate the amount of RushERC20 to resupply to the pair.
             if (isUnwindThresholdMet) {
+                // Tax the surplus to the reserve.
+                vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, SURPLUS_FACTOR, 1e18);
+                // Calculate the total reserve fee.
+                unchecked {
+                    vars.totalReserveFee = deployment.subsidyAmount + vars.wethSurplusTax;
+                }
+                // Calculate the amount of WETH to resupply to the pair.
+                unchecked {
+                    vars.wethToResupply = vars.wethSurplus - vars.wethSurplusTax;
+                }
+
+                // Calculate the amount of RushERC20 to resupply to the pair.
                 vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance);
             } else {
+                // Calculate the total reserve fee.
+                unchecked {
+                    vars.totalReserveFee = deployment.subsidyAmount;
+                }
+                // Calculate the amount of WETH to resupply to the pair.
+                unchecked {
+                    vars.wethToResupply = vars.wethSurplus;
+                }
+
+                // Calculate the amount of RushERC20 to resupply to the pair.
                 vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance * 4);
             }
 
