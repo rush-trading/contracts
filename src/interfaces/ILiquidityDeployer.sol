@@ -86,6 +86,12 @@ interface ILiquidityDeployer is IACLRoles {
      */
     function RESERVE_FACTOR() external view returns (uint256);
 
+    /**
+     * @notice The surplus factor for calculating WETH surplus tax.
+     * @dev Represented in WAD precision (18 decimal format).
+     */
+    function SURPLUS_FACTOR() external view returns (uint256);
+
     /// @notice The WETH contract address.
     /// @dev WETH is used as the base asset for liquidity deployment.
     function WETH() external view returns (address);

@@ -56,6 +56,9 @@ contract DeployMaster is BaseScript {
     // 10% reserve factor - suggest 15-20%, in line with Compound/Aave
     uint256 internal constant RESERVE_FACTOR = 0.2e18;
 
+    // 5% surplus factor
+    uint256 internal constant SURPLUS_FACTOR = 0.05e18;
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region -------------------------------=|+ STATIC CONSTANTS +|=------------------------------- //
@@ -134,7 +137,8 @@ contract DeployMaster is BaseScript {
             minDeploymentAmount_: MIN_DEPLOYMENT_AMOUNT,
             minDuration_: MIN_DURATION,
             reserve_: RESERVE,
-            reserveFactor_: RESERVE_FACTOR
+            reserveFactor_: RESERVE_FACTOR,
+            surplusFactor_: SURPLUS_FACTOR
         });
 
         // Deploy RushLauncher

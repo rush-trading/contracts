@@ -48,6 +48,9 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     uint256 public immutable override RESERVE_FACTOR;
 
     /// @inheritdoc ILiquidityDeployer
+    uint256 public immutable override SURPLUS_FACTOR;
+
+    /// @inheritdoc ILiquidityDeployer
     address public immutable override WETH;
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -80,6 +83,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
      * @param minDuration_ The minimum duration for liquidity deployment.
      * @param reserve_ The address of the reserve to which collected fees are sent.
      * @param reserveFactor_ The reserve factor for collected fees.
+     * @param surplusFactor_ The surplus factor for calculating WETH surplus tax.
      */
     constructor(
         address aclManager_,
@@ -91,7 +95,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         uint256 minDeploymentAmount_,
         uint256 minDuration_,
         address reserve_,
-        uint256 reserveFactor_
+        uint256 reserveFactor_,
+        uint256 surplusFactor_
     )
         ACLRoles(aclManager_)
     {
@@ -104,6 +109,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         MIN_DURATION = minDuration_;
         RESERVE = reserve_;
         RESERVE_FACTOR = reserveFactor_;
+        SURPLUS_FACTOR = surplusFactor_;
         WETH = ILiquidityPool(liquidityPool_).asset();
     }
 
@@ -412,7 +418,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
                 vars.wethSurplus = vars.wethBalance - vars.initialWETHReserve;
             }
             // Tax the surplus to the reserve.
-            vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, RESERVE_FACTOR, 1e18);
+            vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, SURPLUS_FACTOR, 1e18);
             // Calculate the total reserve fee.
             unchecked {
                 vars.totalReserveFee = deployment.subsidyAmount + vars.wethSurplusTax;

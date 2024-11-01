@@ -16,7 +16,8 @@ contract DeployLiquidityDeployer is BaseScript {
         uint256 minDeploymentAmount,
         uint256 minDuration,
         address reserve,
-        uint256 reserveFactor
+        uint256 reserveFactor,
+        uint256 surplusFactor
     )
         public
         virtual
@@ -33,7 +34,8 @@ contract DeployLiquidityDeployer is BaseScript {
             minDeploymentAmount_: minDeploymentAmount,
             minDuration_: minDuration,
             reserve_: reserve,
-            reserveFactor_: reserveFactor
+            reserveFactor_: reserveFactor,
+            surplusFactor_: surplusFactor
         });
     }
 }
