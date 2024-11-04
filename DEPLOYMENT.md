@@ -25,6 +25,33 @@ forge script script/DeployMaster.s.sol \
     --verify
 ```
 
+Protocol contracts (i.e., `LiquidityDeployer`, `RushLauncher`, and `RushRouter`) can also be upgraded in a single step
+by running the following script:
+
+````shell
+# Set the deployment variables
+export NETWORK="sepolia"
+export ACL_MANAGER="<ADDRESS>"
+export LIQUIDITY_POOL="<ADDRESS>"
+export RUSH_ERC20_FACTORY="<ADDRESS>"
+export OLD_LIQUIDITY_DEPLOYER="<ADDRESS>"
+export OLD_RUSH_LAUNCHER="<ADDRESS>"
+export OLD_RUSH_ROUTER="<ADDRESS>"
+
+# Run the script
+forge script script/UpgradeMaster.s.sol \
+    --broadcast \
+    --rpc-url ${NETWORK} \
+    --sig "run(address,address,address,address,address,address)" \
+    --verify \
+    ${ACL_MANAGER} \
+    ${LIQUIDITY_POOL} \
+    ${RUSH_ERC20_FACTORY} \
+    ${OLD_LIQUIDITY_DEPLOYER} \
+    ${OLD_RUSH_LAUNCHER} \
+    ${OLD_RUSH_ROUTER}
+```
+
 ## Step-by-Step
 
 The following sections provide step-by-step instructions for deploying each contract individually. You should replace
@@ -49,7 +76,7 @@ forge script script/DeployACLManager.s.sol \
     --sig "run(address)" \
     --verify \
     ${ADMIN}
-```
+````
 
 ### Deploy `LiquidityPool`
 
