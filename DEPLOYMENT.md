@@ -124,12 +124,13 @@ export MIN_DEPLOYMENT_AMOUNT="<WAD>"
 export MIN_DURATION="<SECONDS>"
 export RESERVE="<ADDRESS>"
 export RESERVE_FACTOR="<WAD>"
+export SURPLUS_FACTOR="<WAD>"
 
 # Run the script
 forge script script/DeployLiquidityDeployer.s.sol \
     --broadcast \
     --rpc-url ${NETWORK} \
-    --sig "run(address,uint256,address,address,uint256,uint256,uint256,uint256,address,uint256)" \
+    --sig "run(address,uint256,address,address,uint256,uint256,uint256,uint256,address,uint256,uint256)" \
     --verify \
     ${ACL_MANAGER} \
     ${EARLY_UNWIND_THRESHOLD} \
@@ -140,7 +141,8 @@ forge script script/DeployLiquidityDeployer.s.sol \
     ${MIN_DEPLOYMENT_AMOUNT} \
     ${MIN_DURATION} \
     ${RESERVE} \
-    ${RESERVE_FACTOR}
+    ${RESERVE_FACTOR} \
+    ${SURPLUS_FACTOR}
 ```
 
 ### Deploy `RushLauncher`
