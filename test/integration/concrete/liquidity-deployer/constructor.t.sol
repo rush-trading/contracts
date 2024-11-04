@@ -25,6 +25,8 @@ struct Vars {
     address expectedReserve;
     uint256 actualReserveFactor;
     uint256 expectedReserveFactor;
+    uint256 actualSurplusFactor;
+    uint256 expectedSurplusFactor;
 }
 
 contract Constructor_LiquidityDeployer_Integration_Concrete_Test is Integration_Test {
@@ -44,7 +46,8 @@ contract Constructor_LiquidityDeployer_Integration_Concrete_Test is Integration_
             minDeploymentAmount_: defaults.MIN_LIQUIDITY_AMOUNT(),
             minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
             reserve_: users.reserve,
-            reserveFactor_: defaults.RESERVE_FACTOR()
+            reserveFactor_: defaults.RESERVE_FACTOR(),
+            surplusFactor_: defaults.SURPLUS_FACTOR()
         });
 
         // Assert that the values were set correctly.
@@ -87,6 +90,10 @@ contract Constructor_LiquidityDeployer_Integration_Concrete_Test is Integration_
         vars.actualReserveFactor = constructedLiquidityDeployer.RESERVE_FACTOR();
         vars.expectedReserveFactor = defaults.RESERVE_FACTOR();
         assertEq(vars.actualReserveFactor, vars.expectedReserveFactor, "RESERVE_FACTOR");
+
+        vars.actualSurplusFactor = constructedLiquidityDeployer.SURPLUS_FACTOR();
+        vars.expectedSurplusFactor = defaults.SURPLUS_FACTOR();
+        assertEq(vars.actualSurplusFactor, vars.expectedSurplusFactor, "SURPLUS_FACTOR");
 
         address actualWETH = constructedLiquidityDeployer.WETH();
         address expectedWETH = address(liquidityPool.asset());

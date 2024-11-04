@@ -48,6 +48,9 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     uint256 public immutable override RESERVE_FACTOR;
 
     /// @inheritdoc ILiquidityDeployer
+    uint256 public immutable override SURPLUS_FACTOR;
+
+    /// @inheritdoc ILiquidityDeployer
     address public immutable override WETH;
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -80,6 +83,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
      * @param minDuration_ The minimum duration for liquidity deployment.
      * @param reserve_ The address of the reserve to which collected fees are sent.
      * @param reserveFactor_ The reserve factor for collected fees.
+     * @param surplusFactor_ The surplus factor for calculating WETH surplus tax.
      */
     constructor(
         address aclManager_,
@@ -91,7 +95,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         uint256 minDeploymentAmount_,
         uint256 minDuration_,
         address reserve_,
-        uint256 reserveFactor_
+        uint256 reserveFactor_,
+        uint256 surplusFactor_
     )
         ACLRoles(aclManager_)
     {
@@ -104,6 +109,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         MIN_DURATION = minDuration_;
         RESERVE = reserve_;
         RESERVE_FACTOR = reserveFactor_;
+        SURPLUS_FACTOR = surplusFactor_;
         WETH = ILiquidityPool(liquidityPool_).asset();
     }
 
@@ -405,26 +411,38 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             _getOrderedAmounts({ uniV2Pair: uniV2Pair, amount0: vars.amount0, amount1: vars.amount1 });
 
         vars.initialWETHReserve = deployment.amount + deployment.subsidyAmount;
+
         // If the WETH balance is greater than the initial reserve, the pair has a surplus.
         if (vars.wethBalance > vars.initialWETHReserve) {
             // Calculate the surplus.
             unchecked {
                 vars.wethSurplus = vars.wethBalance - vars.initialWETHReserve;
             }
-            // Tax the surplus to the reserve.
-            vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, RESERVE_FACTOR, 1e18);
-            // Calculate the total reserve fee.
-            unchecked {
-                vars.totalReserveFee = deployment.subsidyAmount + vars.wethSurplusTax;
-            }
-            // Calculate the amount of WETH to resupply to the pair.
-            unchecked {
-                vars.wethToResupply = vars.wethSurplus - vars.wethSurplusTax;
-            }
-            // Calculate the amount of RushERC20 to resupply to the pair.
             if (isUnwindThresholdMet) {
+                // Tax the surplus to the reserve.
+                vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, SURPLUS_FACTOR, 1e18);
+                // Calculate the total reserve fee.
+                unchecked {
+                    vars.totalReserveFee = deployment.subsidyAmount + vars.wethSurplusTax;
+                }
+                // Calculate the amount of WETH to resupply to the pair.
+                unchecked {
+                    vars.wethToResupply = vars.wethSurplus - vars.wethSurplusTax;
+                }
+
+                // Calculate the amount of RushERC20 to resupply to the pair.
                 vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance);
             } else {
+                // Calculate the total reserve fee.
+                unchecked {
+                    vars.totalReserveFee = deployment.subsidyAmount;
+                }
+                // Calculate the amount of WETH to resupply to the pair.
+                unchecked {
+                    vars.wethToResupply = vars.wethSurplus;
+                }
+
+                // Calculate the amount of RushERC20 to resupply to the pair.
                 vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance * 4);
             }
 
