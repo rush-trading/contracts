@@ -156,6 +156,13 @@ contract RushLauncherHandler is BaseHandler {
         bool isToken0WETH = token0 == weth;
         address rushERC20 = isToken0WETH ? token1 : token0;
         uint256 rushERC20Balance = IERC20(rushERC20).balanceOf(address(this));
+        // When `rushERC20Amount` is zero, swap the WETH for RushERC20.
+        if (rushERC20Balance == 0) {
+            // Give the required WETH to this contract.
+            deal({ token: weth, to: address(this), give: 1 ether });
+            _swapWETHForRushERC20(pair, 1 ether);
+            rushERC20Balance = IERC20(rushERC20).balanceOf(address(this));
+        }
         // Bound the `amount` to the range (0, rushERC20Balance).
         amount = bound(amount, 0, rushERC20Balance);
         // Skip when the amount is zero.
