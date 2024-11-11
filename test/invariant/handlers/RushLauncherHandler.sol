@@ -123,6 +123,49 @@ contract RushLauncherHandler is BaseHandler {
         IUniswapV2Pair(pair).mint(address(this));
     }
 
+    function removeLiquidityFromPair(address pair) external {
+        // Skip when the deployment does not exist.
+        if (!rushLauncherStore.deploymentExists(pair)) {
+            return;
+        }
+        // Get the liquidity balance of this contract in the pair.
+        uint256 liquidity = IUniswapV2Pair(pair).balanceOf(address(this));
+
+        // When `liquidity` is zero, add liquidity to the pair.
+        if (liquidity == 0) {
+            // Give the required WETH to this contract.
+            deal({ token: weth, to: address(this), give: 1 ether });
+            // Swap half of the WETH for RushERC20.
+            _swapWETHForRushERC20(pair, 0.5 ether);
+
+            address token0 = IUniswapV2Pair(pair).token0();
+            address token1 = IUniswapV2Pair(pair).token1();
+            bool isToken0WETH = token0 == weth;
+            address rushERC20 = isToken0WETH ? token1 : token0;
+            uint256 rushERC20Amount = IERC20(rushERC20).balanceOf(address(this));
+
+            // Skip when `rushERC20Amount` is zero.
+            if (rushERC20Amount == 0) {
+                return;
+            }
+            // Calculate the amount of WETH required to add liquidity.
+            (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(pair).getReserves();
+            (uint256 wethReserve, uint256 rushERC20Reserve) = isToken0WETH ? (reserve0, reserve1) : (reserve1, reserve0);
+            uint256 wethAmount = (rushERC20Amount * wethReserve) / rushERC20Reserve;
+            deal({ token: weth, to: address(this), give: wethAmount });
+
+            // Add liquidity to the pair.
+            IERC20(weth).transfer(pair, wethAmount);
+            IERC20(rushERC20).transfer(pair, rushERC20Amount);
+            IUniswapV2Pair(pair).mint(address(this));
+        }
+
+        // Transfer the LP tokens to the pair.
+        IUniswapV2Pair(pair).transfer(pair, IUniswapV2Pair(pair).balanceOf(address(this)));
+        // Burn the liquidity.
+        IUniswapV2Pair(pair).burn(address(this));
+    }
+
     function sendWETHDirectlyToLiquidityDeployer(uint256 amount) external {
         // Bound the `amount` to the range (1 wei, 10k WETH).
         amount = bound(amount, 1 wei, 10_000 ether);
@@ -143,6 +186,8 @@ contract RushLauncherHandler is BaseHandler {
         deal({ token: weth, to: address(this), give: amount });
         // Transfer the assets to the pair.
         IERC20(weth).transfer(pair, amount);
+        // Sync the pair.
+        IUniswapV2Pair(pair).sync();
     }
 
     function swapRushERC20ForWETHInPair(address pair, uint256 amount) external {
@@ -213,7 +258,7 @@ contract RushLauncherHandler is BaseHandler {
         if (params.originator == address(0) || params.originator == weth) {
             return;
         }
-        // Bound the `maxSupply` to the range (MIN_SUPPLY_LIMIT, MAX_SUPPL_LIMITY).
+        // Bound the `maxSupply` to the range (MIN_SUPPLY_LIMIT, MAX_SUPPLY_LIMIT).
         params.maxSupply = bound(params.maxSupply, rushLauncher.MIN_SUPPLY_LIMIT(), rushLauncher.MAX_SUPPLY_LIMIT());
         // Bound the `liquidityAmount` to the range (MIN_DEPLOYMENT_AMOUNT, MAX_DEPLOYMENT_AMOUNT).
         params.liquidityAmount = bound(
