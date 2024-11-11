@@ -21,6 +21,9 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
     /// after
     error ERC20Donatable_NotUnwoundYet();
 
+    /// @notice token has been unowund but we did not meet the threshold
+    error ERC20Donatable_UnwindThresholdNotMet();
+
     error ERC20Donatable_DonationAlreadySent();
 
 
@@ -91,6 +94,10 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
         LD.LiquidityDeployment memory liqDeployment = liquidityDeployer.getLiquidityDeployment(uniPool);
         if (!liqDeployment.isUnwound) {
             revert ERC20Donatable_NotUnwoundYet();
+        }
+
+        if (!liqDeployment.isUnwindThresholdMet) {
+            revert ERC20Donatable_UnwindThresholdNotMet();
         }
 
         if (isDonationSent) {
