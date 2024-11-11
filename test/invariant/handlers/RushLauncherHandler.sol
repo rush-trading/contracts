@@ -59,26 +59,27 @@ contract RushLauncherHandler is BaseHandler {
 
     // #region ------------------------------=|+ HANDLER FUNCTIONS +|=------------------------------- //
 
-    function launchERC20Basic(LaunchParams memory params) external useNewSender(address(this)) {
-        // Launch a RushERC20Basic token.
-        _launchERC20({ params: params, kind: RUSH_ERC20_BASIC_KIND, initData: "" });
-    }
-
-    function launchERC20Taxable(
+    function launchERC20(
         LaunchParams memory params,
-        uint256 initialTaxBasisPoints
+        uint256 initialTaxBasisPoints,
+        bool tokenType
     )
         external
         useNewSender(address(this))
     {
-        // Bound the `initialTaxBasisPoints` to the range (0, 10_000).
-        initialTaxBasisPoints = bound(initialTaxBasisPoints, 0, 10_000);
-        // Launch a RushERC20Taxable token.
-        _launchERC20({
-            params: params,
-            kind: RUSH_ERC20_TAXABLE_KIND,
-            initData: abi.encode(params.originator, address(liquidityDeployer), uint96(initialTaxBasisPoints))
-        });
+        if (!tokenType) {
+            // Launch a RushERC20Basic token.
+            _launchERC20({ params: params, kind: RUSH_ERC20_BASIC_KIND, initData: "" });
+        } else {
+            // Bound the `initialTaxBasisPoints` to the range (0, 10_000).
+            initialTaxBasisPoints = bound(initialTaxBasisPoints, 0, 10_000);
+            // Launch a RushERC20Taxable token.
+            _launchERC20({
+                params: params,
+                kind: RUSH_ERC20_TAXABLE_KIND,
+                initData: abi.encode(params.originator, address(liquidityDeployer), uint96(initialTaxBasisPoints))
+            });
+        }
     }
 
     function addLiquidityToPair(address pair, uint256 rushERC20Amount) external {
