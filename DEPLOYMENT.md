@@ -327,6 +327,12 @@ forge script script/DeployTokenRushERC20Taxable.s.sol \
     --rpc-url ${NETWORK} \
     --sig "run()" \
     --verify
+
+forge script script/DeployTokenRushERC20Donatable.s.sol \
+    --broadcast \
+    --rpc-url ${NETWORK} \
+    --sig "run()" \
+    --verify
 ```
 
 ```solidity
