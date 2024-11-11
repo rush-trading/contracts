@@ -50,12 +50,11 @@ contract RushERC20Donatable is ERC20DonatableUpgradeable, RushERC20Abstract {
         InitializeLocalVars memory vars;
         __ERC20_init(name, symbol);
         _mint(recipient, maxSupply);
-        (vars.donationBeneficiary, vars.liquidityDeployer, vars.uniV2Pair) =
-            abi.decode(data, (address, address, address));
+        (vars.donationBeneficiary, vars.liquidityDeployer) = abi.decode(data, (address, address));
         __ERC20Donatable_init({
             _donationBeneficiary: vars.donationBeneficiary,
             _liquidityDeployer: vars.liquidityDeployer,
-            _uniV2Pair: vars.uniV2Pair
+            _uniV2Pair: recipient
         });
         emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
     }

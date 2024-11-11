@@ -14,8 +14,7 @@ contract Initialize_Integration_Concrete_Test is RushERC20Donatable_Integration_
         address recipient = users.recipient;
         address donationBeneficiary = users.sender;
         address liquidityDeployer = address(liquidityDeployer);
-        address uniV2Pair = users.recipient;
-        bytes memory data = abi.encode(donationBeneficiary, liquidityDeployer, uniV2Pair);
+        bytes memory data = abi.encode(donationBeneficiary, liquidityDeployer);
         rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
 
         // Run the test.
@@ -32,8 +31,7 @@ contract Initialize_Integration_Concrete_Test is RushERC20Donatable_Integration_
         address recipient = users.recipient;
         address donationBeneficiary = users.sender;
         address liquidityDeployer = address(liquidityDeployer);
-        address uniV2Pair = users.recipient;
-        bytes memory data = abi.encode(donationBeneficiary, liquidityDeployer, uniV2Pair);
+        bytes memory data = abi.encode(donationBeneficiary, liquidityDeployer);
 
         emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
 
@@ -64,7 +62,7 @@ contract Initialize_Integration_Concrete_Test is RushERC20Donatable_Integration_
         address expectedLiquidityDeployer = liquidityDeployer;
         assertEq(actualLiquidityDeployer, expectedLiquidityDeployer, "liquidityDeployer");
         address actualUniV2Pair = RushERC20Donatable(address(rushERC20)).uniV2Pair();
-        address expectedUniV2Pair = uniV2Pair;
+        address expectedUniV2Pair = users.recipient;
         assertEq(actualUniV2Pair, expectedUniV2Pair, "uniV2Pair");
     }
 }
