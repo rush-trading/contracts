@@ -22,6 +22,10 @@ contract RushRouter {
     bytes32 internal constant RUSH_ERC20_TAXABLE_KIND =
         0xfa3f84d263ed55bc45f8e22cdb3a7481292f68ee28ab539b69876f8dc1535b40;
 
+    /// @dev The RushERC20Donatable kind (i.e., keccak256("RushERC20Donatable")).
+    bytes32 internal constant RUSH_ERC20_DONATABLE_KIND =
+        0xf3276aaa36076beebbabfe73c27d58e731e1c37a0f9ab8753064868d7dbdf469;
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------------=|+ ENUMS +|=------------------------------------- //
@@ -155,6 +159,44 @@ contract RushRouter {
                     address(LIQUIDITY_DEPLOYER),
                     taxTier == TaxTier.Small ? 100 : taxTier == TaxTier.Medium ? 300 : 500
                 ),
+                liquidityAmount: liquidityAmount,
+                liquidityDuration: liquidityDuration,
+                maxTotalFee: maxTotalFee
+            })
+        );
+    }
+
+    /**
+     * @notice Launch a donatable ERC20 token.
+     * @param name The name of the launched ERC20 token.
+     * @param symbol The symbol of the launched ERC20 token.
+     * @param maxSupply The maximum supply of the launched ERC20 token.
+     * @param donationBeneficiary The address of the donation beneficiary.
+     * @param liquidityAmount The amount of WETH liquidity to deploy.
+     * @param liquidityDuration The duration of the liquidity deployment.
+     * @param maxTotalFee The maximum total fee that can be collected for the liquidity deployment.
+     */
+    function launchERC20Donatable(
+        string calldata name,
+        string calldata symbol,
+        uint256 maxSupply,
+        address donationBeneficiary,
+        uint256 liquidityAmount,
+        uint256 liquidityDuration,
+        uint256 maxTotalFee
+    )
+        external
+        payable
+    {
+        // Launch the ERC20 token.
+        RUSH_LAUNCHER.launch{ value: msg.value }(
+            RL.LaunchParams({
+                originator: msg.sender,
+                kind: RUSH_ERC20_DONATABLE_KIND,
+                name: name,
+                symbol: symbol,
+                maxSupply: maxSupply,
+                data: abi.encode(donationBeneficiary, address(LIQUIDITY_DEPLOYER)),
                 liquidityAmount: liquidityAmount,
                 liquidityDuration: liquidityDuration,
                 maxTotalFee: maxTotalFee
