@@ -186,8 +186,6 @@ contract RushLauncherHandler is BaseHandler {
         deal({ token: weth, to: address(this), give: amount });
         // Transfer the assets to the pair.
         IERC20(weth).transfer(pair, amount);
-        // Sync the pair.
-        IUniswapV2Pair(pair).sync();
     }
 
     function swapRushERC20ForWETHInPair(address pair, uint256 amount) external {
@@ -247,6 +245,15 @@ contract RushLauncherHandler is BaseHandler {
         deal({ token: weth, to: address(this), give: amount });
         // Swap the WETH for RushERC20.
         _swapWETHForRushERC20(pair, amount);
+    }
+
+    function syncPairReserves(address pair) external {
+        // Skip when the deployment does not exist.
+        if (!rushLauncherStore.deploymentExists(pair)) {
+            return;
+        }
+        // Sync the reserves of the pair.
+        IUniswapV2Pair(pair).sync();
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
