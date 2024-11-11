@@ -43,7 +43,8 @@ contract RushRouterAlpha is Nonces {
     /// @dev Enum of Rush token types currently supported.
     enum ERC20Type {
         Basic,
-        Taxable
+        Taxable,
+        Donatable
     }
 
     /// @dev The tax tier of a taxable ERC20 token.
@@ -246,7 +247,7 @@ contract RushRouterAlpha is Nonces {
                     donationBeneficiary,
                     liquidityAmount,
                     liquidityDuration,
-                    ERC20Type.Taxable
+                    ERC20Type.Donatable
                 ),
                 signature: signature
             });
