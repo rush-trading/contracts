@@ -62,15 +62,15 @@ contract RushLauncherHandler is BaseHandler {
     function launchERC20(
         LaunchParams memory params,
         uint256 initialTaxBasisPoints,
-        bool tokenType
+        uint8 tokenType
     )
         external
         useNewSender(address(this))
     {
-        if (!tokenType) {
+        if (tokenType % 3 == 0) {
             // Launch a RushERC20Basic token.
             _launchERC20({ params: params, kind: RUSH_ERC20_BASIC_KIND, initData: "" });
-        } else {
+        } else if (tokenType % 3 == 1) {
             // Bound the `initialTaxBasisPoints` to the range (0, 10_000).
             initialTaxBasisPoints = bound(initialTaxBasisPoints, 0, 10_000);
             // Launch a RushERC20Taxable token.
@@ -78,6 +78,13 @@ contract RushLauncherHandler is BaseHandler {
                 params: params,
                 kind: RUSH_ERC20_TAXABLE_KIND,
                 initData: abi.encode(params.originator, address(liquidityDeployer), uint96(initialTaxBasisPoints))
+            });
+        } else {
+            // Launch a RushERC20Donatable token.
+            _launchERC20({
+                params: params,
+                kind: RUSH_ERC20_DONATABLE_KIND,
+                initData: abi.encode(params.originator, address(liquidityDeployer))
             });
         }
     }
