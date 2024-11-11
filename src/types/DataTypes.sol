@@ -43,6 +43,7 @@ library LD {
      * @param amount The amount of base asset liquidity deployed.
      * @param deadline The deadline timestamp by which the liquidity must be unwound.
      * @param isUnwound A flag indicating whether the liquidity has been unwound.
+     * @param isUnwindThresholdMet A flag indicating whether the unwind threshold has been met.
      * @param subsidyAmount The amount of base asset liquidity subsidized by the protocol.
      * @param rushERC20 The address of the RushERC20 token.
      * @param originator The address that originated the request (i.e., the user).
@@ -51,8 +52,9 @@ library LD {
         uint208 amount; // ─┐
         uint40 deadline; // │
         bool isUnwound; // ─┘
-        uint96 subsidyAmount; // ─┐
-        address rushERC20; // ────┘
+        bool isUnwindThresholdMet; // ─┐
+        uint96 subsidyAmount; //       │
+        address rushERC20; // ─────────┘
         address originator;
     }
 

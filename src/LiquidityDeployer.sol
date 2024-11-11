@@ -201,6 +201,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             amount: amount.toUint208(),
             deadline: vars.deadline.toUint40(),
             isUnwound: false,
+            isUnwindThresholdMet: false,
             subsidyAmount: vars.reserveFee.toUint96(),
             rushERC20: rushERC20,
             originator: originator
@@ -281,7 +282,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             }
 
             // Unwind the liquidity deployment.
-            _unwindLiquidity({ uniV2Pair: uniV2Pair, isUnwindThresholdMet: _getIsUnwindThresholdMet(uniV2Pair) });
+            _unwindLiquidity(uniV2Pair);
         }
     }
 
@@ -311,7 +312,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         }
 
         // Unwind the liquidity deployment.
-        _unwindLiquidity({ uniV2Pair: uniV2Pair, isUnwindThresholdMet: isUnwindThresholdMet });
+        _unwindLiquidity(uniV2Pair);
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -392,13 +393,15 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
      * https://github.com/Uniswap/v2-core/blob/ee547b17853e71ed4e0101ccfd52e70d5acded58/contracts/UniswapV2Pair.sol#L110
      *
      * @param uniV2Pair The address of the Uniswap V2 pair.
-     * @param isUnwindThresholdMet Whether the early unwind threshold is met.
      */
-    function _unwindLiquidity(address uniV2Pair, bool isUnwindThresholdMet) internal {
+    function _unwindLiquidity(address uniV2Pair) internal {
         LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
 
         // Effects: Set deployment as unwound.
         deployment.isUnwound = true;
+
+        // Effects: Set the unwind threshold flag.
+        deployment.isUnwindThresholdMet = _getIsUnwindThresholdMet(uniV2Pair);
 
         // Interactions: Transfer entire LP token balance to the pair.
         IERC20(uniV2Pair).transfer(uniV2Pair, IERC20(uniV2Pair).balanceOf(address(this)));
@@ -418,7 +421,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             unchecked {
                 vars.wethSurplus = vars.wethBalance - vars.initialWETHReserve;
             }
-            if (isUnwindThresholdMet) {
+            if (deployment.isUnwindThresholdMet) {
                 // Tax the surplus to the reserve.
                 vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, SURPLUS_FACTOR, 1e18);
                 // Calculate the total reserve fee.

@@ -77,17 +77,11 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenPairHasNotBeenUnwound
     {
         LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
-        uint256 currentReserve = IERC20(weth).balanceOf(uniV2Pair);
-        uint256 targetReserve = defaults.LIQUIDITY_AMOUNT() + liquidityDeployer.EARLY_UNWIND_THRESHOLD();
-        bool isUnwindThresholdMet = currentReserve >= targetReserve;
 
         // Run the test.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.LiquidityDeployer_UnwindNotReady.selector,
-                uniV2Pair,
-                liquidityDeployment.deadline,
-                isUnwindThresholdMet
+                Errors.LiquidityDeployer_UnwindNotReady.selector, uniV2Pair, liquidityDeployment.deadline, false
             )
         );
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
@@ -114,9 +108,11 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         // Unwind the liquidity.
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
         uint256 reserveWETHBalanceBefore = weth.balanceOf(users.reserve);
+        bool isUnwindThresholdMetBefore = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
         uint256 reserveWETHBalanceAfter = weth.balanceOf(users.reserve);
+        bool isUnwindThresholdMetAfter = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.LIQUIDITY_AMOUNT();
@@ -127,6 +123,9 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         );
         // Assert that the reserve received some WETH (fees).
         vm.assertGt(reserveWETHBalanceAfter, reserveWETHBalanceBefore, "balanceOf");
+        // Assert that the unwind threshold was met.
+        vm.assertEq(isUnwindThresholdMetBefore, false, "isUnwindThresholdMetBefore");
+        vm.assertEq(isUnwindThresholdMetAfter, true, "isUnwindThresholdMetAfter");
     }
 
     modifier givenDeadlineHasPassedButEarlyUnwindThresholdIsNotReached() {
@@ -150,8 +149,10 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
         // Unwind the liquidity.
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
+        bool isUnwindThresholdMetBefore = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
+        bool isUnwindThresholdMetAfter = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.LIQUIDITY_AMOUNT();
@@ -160,6 +161,9 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             expectedLiquidtyPoolWETHBalanceDiff,
             "balanceOf"
         );
+        // Assert that the unwind threshold wasn't met.
+        vm.assertEq(isUnwindThresholdMetBefore, false, "isUnwindThresholdMetBefore");
+        vm.assertEq(isUnwindThresholdMetAfter, false, "isUnwindThresholdMetAfter");
     }
 
     function test_WhenAssetBalanceOfPairIsAboveInitialBalance()
@@ -202,8 +206,10 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
         // Unwind the liquidity and gracefully handle `IUniswapV2Pair.mint` revert with `IUniswapV2Pair.sync`.
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
+        bool isUnwindThresholdMetBefore = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
+        bool isUnwindThresholdMetAfter = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.LIQUIDITY_AMOUNT();
@@ -212,6 +218,9 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             expectedLiquidtyPoolWETHBalanceDiff,
             "balanceOf"
         );
+        // Assert that the unwind threshold wasn't met.
+        vm.assertEq(isUnwindThresholdMetBefore, false, "isUnwindThresholdMetBefore");
+        vm.assertEq(isUnwindThresholdMetAfter, false, "isUnwindThresholdMetAfter");
     }
 
     function test_GivenDeadlineHasPassedAndEarlyUnwindThresholdIsReached()
@@ -240,10 +249,12 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         uint256 lpBalanceBefore = IERC20(uniV2Pair).balanceOf(address(rushERC20Mock));
         uint256 tokenBalanceBefore = IERC20(rushERC20Mock).balanceOf(address(rushERC20Mock));
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
+        bool isUnwindThresholdMetBefore = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
         uint256 lpBalanceAfter = IERC20(uniV2Pair).balanceOf(address(rushERC20Mock));
         uint256 tokenBalanceAfter = IERC20(rushERC20Mock).balanceOf(address(rushERC20Mock));
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
+        bool isUnwindThresholdMetAfter = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.LIQUIDITY_AMOUNT();
@@ -252,6 +263,9 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
             expectedLiquidtyPoolWETHBalanceDiff,
             "liquidtyPoolWETHBalanceDiff"
         );
+        // Assert that the unwind threshold wasn't met.
+        vm.assertEq(isUnwindThresholdMetBefore, false, "isUnwindThresholdMetBefore");
+        vm.assertEq(isUnwindThresholdMetAfter, true, "isUnwindThresholdMetAfter");
         // Assert that excess liquidity was re-added to the pair and tokens locked in token contract itself.
         vm.assertEq(lpBalanceBefore, 0, "lpBalanceBefore");
         vm.assertGt(lpBalanceAfter, 0, "lpBalanceAfter");
