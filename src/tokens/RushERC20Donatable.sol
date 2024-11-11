@@ -6,7 +6,7 @@ import { IRushERC20, RushERC20Abstract } from "src/abstracts/RushERC20Abstract.s
 
 /**
  * @title RushERC20Donatable
- * @notice The Donatable Rush ERC20 token implementation.
+ * @notice The donatable Rush ERC20 token implementation.
  */
 contract RushERC20Donatable is ERC20DonatableUpgradeable, RushERC20Abstract {
     // #region -----------------------------------=|+ STRUCTS +|=------------------------------------ //
@@ -14,7 +14,7 @@ contract RushERC20Donatable is ERC20DonatableUpgradeable, RushERC20Abstract {
     struct InitializeLocalVars {
         address donationBeneficiary;
         address liquidityDeployer;
-        address uniPool;
+        address uniV2Pair;
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -50,12 +50,12 @@ contract RushERC20Donatable is ERC20DonatableUpgradeable, RushERC20Abstract {
         InitializeLocalVars memory vars;
         __ERC20_init(name, symbol);
         _mint(recipient, maxSupply);
-        (vars.donationBeneficiary, vars.liquidityDeployer, vars.uniPool) =
+        (vars.donationBeneficiary, vars.liquidityDeployer, vars.uniV2Pair) =
             abi.decode(data, (address, address, address));
         __ERC20Donatable_init({
             _donationBeneficiary: vars.donationBeneficiary,
             _liquidityDeployer: vars.liquidityDeployer,
-            _uniPool: vars.uniPool
+            _uniV2Pair: vars.uniV2Pair
         });
         emit Initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
     }

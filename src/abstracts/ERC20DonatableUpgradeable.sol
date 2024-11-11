@@ -1,31 +1,29 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26;
 
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import {ILiquidityDeployer} from "src/interfaces/ILiquidityDeployer.sol";
+import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { LD } from "src/types/DataTypes.sol";
-import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-
 
 /**
- * @dev Extension of {ERC20} that includes a donation to a given, well known address.
+ * @dev Extension of {ERC20} that includes a donation to a given address.
  */
 abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, OwnableUpgradeable {
-    using EnumerableSet for EnumerableSet.AddressSet;
+    // #region ------------------------------------=|+ ERRORS +|=------------------------------------ //
 
+    /// @notice Thrown when donation has already been sent.
+    error DonationAlreadySent();
 
+    /// @notice Thrown when the pair has not been unwound yet.
+    error PairNotUnwound();
 
-    /// @notice raise when token has not yet been around. In order to maintain invariant, donation only available
-    /// after
-    error ERC20Donatable_NotUnwoundYet();
+    /// @notice Thrown when the unwind threshold wasn't met for unwound pair.
+    error UnwindThresholdNotMet();
 
-    /// @notice token has been unowund but we did not meet the threshold
-    error ERC20Donatable_UnwindThresholdNotMet();
-
-    error ERC20Donatable_DonationAlreadySent();
-
+    // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
@@ -33,82 +31,82 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
 
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
+    // #region ----------------------------------=|+ CONSTANTS +|=----------------------------------- //
 
-    /// @notice Reciever of the donation
-    address public donationBeneficiary;
-
-    /// @notice UniV2 Pool address TODO: can change to use create2 to derive
-    address uniPool;
-
-    uint256 public constant FIXED_DONATION_AMOUNT = 10000000e18;
-    /// @notice Liquidity Deployer, the only address allowed to call donate
-    ILiquidityDeployer public liquidityDeployer;
-
-    bool public isDonationSent = false;
-
+    /**
+     * @notice Factor to calculate the donation amount.
+     * @dev Represented in WAD precision (18 decimal format).
+     */
+    uint256 public constant DONATION_FACTOR = 0.1e18;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
+    /// @notice Reciever of the donation.
+    address public donationBeneficiary;
+
+    /// @notice Flag to check if donation has been sent.
+    bool public isDonationSent;
+
+    /// @notice Address of the liquidity deployer.
+    ILiquidityDeployer public liquidityDeployer;
+
+    /// @notice Address of the Uniswap V2 pair for the token.
+    address public uniV2Pair;
+
+    // #endregion ----------------------------------------------------------------------------------- //
 
     // #region -----------------------=|+ INTERNAL NON-CONSTANT FUNCTIONS +|=------------------------ //
 
     /// @dev Initialize the contract with calls to parent initializers.
-
     function __ERC20Donatable_init(
         address _donationBeneficiary,
         address _liquidityDeployer,
-        address _uniPool
-    ) internal
-      onlyInitializing {
-
-        __ERC20Donatable_init_unchained(_donationBeneficiary, _liquidityDeployer, _uniPool);
-
+        address _uniV2Pair
+    )
+        internal
+        onlyInitializing
+    {
+        __ERC20Donatable_init_unchained(_donationBeneficiary, _liquidityDeployer, _uniV2Pair);
     }
-
-
-
-
 
     /// @dev Initialize the contract without calling parent initializers.
     function __ERC20Donatable_init_unchained(
         address _donationBeneficiary,
         address _liquidityDeployer,
-        address _uniPool
+        address _uniV2Pair
     )
         internal
         onlyInitializing
     {
         donationBeneficiary = _donationBeneficiary;
         liquidityDeployer = ILiquidityDeployer(_liquidityDeployer);
-        uniPool = _uniPool;
+        uniV2Pair = _uniV2Pair;
     }
-
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region ----------------------------=|+ NON-CONSTANT FUNCTIONS +|=---------------------------- //
 
-    // #region -----------------------=|+ PUBLIC  FUNCTIONS +|=------------------------ //
-    function donate() public {
-        LD.LiquidityDeployment memory liqDeployment = liquidityDeployer.getLiquidityDeployment(uniPool);
-        if (!liqDeployment.isUnwound) {
-            revert ERC20Donatable_NotUnwoundYet();
+    function donate() external {
+        LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
+        if (!liquidityDeployment.isUnwound) {
+            revert PairNotUnwound();
         }
-
-        if (!liqDeployment.isUnwindThresholdMet) {
-            revert ERC20Donatable_UnwindThresholdNotMet();
+        if (!liquidityDeployment.isUnwindThresholdMet) {
+            revert UnwindThresholdNotMet();
         }
-
         if (isDonationSent) {
-            revert ERC20Donatable_DonationAlreadySent();
+            revert DonationAlreadySent();
         }
 
-        _mint(donationBeneficiary, FIXED_DONATION_AMOUNT);
         isDonationSent = true;
 
-        emit Donation(donationBeneficiary, FIXED_DONATION_AMOUNT);
-
+        uint256 donationAmount = Math.mulDiv(totalSupply(), DONATION_FACTOR, 1e18);
+        _mint(donationBeneficiary, donationAmount);
+        emit Donation(donationBeneficiary, donationAmount);
     }
 
+    // #endregion ----------------------------------------------------------------------------------- //
 }
