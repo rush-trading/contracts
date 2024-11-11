@@ -7,27 +7,20 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { LD } from "src/types/DataTypes.sol";
+import { Errors } from "src/libraries/Errors.sol";
 
 /**
  * @dev Extension of {ERC20} that includes a donation to a given address.
  */
 abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, OwnableUpgradeable {
-    // #region ------------------------------------=|+ ERRORS +|=------------------------------------ //
-
-    /// @notice Thrown when donation has already been sent.
-    error DonationAlreadySent();
-
-    /// @notice Thrown when the pair has not been unwound yet.
-    error PairNotUnwound();
-
-    /// @notice Thrown when the unwind threshold wasn't met for unwound pair.
-    error UnwindThresholdNotMet();
-
-    // #endregion ----------------------------------------------------------------------------------- //
-
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
-    event Donation(address indexed receiver, uint256 amount);
+    /**
+     * @notice Emitted when a donation is sent.
+     * @param receiver Address of the donation receiver.
+     * @param amount Amount of the donation.
+     */
+    event DonationSent(address indexed receiver, uint256 amount);
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -92,20 +85,20 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
     function donate() external {
         LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
         if (!liquidityDeployment.isUnwound) {
-            revert PairNotUnwound();
+            revert Errors.ERC20DonatableUpgradeable_PairNotUnwound();
         }
         if (!liquidityDeployment.isUnwindThresholdMet) {
-            revert UnwindThresholdNotMet();
+            revert Errors.ERC20DonatableUpgradeable_UnwindThresholdNotMet();
         }
         if (isDonationSent) {
-            revert DonationAlreadySent();
+            revert Errors.ERC20DonatableUpgradeable_DonationAlreadySent();
         }
 
         isDonationSent = true;
 
         uint256 donationAmount = Math.mulDiv(totalSupply(), DONATION_FACTOR, 1e18);
         _mint(donationBeneficiary, donationAmount);
-        emit Donation(donationBeneficiary, donationAmount);
+        emit DonationSent(donationBeneficiary, donationAmount);
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

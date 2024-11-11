@@ -23,6 +23,19 @@ library Errors {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region --------------------------------=|+ ERC20-DONATABLE-UPGRADEABLE +|=--------------------------------- //
+
+    /// @notice Thrown when donation has already been sent.
+    error ERC20DonatableUpgradeable_DonationAlreadySent();
+
+    /// @notice Thrown when the pair has not been unwound yet.
+    error ERC20DonatableUpgradeable_PairNotUnwound();
+
+    /// @notice Thrown when the unwind threshold wasn't met for unwound pair.
+    error ERC20DonatableUpgradeable_UnwindThresholdNotMet();
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ------------------------------------=|+ ROLES +|=------------------------------------- //
 
     /// @notice Thrown when the account is missing the admin role.
