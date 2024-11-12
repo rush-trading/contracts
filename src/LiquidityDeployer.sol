@@ -270,19 +270,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     /// @inheritdoc ILiquidityDeployer
     function unwindLiquidityEMERGENCY(address[] calldata uniV2Pairs) external override onlyAdminRole whenPaused {
         for (uint256 i; i < uniV2Pairs.length; ++i) {
-            address uniV2Pair = uniV2Pairs[i];
-            LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
-            // Checks: Pair must have received liquidity before.
-            if (deployment.deadline == 0) {
-                revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ uniV2Pair: uniV2Pair });
-            }
-            // Checks: Pair must not have been unwound before.
-            if (deployment.isUnwound) {
-                revert Errors.LiquidityDeployer_PairAlreadyUnwound({ uniV2Pair: uniV2Pair });
-            }
-
             // Unwind the liquidity deployment with emergency override.
-            _unwindLiquidity({ uniV2Pair: uniV2Pair, emergencyOverride: true });
+            _unwindLiquidity({ uniV2Pair: uniV2Pairs[i], emergencyOverride: true });
         }
     }
 
@@ -292,16 +281,6 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
     /// @inheritdoc ILiquidityDeployer
     function unwindLiquidity(address uniV2Pair) external override whenNotPaused {
-        LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
-        // Checks: Pair must have received liquidity before.
-        if (deployment.deadline == 0) {
-            revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ uniV2Pair: uniV2Pair });
-        }
-        // Checks: Pair must not have been unwound before.
-        if (deployment.isUnwound) {
-            revert Errors.LiquidityDeployer_PairAlreadyUnwound({ uniV2Pair: uniV2Pair });
-        }
-
         // Unwind the liquidity deployment.
         _unwindLiquidity({ uniV2Pair: uniV2Pair, emergencyOverride: false });
     }
@@ -388,8 +367,17 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
      */
     function _unwindLiquidity(address uniV2Pair, bool emergencyOverride) internal {
         LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
-        LD.UnwindLiquidityLocalVars memory vars;
 
+        // Checks: Pair must have received liquidity before.
+        if (deployment.deadline == 0) {
+            revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ uniV2Pair: uniV2Pair });
+        }
+        // Checks: Pair must not have been unwound before.
+        if (deployment.isUnwound) {
+            revert Errors.LiquidityDeployer_PairAlreadyUnwound({ uniV2Pair: uniV2Pair });
+        }
+
+        LD.UnwindLiquidityLocalVars memory vars;
         vars.isUnwindThresholdMet = _getIsUnwindThresholdMet(uniV2Pair);
 
         // Checks: For non-emergency unwinding, deadline must have passed or early unwind threshold must be met.
