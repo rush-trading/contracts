@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26;
 
-import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
@@ -24,16 +23,6 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
 
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region ----------------------------------=|+ CONSTANTS +|=----------------------------------- //
-
-    /**
-     * @notice Factor to calculate the donation amount.
-     * @dev Represented in WAD precision (18 decimal format).
-     */
-    uint256 public constant DONATION_FACTOR = 0.1e18;
-
-    // #endregion ----------------------------------------------------------------------------------- //
-
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
     /// @notice Reciever of the donation.
@@ -41,6 +30,9 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
 
     /// @notice Flag to check if donation has been sent.
     bool public isDonationSent;
+
+    /// @notice Amount of the donation.
+    uint256 public donationAmount;
 
     /// @notice Address of the liquidity deployer.
     ILiquidityDeployer public liquidityDeployer;
@@ -55,18 +47,20 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
     /// @dev Initialize the contract with calls to parent initializers.
     function __ERC20Donatable_init(
         address _donationBeneficiary,
+        uint256 _donationAmount,
         address _liquidityDeployer,
         address _uniV2Pair
     )
         internal
         onlyInitializing
     {
-        __ERC20Donatable_init_unchained(_donationBeneficiary, _liquidityDeployer, _uniV2Pair);
+        __ERC20Donatable_init_unchained(_donationBeneficiary, _donationAmount, _liquidityDeployer, _uniV2Pair);
     }
 
     /// @dev Initialize the contract without calling parent initializers.
     function __ERC20Donatable_init_unchained(
         address _donationBeneficiary,
+        uint256 _donationAmount,
         address _liquidityDeployer,
         address _uniV2Pair
     )
@@ -74,6 +68,7 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
         onlyInitializing
     {
         donationBeneficiary = _donationBeneficiary;
+        donationAmount = _donationAmount;
         liquidityDeployer = ILiquidityDeployer(_liquidityDeployer);
         uniV2Pair = _uniV2Pair;
     }
@@ -96,7 +91,6 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
 
         isDonationSent = true;
 
-        uint256 donationAmount = Math.mulDiv(totalSupply(), DONATION_FACTOR, 1e18);
         _mint(donationBeneficiary, donationAmount);
         emit DonationSent(donationBeneficiary, donationAmount);
     }

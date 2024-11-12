@@ -63,7 +63,7 @@ contract Donate_Integration_Concrete_Test is RushERC20Donatable_Integration_Shar
         uint256 actualBalanceOfBeneficiaryBefore = rushERC20.balanceOf({ account: users.sender });
         assertEq(actualBalanceOfBeneficiaryBefore, expectedBalanceOfBeneficiaryBefore, "balanceOf");
 
-        uint256 expectedTotalSupplyBefore = defaults.RUSH_ERC20_SUPPLY();
+        uint256 expectedTotalSupplyBefore = defaults.RUSH_ERC20_SUPPLY() - expectedDonationAmount;
         uint256 actualTotalSupplyBefore = rushERC20.totalSupply();
         assertEq(actualTotalSupplyBefore, expectedTotalSupplyBefore, "totalSupply");
 
@@ -75,7 +75,7 @@ contract Donate_Integration_Concrete_Test is RushERC20Donatable_Integration_Shar
         uint256 actualBalanceOfBeneficiaryAfter = rushERC20.balanceOf({ account: users.sender });
         assertEq(actualBalanceOfBeneficiaryAfter, expectedBalanceOfBeneficiaryAfter, "balanceOf");
 
-        uint256 expectedTotalSupplyAfter = defaults.RUSH_ERC20_SUPPLY() + expectedDonationAmount;
+        uint256 expectedTotalSupplyAfter = defaults.RUSH_ERC20_SUPPLY();
         uint256 actualTotalSupplyAfter = rushERC20.totalSupply();
         assertEq(actualTotalSupplyAfter, expectedTotalSupplyAfter, "totalSupply");
     }
