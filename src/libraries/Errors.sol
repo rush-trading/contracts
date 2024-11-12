@@ -25,8 +25,8 @@ library Errors {
 
     // #region --------------------------------=|+ ERC20-DONATABLE-UPGRADEABLE +|=--------------------------------- //
 
-    /// @notice Thrown when donation has already been sent.
-    error ERC20DonatableUpgradeable_DonationAlreadySent();
+    /// @notice Thrown when donation logic has already been executed.
+    error ERC20DonatableUpgradeable_AlreadyExecuted();
 
     /// @notice Thrown when the pair has not been unwound yet.
     error ERC20DonatableUpgradeable_PairNotUnwound();

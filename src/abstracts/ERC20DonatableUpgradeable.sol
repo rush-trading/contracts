@@ -34,8 +34,8 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
     /// @notice Reciever of the donation.
     address public donationBeneficiary;
 
-    /// @notice Flag to check if donation has been sent.
-    bool public isDonationSent;
+    /// @notice Flag to check if donation logic was executed.
+    bool public isExecuted;
 
     /// @notice Amount of the donation.
     uint256 public donationAmount;
@@ -88,16 +88,18 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
         if (!liquidityDeployment.isUnwound) {
             revert Errors.ERC20DonatableUpgradeable_PairNotUnwound();
         }
-        if (isDonationSent) {
-            revert Errors.ERC20DonatableUpgradeable_DonationAlreadySent();
+        if (isExecuted) {
+            revert Errors.ERC20DonatableUpgradeable_AlreadyExecuted();
         }
 
-        isDonationSent = true;
+        isExecuted = true;
 
         if (liquidityDeployment.isUnwindThresholdMet) {
+            // Send the donation.
             _mint(donationBeneficiary, donationAmount);
             emit DonationSent(donationBeneficiary, donationAmount);
         } else {
+            // Burn the donation by locking it in the contract.
             _mint(address(this), donationAmount);
             emit DonationBurned(donationAmount);
         }

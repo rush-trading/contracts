@@ -36,7 +36,7 @@ contract Donate_Integration_Concrete_Test is RushERC20Donatable_Integration_Shar
         RushERC20Donatable(address(rushERC20)).donate();
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.ERC20DonatableUpgradeable_DonationAlreadySent.selector));
+        vm.expectRevert(abi.encodeWithSelector(Errors.ERC20DonatableUpgradeable_AlreadyExecuted.selector));
         RushERC20Donatable(address(rushERC20)).donate();
     }
 
@@ -55,6 +55,7 @@ contract Donate_Integration_Concrete_Test is RushERC20Donatable_Integration_Shar
         emit DonationSent({ receiver: users.sender, amount: expectedDonationAmount });
 
         // Assert the state before the donation was sent.
+        assertFalse(RushERC20Donatable(address(rushERC20)).isExecuted(), "isExecuted");
         uint256 expectedBalanceOfBeneficiaryBefore = 0;
         uint256 actualBalanceOfBeneficiaryBefore = rushERC20.balanceOf({ account: users.sender });
         assertEq(actualBalanceOfBeneficiaryBefore, expectedBalanceOfBeneficiaryBefore, "balanceOf");
@@ -67,6 +68,7 @@ contract Donate_Integration_Concrete_Test is RushERC20Donatable_Integration_Shar
         RushERC20Donatable(address(rushERC20)).donate();
 
         // Assert the donation was sent correctly.
+        assertTrue(RushERC20Donatable(address(rushERC20)).isExecuted(), "isExecuted");
         uint256 expectedBalanceOfBeneficiaryAfter = expectedDonationAmount;
         uint256 actualBalanceOfBeneficiaryAfter = rushERC20.balanceOf({ account: users.sender });
         assertEq(actualBalanceOfBeneficiaryAfter, expectedBalanceOfBeneficiaryAfter, "balanceOf");
@@ -84,6 +86,7 @@ contract Donate_Integration_Concrete_Test is RushERC20Donatable_Integration_Shar
         emit DonationBurned({ amount: expectedDonationAmount });
 
         // Assert the state before the donation was executed.
+        assertFalse(RushERC20Donatable(address(rushERC20)).isExecuted(), "isExecuted");
         uint256 expectedBalanceOfBeneficiaryBefore = 0;
         uint256 actualBalanceOfBeneficiaryBefore = rushERC20.balanceOf({ account: users.sender });
         assertEq(actualBalanceOfBeneficiaryBefore, expectedBalanceOfBeneficiaryBefore, "balanceOf");
@@ -96,6 +99,7 @@ contract Donate_Integration_Concrete_Test is RushERC20Donatable_Integration_Shar
         RushERC20Donatable(address(rushERC20)).donate();
 
         // Assert the donation was burned correctly.
+        assertTrue(RushERC20Donatable(address(rushERC20)).isExecuted(), "isExecuted");
         uint256 expectedBalanceOfBeneficiaryAfter = 0;
         uint256 actualBalanceOfBeneficiaryAfter = rushERC20.balanceOf({ account: users.sender });
         assertEq(actualBalanceOfBeneficiaryAfter, expectedBalanceOfBeneficiaryAfter, "balanceOf");
