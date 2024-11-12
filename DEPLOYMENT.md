@@ -256,6 +256,23 @@ forge script script/UpgradeRushRouterAlpha.s.sol \
     ${VERIFIER}
 ```
 
+### Add Token Template
+
+```shell
+# Set the deployment variables
+export NETWORK="sepolia"
+export RUSH_ERC20_FACTORY="<ADDRESS>"
+export RUSH_ERC20_TEMPLATE="<ADDRESS>"
+
+# Run the script
+forge script script/AddTokenTemplate.s.sol \
+    --broadcast \
+    --rpc-url ${NETWORK} \
+    --sig "run(address,address)" \
+    ${RUSH_ERC20_FACTORY} \
+    ${RUSH_ERC20_TEMPLATE}
+```
+
 ### Assign Roles
 
 The `ACLManager` contract is used to manage roles and permissions. Once the contracts are deployed, the `ADMIN` role
