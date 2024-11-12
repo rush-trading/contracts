@@ -244,10 +244,10 @@ contract RushRouterAlpha is Nonces {
                     msg.sender,
                     _useNonce(msg.sender),
                     address(this),
-                    donationBeneficiary,
                     liquidityAmount,
                     liquidityDuration,
-                    ERC20Type.Donatable
+                    ERC20Type.Donatable,
+                    donationBeneficiary
                 ),
                 signature: signature
             });
