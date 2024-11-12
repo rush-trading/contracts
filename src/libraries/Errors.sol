@@ -31,9 +31,6 @@ library Errors {
     /// @notice Thrown when the pair has not been unwound yet.
     error ERC20DonatableUpgradeable_PairNotUnwound();
 
-    /// @notice Thrown when the unwind threshold wasn't met for unwound pair.
-    error ERC20DonatableUpgradeable_UnwindThresholdNotMet();
-
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------------=|+ ROLES +|=------------------------------------- //

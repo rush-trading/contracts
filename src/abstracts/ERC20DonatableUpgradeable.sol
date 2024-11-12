@@ -21,6 +21,12 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
      */
     event DonationSent(address indexed receiver, uint256 amount);
 
+    /**
+     * @notice Emitted when a donation is burned for not meeting criteria.
+     * @param amount Amount of the donation burned.
+     */
+    event DonationBurned(uint256 amount);
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
@@ -82,17 +88,19 @@ abstract contract ERC20DonatableUpgradeable is Initializable, ERC20Upgradeable, 
         if (!liquidityDeployment.isUnwound) {
             revert Errors.ERC20DonatableUpgradeable_PairNotUnwound();
         }
-        if (!liquidityDeployment.isUnwindThresholdMet) {
-            revert Errors.ERC20DonatableUpgradeable_UnwindThresholdNotMet();
-        }
         if (isDonationSent) {
             revert Errors.ERC20DonatableUpgradeable_DonationAlreadySent();
         }
 
         isDonationSent = true;
 
-        _mint(donationBeneficiary, donationAmount);
-        emit DonationSent(donationBeneficiary, donationAmount);
+        if (liquidityDeployment.isUnwindThresholdMet) {
+            _mint(donationBeneficiary, donationAmount);
+            emit DonationSent(donationBeneficiary, donationAmount);
+        } else {
+            _mint(address(this), donationAmount);
+            emit DonationBurned(donationAmount);
+        }
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

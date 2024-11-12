@@ -2,11 +2,12 @@ donate.t.sol
 ├── when deployment is not yet unwound
 │   └── it should revert
 └── when deployment is unwound
-    ├── when unwind threshold was not met
+    ├── when donation was already sent
     │   └── it should revert
-    └── when unwind threshold was met
-        ├── when donation was already sent
-        │   └── it should revert
-        └── when donation was not yet sent
-            ├── it should send the donation to the beneficiary
-            └── it should emit a {Donation} event
+    └── when donation was not yet sent
+        ├── when unwind threshold was met
+        │   ├── it should send the donation to the beneficiary
+        │   └── it should emit a {DonationSent} event
+        └── when unwind threshold was not met
+            ├── it should burn the donation
+            └── it should emit a {DonationBurned} event
