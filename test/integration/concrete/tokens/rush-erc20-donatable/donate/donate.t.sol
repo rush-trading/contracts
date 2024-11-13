@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26 <0.9.0;
 
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { Vm } from "forge-std/src/Vm.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { RushERC20Donatable } from "src/tokens/RushERC20Donatable.sol";
@@ -47,7 +48,8 @@ contract Donate_Integration_Concrete_Test is RushERC20Donatable_Integration_Shar
         // Set the unwind threshold to be met.
         liquidityDeployerMock.setIsUnwindThresholdMet(users.recipient, true);
 
-        uint256 expectedDonationAmount = defaults.RUSH_ERC20_SUPPLY() / 10;
+        uint256 expectedDonationAmount =
+            Math.mulDiv(defaults.RUSH_ERC20_SUPPLY(), defaults.RUSH_ERC20_DONATION_FACTOR(), 1e18);
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(rushERC20) });
@@ -78,7 +80,8 @@ contract Donate_Integration_Concrete_Test is RushERC20Donatable_Integration_Shar
     }
 
     function test_WhenUnwindThresholdWasNotMet() external whenDeploymentIsUnwound whenDonationWasNotYetSent {
-        uint256 expectedDonationAmount = defaults.RUSH_ERC20_SUPPLY() / 10;
+        uint256 expectedDonationAmount =
+            Math.mulDiv(defaults.RUSH_ERC20_SUPPLY(), defaults.RUSH_ERC20_DONATION_FACTOR(), 1e18);
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(rushERC20) });
