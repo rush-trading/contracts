@@ -41,12 +41,11 @@ contract RushERC20Donatable_Integration_Shared_Test is Integration_Test {
         uint256 maxSupply,
         address recipient,
         address donationBeneficiary,
-        address liquidityDeployer,
-        address uniV2Pair
+        address liquidityDeployer
     )
         internal
     {
-        bytes memory data = abi.encode(donationBeneficiary, liquidityDeployer, uniV2Pair);
+        bytes memory data = abi.encode(donationBeneficiary, liquidityDeployer);
         rushERC20.initialize({ name: name, symbol: symbol, maxSupply: maxSupply, recipient: recipient, data: data });
     }
 

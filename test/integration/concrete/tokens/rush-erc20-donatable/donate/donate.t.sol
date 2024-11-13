@@ -15,8 +15,7 @@ contract Donate_Integration_Concrete_Test is RushERC20Donatable_Integration_Shar
             maxSupply: defaults.RUSH_ERC20_SUPPLY(),
             recipient: users.recipient,
             donationBeneficiary: users.sender,
-            liquidityDeployer: address(liquidityDeployerMock),
-            uniV2Pair: users.recipient
+            liquidityDeployer: address(liquidityDeployerMock)
         });
     }
 
