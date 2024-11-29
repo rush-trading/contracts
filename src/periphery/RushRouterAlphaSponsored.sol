@@ -79,7 +79,7 @@ contract RushRouterAlphaSponsored is Nonces {
     IRushLauncher public immutable RUSH_LAUNCHER;
 
     /// @notice The fee sponsor address.
-    address public immutable SPONSOR;
+    address public immutable SPONSOR_ADDRESS;
 
     /// @notice The ECDSA verifier address.
     address public immutable VERIFIER_ADDRESS;
@@ -94,10 +94,12 @@ contract RushRouterAlphaSponsored is Nonces {
     /**
      * @dev Constructor
      * @param rushLauncher_ The address of the RushLauncher contract.
+     * @param sponsorAddress_ The fee sponsor address.
      * @param verifierAddress_ The ECDSA verifier address.
      */
-    constructor(IRushLauncher rushLauncher_, address verifierAddress_) {
+    constructor(IRushLauncher rushLauncher_, address sponsorAddress_, address verifierAddress_) {
         RUSH_LAUNCHER = rushLauncher_;
+        SPONSOR_ADDRESS = sponsorAddress_;
         VERIFIER_ADDRESS = verifierAddress_;
         LIQUIDITY_DEPLOYER = ILiquidityDeployer(rushLauncher_.LIQUIDITY_DEPLOYER());
         LIQUIDITY_POOL = ILiquidityPool(LIQUIDITY_DEPLOYER.LIQUIDITY_POOL());
@@ -413,7 +415,7 @@ contract RushRouterAlphaSponsored is Nonces {
             })
         );
         // Transfer the fee amount from the sponsor to this contract.
-        IERC20(WETH).transferFrom({ from: SPONSOR, to: address(this), value: feeAmount });
+        IERC20(WETH).transferFrom({ from: SPONSOR_ADDRESS, to: address(this), value: feeAmount });
         // Convert the fee amount to ETH.
         IWETH(WETH).withdraw(feeAmount);
     }
