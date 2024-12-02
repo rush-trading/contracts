@@ -60,6 +60,7 @@ library LD {
 
     /// @dev The local variables used in `_unwindLiquidity`.
     struct UnwindLiquidityLocalVars {
+        bool isUnwindThresholdMet;
         uint256 amount0;
         uint256 amount1;
         uint256 wethBalance;

@@ -9,6 +9,7 @@ import { RushERC20Factory } from "src/RushERC20Factory.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
+import { RushERC20Donatable } from "src/tokens/RushERC20Donatable.sol";
 import { LD } from "src/types/DataTypes.sol";
 import { RushLauncherHandler } from "./handlers/RushLauncherHandler.sol";
 import { Invariant_Test } from "./Invariant.t.sol";
@@ -37,6 +38,9 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
 
         // Add the RushERC20Taxable template to the RushERC20Factory.
         addTemplate(address(new RushERC20Taxable()));
+
+        // Add the RushERC20Donatable template to the RushERC20Factory.
+        addTemplate(address(new RushERC20Donatable()));
 
         // Target the RushLauncher handler for invariant testing.
         targetContract(address(rushLauncherHandler));
