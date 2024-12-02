@@ -270,19 +270,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     /// @inheritdoc ILiquidityDeployer
     function unwindLiquidityEMERGENCY(address[] calldata uniV2Pairs) external override onlyAdminRole whenPaused {
         for (uint256 i; i < uniV2Pairs.length; ++i) {
-            address uniV2Pair = uniV2Pairs[i];
-            LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
-            // Checks: Pair must have received liquidity before.
-            if (deployment.deadline == 0) {
-                revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ uniV2Pair: uniV2Pair });
-            }
-            // Checks: Pair must not have been unwound before.
-            if (deployment.isUnwound) {
-                revert Errors.LiquidityDeployer_PairAlreadyUnwound({ uniV2Pair: uniV2Pair });
-            }
-
-            // Unwind the liquidity deployment.
-            _unwindLiquidity(uniV2Pair);
+            // Unwind the liquidity deployment with emergency override.
+            _unwindLiquidity({ uniV2Pair: uniV2Pairs[i], emergencyOverride: true });
         }
     }
 
@@ -292,27 +281,8 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
     /// @inheritdoc ILiquidityDeployer
     function unwindLiquidity(address uniV2Pair) external override whenNotPaused {
-        LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
-        // Checks: Pair must have received liquidity before.
-        if (deployment.deadline == 0) {
-            revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ uniV2Pair: uniV2Pair });
-        }
-        // Checks: Pair must not have been unwound before.
-        if (deployment.isUnwound) {
-            revert Errors.LiquidityDeployer_PairAlreadyUnwound({ uniV2Pair: uniV2Pair });
-        }
-        // Checks: Deadline must have passed or early unwind threshold must be met.
-        bool isUnwindThresholdMet = _getIsUnwindThresholdMet(uniV2Pair);
-        if (block.timestamp < deployment.deadline && !isUnwindThresholdMet) {
-            revert Errors.LiquidityDeployer_UnwindNotReady({
-                uniV2Pair: uniV2Pair,
-                deadline: deployment.deadline,
-                isUnwindThresholdMet: isUnwindThresholdMet
-            });
-        }
-
         // Unwind the liquidity deployment.
-        _unwindLiquidity(uniV2Pair);
+        _unwindLiquidity({ uniV2Pair: uniV2Pair, emergencyOverride: false });
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -393,20 +363,40 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
      * https://github.com/Uniswap/v2-core/blob/ee547b17853e71ed4e0101ccfd52e70d5acded58/contracts/UniswapV2Pair.sol#L110
      *
      * @param uniV2Pair The address of the Uniswap V2 pair.
+     * @param emergencyOverride Flag to override the deadline and early unwind threshold checks.
      */
-    function _unwindLiquidity(address uniV2Pair) internal {
+    function _unwindLiquidity(address uniV2Pair, bool emergencyOverride) internal {
         LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
+
+        // Checks: Pair must have received liquidity before.
+        if (deployment.deadline == 0) {
+            revert Errors.LiquidityDeployer_PairNotReceivedLiquidity({ uniV2Pair: uniV2Pair });
+        }
+        // Checks: Pair must not have been unwound before.
+        if (deployment.isUnwound) {
+            revert Errors.LiquidityDeployer_PairAlreadyUnwound({ uniV2Pair: uniV2Pair });
+        }
+
+        LD.UnwindLiquidityLocalVars memory vars;
+        vars.isUnwindThresholdMet = _getIsUnwindThresholdMet(uniV2Pair);
+
+        // Checks: For non-emergency unwinding, deadline must have passed or early unwind threshold must be met.
+        if (!emergencyOverride && block.timestamp < deployment.deadline && !vars.isUnwindThresholdMet) {
+            revert Errors.LiquidityDeployer_UnwindNotReady({
+                uniV2Pair: uniV2Pair,
+                deadline: deployment.deadline,
+                isUnwindThresholdMet: vars.isUnwindThresholdMet
+            });
+        }
 
         // Effects: Set deployment as unwound.
         deployment.isUnwound = true;
 
         // Effects: Set the unwind threshold flag.
-        deployment.isUnwindThresholdMet = _getIsUnwindThresholdMet(uniV2Pair);
+        deployment.isUnwindThresholdMet = vars.isUnwindThresholdMet;
 
         // Interactions: Transfer entire LP token balance to the pair.
         IERC20(uniV2Pair).transfer(uniV2Pair, IERC20(uniV2Pair).balanceOf(address(this)));
-
-        LD.UnwindLiquidityLocalVars memory vars;
 
         // Interactions: Burn the LP tokens to redeem the underlying assets.
         (vars.amount0, vars.amount1) = IUniswapV2Pair(uniV2Pair).burn({ to: address(this) });
@@ -421,7 +411,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             unchecked {
                 vars.wethSurplus = vars.wethBalance - vars.initialWETHReserve;
             }
-            if (deployment.isUnwindThresholdMet) {
+            if (vars.isUnwindThresholdMet) {
                 // Tax the surplus to the reserve.
                 vars.wethSurplusTax = Math.mulDiv(vars.wethSurplus, SURPLUS_FACTOR, 1e18);
                 // Calculate the total reserve fee.

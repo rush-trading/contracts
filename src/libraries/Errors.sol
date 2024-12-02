@@ -23,6 +23,16 @@ library Errors {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region --------------------------------=|+ ERC20-DONATABLE-UPGRADEABLE +|=--------------------------------- //
+
+    /// @notice Thrown when donation logic has already been executed.
+    error ERC20DonatableUpgradeable_AlreadyExecuted();
+
+    /// @notice Thrown when the pair has not been unwound yet.
+    error ERC20DonatableUpgradeable_PairNotUnwound();
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ------------------------------------=|+ ROLES +|=------------------------------------- //
 
     /// @notice Thrown when the account is missing the admin role.

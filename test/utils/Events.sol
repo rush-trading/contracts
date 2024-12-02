@@ -35,6 +35,14 @@ abstract contract Events {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region -----------------------------=|+ RUSH-ERC20-DONATABLE +|=----------------------------- //
+
+    event DonationSent(address indexed receiver, uint256 amount);
+
+    event DonationBurned(uint256 amount);
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ------------------------------=|+ RUSH-ERC20-FACTORY +|=------------------------------ //
 
     event AddTemplate(bytes32 indexed kind, uint256 indexed version, address implementation);
