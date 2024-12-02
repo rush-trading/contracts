@@ -449,9 +449,9 @@ contract RushRouterAlpha is Nonces {
             FC.CalculateFeeParams({
                 duration: liquidityDuration,
                 newLiquidity: liquidityAmount,
-                outstandingLiquidity: ILiquidityPool(LIQUIDITY_POOL).outstandingAssets(),
+                outstandingLiquidity: LIQUIDITY_POOL.outstandingAssets(),
                 reserveFactor: LIQUIDITY_DEPLOYER.RESERVE_FACTOR(),
-                totalLiquidity: ILiquidityPool(LIQUIDITY_POOL).lastSnapshotTotalAssets()
+                totalLiquidity: LIQUIDITY_POOL.lastSnapshotTotalAssets()
             })
         );
         // Transfer the fee amount from the sponsor to this contract.
