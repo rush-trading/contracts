@@ -11,6 +11,7 @@ contract UpgradeRushRouterAlpha is BaseScript {
         IACLManager aclManager,
         IRushLauncher rushLauncher,
         address oldRushRouter,
+        address sponsorAddress,
         address verifierAddress
     )
         public
@@ -18,7 +19,11 @@ contract UpgradeRushRouterAlpha is BaseScript {
         broadcast
         returns (RushRouterAlpha rushRouter)
     {
-        rushRouter = new RushRouterAlpha({ verifierAddress_: verifierAddress, rushLauncher_: rushLauncher });
+        rushRouter = new RushRouterAlpha({
+            sponsorAddress_: sponsorAddress,
+            verifierAddress_: verifierAddress,
+            rushLauncher_: rushLauncher
+        });
         aclManager.addRouter({ account: address(rushRouter) });
         aclManager.removeRouter({ account: oldRushRouter });
     }
