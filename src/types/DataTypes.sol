@@ -71,6 +71,7 @@ library LD {
         uint256 totalReserveFee;
         uint256 wethToResupply;
         uint256 rushERC20ToResupply;
+        uint256 rushERC20ToReward;
     }
 }
 

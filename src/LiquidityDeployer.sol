@@ -48,6 +48,9 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     uint256 public immutable override RESERVE_FACTOR;
 
     /// @inheritdoc ILiquidityDeployer
+    uint256 public immutable override REWARD_FACTOR;
+
+    /// @inheritdoc ILiquidityDeployer
     uint256 public immutable override SURPLUS_FACTOR;
 
     /// @inheritdoc ILiquidityDeployer
@@ -83,6 +86,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
      * @param minDuration_ The minimum duration for liquidity deployment.
      * @param reserve_ The address of the reserve to which collected fees are sent.
      * @param reserveFactor_ The reserve factor for collected fees.
+     * @param rewardFactor_ The reward factor for successful liquidity deployments.
      * @param surplusFactor_ The surplus factor for calculating WETH surplus tax.
      */
     constructor(
@@ -96,6 +100,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         uint256 minDuration_,
         address reserve_,
         uint256 reserveFactor_,
+        uint256 rewardFactor_,
         uint256 surplusFactor_
     )
         ACLRoles(aclManager_)
@@ -109,6 +114,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         MIN_DURATION = minDuration_;
         RESERVE = reserve_;
         RESERVE_FACTOR = reserveFactor_;
+        REWARD_FACTOR = rewardFactor_;
         SURPLUS_FACTOR = surplusFactor_;
         WETH = ILiquidityPool(liquidityPool_).asset();
     }
@@ -425,6 +431,10 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
 
                 // Calculate the amount of RushERC20 to resupply to the pair.
                 vars.rushERC20ToResupply = Math.mulDiv(vars.rushERC20Balance, vars.wethToResupply, vars.wethBalance);
+
+                // Calculate the amount of RushERC20 to reward to the originator.
+                vars.rushERC20ToReward =
+                    Math.mulDiv(vars.rushERC20Balance - vars.rushERC20ToResupply, REWARD_FACTOR, 1e18);
             } else {
                 // Calculate the total reserve fee.
                 unchecked {
@@ -457,8 +467,12 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             vars.totalReserveFee = vars.wethBalance - deployment.amount;
         }
 
+        // Interactions: Transfer the RushERC20 to reward to the originator.
+        IERC20(deployment.rushERC20).transfer(deployment.originator, vars.rushERC20ToReward);
         // Interactions: Burn entire remaining balance of the RushERC20 token by sending it to the token address itself.
-        IERC20(deployment.rushERC20).transfer(deployment.rushERC20, vars.rushERC20Balance - vars.rushERC20ToResupply);
+        IERC20(deployment.rushERC20).transfer(
+            deployment.rushERC20, vars.rushERC20Balance - vars.rushERC20ToResupply - vars.rushERC20ToReward
+        );
         // Interactions: Transfer the total reserve fee to the reserve.
         IERC20(WETH).transfer(RESERVE, vars.totalReserveFee);
         // Interactions: Approve the LiquidityPool to transfer the liquidity deployment amount.

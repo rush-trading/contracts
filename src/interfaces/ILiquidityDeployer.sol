@@ -87,6 +87,12 @@ interface ILiquidityDeployer is IACLRoles {
     function RESERVE_FACTOR() external view returns (uint256);
 
     /**
+     * @notice The reward factor for calculating originator rewards for successful liquidity deployments.
+     * @dev Represented in WAD precision (18 decimal format).
+     */
+    function REWARD_FACTOR() external view returns (uint256);
+
+    /**
      * @notice The surplus factor for calculating WETH surplus tax.
      * @dev Represented in WAD precision (18 decimal format).
      */
