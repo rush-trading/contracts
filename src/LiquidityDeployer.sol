@@ -467,8 +467,10 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             vars.totalReserveFee = vars.wethBalance - deployment.amount;
         }
 
-        // Interactions: Transfer the RushERC20 to reward to the originator.
-        IERC20(deployment.rushERC20).transfer(deployment.originator, vars.rushERC20ToReward);
+        if (vars.rushERC20ToReward > 0) {
+            // Interactions: Transfer the RushERC20 to reward to the originator.
+            IERC20(deployment.rushERC20).transfer(deployment.originator, vars.rushERC20ToReward);
+        }
         // Interactions: Burn entire remaining balance of the RushERC20 token by sending it to the token address itself.
         IERC20(deployment.rushERC20).transfer(
             deployment.rushERC20, vars.rushERC20Balance - vars.rushERC20ToResupply - vars.rushERC20ToReward
