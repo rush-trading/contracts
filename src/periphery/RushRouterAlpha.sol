@@ -48,6 +48,12 @@ contract RushRouterAlpha is Nonces {
         Donatable
     }
 
+    /// @dev Enum of gas modes supported for launching ERC20 tokens.
+    enum GasMode {
+        Default,
+        Sponsored
+    }
+
     /// @dev The tax tier of a taxable ERC20 token.
     enum TaxTier {
         Small,
@@ -147,6 +153,7 @@ contract RushRouterAlpha is Nonces {
             liquidityDuration: liquidityDuration,
             liquidityMsgValue: msg.value,
             maxTotalFee: maxTotalFee,
+            gasMode: GasMode.Default,
             signature: signature
         });
     }
@@ -181,6 +188,7 @@ contract RushRouterAlpha is Nonces {
             // Additional msg.value is swapped to RushERC20
             + msg.value,
             maxTotalFee: maxTotalFee,
+            gasMode: GasMode.Sponsored,
             signature: signature
         });
     }
@@ -401,6 +409,7 @@ contract RushRouterAlpha is Nonces {
         uint256 liquidityDuration,
         uint256 liquidityMsgValue,
         uint256 maxTotalFee,
+        GasMode gasMode,
         bytes calldata signature
     )
         internal
@@ -408,7 +417,13 @@ contract RushRouterAlpha is Nonces {
         // Check the ECDSA signature is valid.
         _checkSignature({
             message: abi.encodePacked(
-                msg.sender, _useNonce(msg.sender), address(this), liquidityAmount, liquidityDuration, ERC20Type.Basic
+                msg.sender,
+                _useNonce(msg.sender),
+                address(this),
+                liquidityAmount,
+                liquidityDuration,
+                ERC20Type.Basic,
+                gasMode
             ),
             signature: signature
         });
