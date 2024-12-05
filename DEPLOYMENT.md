@@ -249,7 +249,7 @@ export VERIFIER="<ADDRESS>"
 forge script script/UpgradeRushRouterAlpha.s.sol \
     --broadcast \
     --rpc-url ${NETWORK} \
-    --sig "run(address,address,address,address)" \
+    --sig "run(address,address,address,address,address)" \
     --verify \
     ${ACL_MANAGER} \
     ${RUSH_LAUNCHER} \
