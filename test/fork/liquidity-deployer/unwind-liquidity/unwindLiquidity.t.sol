@@ -207,9 +207,11 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         // Unwind the liquidity and gracefully handle `IUniswapV2Pair.mint` revert with `IUniswapV2Pair.sync`.
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
         bool isUnwindThresholdMetBefore = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
+        uint256 tokenBalanceOfOriginatorBefore = IERC20(rushERC20Mock).balanceOf(users.sender);
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
         bool isUnwindThresholdMetAfter = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
+        uint256 tokenBalanceOfOriginatorAfter = IERC20(rushERC20Mock).balanceOf(users.sender);
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.LIQUIDITY_AMOUNT();
@@ -221,6 +223,9 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         // Assert that the unwind threshold wasn't met.
         vm.assertEq(isUnwindThresholdMetBefore, false, "isUnwindThresholdMetBefore");
         vm.assertEq(isUnwindThresholdMetAfter, false, "isUnwindThresholdMetAfter");
+        // Assert that the originator didn't receive a deployment reward.
+        vm.assertEq(tokenBalanceOfOriginatorBefore, 0, "tokenBalanceOfOriginatorBefore");
+        vm.assertEq(tokenBalanceOfOriginatorAfter, 0, "tokenBalanceOfOriginatorAfter");
     }
 
     function test_GivenDeadlineHasPassedAndEarlyUnwindThresholdIsReached()
@@ -250,11 +255,13 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         uint256 tokenBalanceBefore = IERC20(rushERC20Mock).balanceOf(address(rushERC20Mock));
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
         bool isUnwindThresholdMetBefore = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
+        uint256 tokenBalanceOfOriginatorBefore = IERC20(rushERC20Mock).balanceOf(users.sender);
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
         uint256 lpBalanceAfter = IERC20(uniV2Pair).balanceOf(address(rushERC20Mock));
         uint256 tokenBalanceAfter = IERC20(rushERC20Mock).balanceOf(address(rushERC20Mock));
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
         bool isUnwindThresholdMetAfter = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
+        uint256 tokenBalanceOfOriginatorAfter = IERC20(rushERC20Mock).balanceOf(users.sender);
 
         // Assert that the liquidity was unwound.
         uint256 expectedLiquidtyPoolWETHBalanceDiff = defaults.LIQUIDITY_AMOUNT();
@@ -272,5 +279,8 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         // Assert that tokens were burned by sending them to the token contract itself.
         vm.assertEq(tokenBalanceBefore, 0, "tokenBalanceBefore");
         vm.assertGt(tokenBalanceAfter, 0, "tokenBalanceAfter");
+        // Assert that the originator received the deployment reward.
+        vm.assertEq(tokenBalanceOfOriginatorBefore, 0, "tokenBalanceOfOriginatorBefore");
+        vm.assertGt(tokenBalanceOfOriginatorAfter, 0, "tokenBalanceOfOriginatorAfter");
     }
 }
