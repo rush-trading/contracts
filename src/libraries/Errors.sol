@@ -187,4 +187,14 @@ library Errors {
     error RushLauncher_LowMaxSupply(uint256 maxSupply);
 
     // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -------------------------------=|+ STAKING-REWARDS +|=-------------------------------- //
+
+    /// @notice Thrown when the staking amount is zero.
+    error StakingRewards_CannotStakeZero();
+
+    /// @notice Thrown when the withdrawal amount is zero.
+    error StakingRewards_CannotWithdrawZero();
+
+    // #endregion ----------------------------------------------------------------------------------- //
 }
