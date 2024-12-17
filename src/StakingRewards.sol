@@ -25,16 +25,16 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable, Pausable
     uint256 public override periodFinish;
 
     /// @inheritdoc IStakingRewards
-    mapping(address account => uint256) public rewards;
-
-    /// @inheritdoc IStakingRewards
-    uint256 public override rewardsDuration = 7 days;
-
-    /// @inheritdoc IStakingRewards
     uint256 public override rewardPerTokenStored;
 
     /// @inheritdoc IStakingRewards
     uint256 public override rewardRate;
+
+    /// @inheritdoc IStakingRewards
+    mapping(address account => uint256) public rewards;
+
+    /// @inheritdoc IStakingRewards
+    uint256 public override rewardsDuration = 7 days;
 
     /// @inheritdoc IStakingRewards
     IERC20 public override token;
@@ -49,7 +49,7 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable, Pausable
 
     // #region ----------------------------------=|+ MODIFIERS +|=----------------------------------- //
 
-    /// @dev Updates the reward for the specified account.
+    /// @dev Updates the rewards accrued to an account.
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();
@@ -85,7 +85,8 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable, Pausable
         if (totalSupply == 0) {
             return rewardPerTokenStored;
         }
-        return rewardPerTokenStored + Math.mulDiv(lastTimeRewardApplicable() - lastUpdateTime, rewardRate, totalSupply);
+        return rewardPerTokenStored
+            + Math.mulDiv((lastTimeRewardApplicable() - lastUpdateTime) * rewardRate, 1e18, totalSupply);
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

@@ -36,55 +36,45 @@ interface IStakingRewards {
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /**
-     * @notice The staking balance of an account.
+     * @notice The staked token balance of an account.
      * @param account The address to check.
      */
     function balanceOf(address account) external view returns (uint256);
 
     /**
-     * @notice The rewards earned by an account.
+     * @notice The rewards earned by an account from the beginning of time up to the current timestamp.
      * @param account The address to check.
      */
     function earned(address account) external view returns (uint256);
 
     /**
-     * @notice The rewards earned by an account for the duration.
+     * @notice The rewards that can be earned per staked token for the full duration of the rewards distribution period.
      */
     function getRewardForDuration() external view returns (uint256);
 
     /**
-     * @notice The rewards earned by an account.
-     * @param account The address to check.
-     */
-    function rewards(address account) external view returns (uint256);
-
-    /**
-     * @notice The last time the rewards were applicable.
+     * @notice The last timestamp reward accrual can be applied.
+     * @dev This is the minimum of the current timestamp and the end of the rewards distribution period.
      */
     function lastTimeRewardApplicable() external view returns (uint256);
 
     /**
-     * @notice The last time the rewards were updated.
+     * @notice The last time any rewards were updated.
      */
     function lastUpdateTime() external view returns (uint256);
 
     /**
-     * @notice The end of the rewards period.
+     * @notice The end of the rewards distribution period.
      */
     function periodFinish() external view returns (uint256);
 
     /**
-     * @notice The duration of the rewards period.
-     */
-    function rewardsDuration() external view returns (uint256);
-
-    /**
-     * @notice The reward per token.
+     * @notice The reward per staked token ratio at the current timestamp.
      */
     function rewardPerToken() external view returns (uint256);
 
     /**
-     * @notice The reward per token stored.
+     * @notice The reward per staked token ratio stored at the time of the last account reward update.
      */
     function rewardPerTokenStored() external view returns (uint256);
 
@@ -92,6 +82,17 @@ interface IStakingRewards {
      * @notice The reward rate.
      */
     function rewardRate() external view returns (uint256);
+
+    /**
+     * @notice The rewards already accredited to an account.
+     * @param account The address to check.
+     */
+    function rewards(address account) external view returns (uint256);
+
+    /**
+     * @notice The duration of the rewards distribution period.
+     */
+    function rewardsDuration() external view returns (uint256);
 
     /**
      * @notice The token for staking and earning rewards.
@@ -104,7 +105,7 @@ interface IStakingRewards {
     function totalSupply() external view returns (uint256);
 
     /**
-     * @notice The reward per token paid to an account.
+     * @notice The reward per staked token ratio that's already accredited to an account.
      * @param account The address to check.
      */
     function userRewardPerTokenPaid(address account) external view returns (uint256);
