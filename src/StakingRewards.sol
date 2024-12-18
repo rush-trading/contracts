@@ -4,7 +4,6 @@ pragma solidity >=0.8.26;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
-import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import { IStakingRewards } from "src/interfaces/IStakingRewards.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
@@ -12,7 +11,7 @@ import { Errors } from "src/libraries/Errors.sol";
  * @title StakingRewards
  * @notice See the documentation in {IStakingRewards}.
  */
-contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable, PausableUpgradeable {
+contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable {
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
     /// @inheritdoc IStakingRewards
@@ -34,7 +33,7 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable, Pausable
     mapping(address account => uint256) public rewards;
 
     /// @inheritdoc IStakingRewards
-    uint256 public override rewardsDuration = 7 days;
+    uint256 public override rewardsDuration = 180 days;
 
     /// @inheritdoc IStakingRewards
     IERC20 public override token;
@@ -91,30 +90,26 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable, Pausable
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region ----------------------------=|+ NON-CONSTANT FUNCTIONS +|=---------------------------- //
+
+    /// @inheritdoc IStakingRewards
+    function initialize() external override initializer {
+        __ReentrancyGuard_init();
+        uint256 reward = token.balanceOf(address(this));
+        rewardRate = reward / rewardsDuration;
+        lastUpdateTime = block.timestamp;
+        periodFinish = block.timestamp + rewardsDuration;
+        emit Initialize(reward);
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc IStakingRewards
     function exit() external override {
         withdraw(balanceOf[msg.sender]);
         getReward();
-    }
-
-    /// @inheritdoc IStakingRewards
-    function stake(uint256 amount) external override nonReentrant whenNotPaused updateReward(msg.sender) {
-        // Checks: Amount must be greater than zero.
-        if (amount == 0) {
-            revert Errors.StakingRewards_CannotStakeZero();
-        }
-
-        // Effects: Update the total supply and the balance of the sender.
-        totalSupply = totalSupply + amount;
-        balanceOf[msg.sender] = balanceOf[msg.sender] + amount;
-
-        // Interactions: Transfer the tokens from the sender to the contract.
-        token.transferFrom(msg.sender, address(this), amount);
-
-        // Emit an event.
-        emit Staked({ user: msg.sender, amount: amount });
     }
 
     /// @inheritdoc IStakingRewards
@@ -130,6 +125,24 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable, Pausable
             // Emit an event.
             emit RewardPaid({ user: msg.sender, reward: reward });
         }
+    }
+
+    /// @inheritdoc IStakingRewards
+    function stake(uint256 amount) external override nonReentrant updateReward(msg.sender) {
+        // Checks: Amount must be greater than zero.
+        if (amount == 0) {
+            revert Errors.StakingRewards_CannotStakeZero();
+        }
+
+        // Effects: Update the total supply and the balance of the sender.
+        totalSupply = totalSupply + amount;
+        balanceOf[msg.sender] = balanceOf[msg.sender] + amount;
+
+        // Interactions: Transfer the tokens from the sender to the contract.
+        token.transferFrom(msg.sender, address(this), amount);
+
+        // Emit an event.
+        emit Staked({ user: msg.sender, amount: amount });
     }
 
     /// @inheritdoc IStakingRewards
@@ -149,10 +162,6 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable, Pausable
         // Emit an event.
         emit Withdrawn({ user: msg.sender, amount: amount });
     }
-
-    // #endregion ----------------------------------------------------------------------------------- //
-
-    // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     // #endregion ----------------------------------------------------------------------------------- //
 }

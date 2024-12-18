@@ -11,6 +11,12 @@ interface IStakingRewards {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
 
     /**
+     * @notice Emitted when the staking rewards contract is initialized.
+     * @param reward The amount of rewards added.
+     */
+    event Initialize(uint256 reward);
+
+    /**
      * @notice Emitted when a user claims rewards.
      * @param user The address of the user.
      * @param reward The amount of rewards claimed.
@@ -123,6 +129,12 @@ interface IStakingRewards {
      * @notice Claim rewards for caller.
      */
     function getReward() external;
+
+    /**
+     * @notice Initializes the staking rewards contract.
+     * @dev Handles the one-time setup of staking rewards, and assumes reward tokens are already sent to the contract.
+     */
+    function initialize() external;
 
     /**
      * @notice Stake tokens to earn rewards.
