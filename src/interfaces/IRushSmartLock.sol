@@ -8,6 +8,38 @@ import { IACLRoles } from "src/interfaces/IACLRoles.sol";
  * @notice Contains RushERC20 tokens after unwinding and launches staking rewards for successful unwinds.
  */
 interface IRushSmartLock is IACLRoles {
+    // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
+
+    /**
+     * @notice Emitted when staking rewards are launched for a RushERC20 token.
+     * @param rushERC20 Address of the RushERC20 token.
+     */
+    event LaunchStaking(address indexed rushERC20);
+
+    /**
+     * @notice Emitted when the LiquidityDeployer address is set.
+     * @param newLiquidityDeployer Address of the new LiquidityDeployer contract.
+     */
+    event SetLiquidityDeployer(address indexed newLiquidityDeployer);
+
+    /**
+     * @notice Emitted when the StakingRewards implementation address is set.
+     * @param newStakingRewardsImplementation Address of the new StakingRewards implementation.
+     */
+    event SetStakingRewardsImplementation(address indexed newStakingRewardsImplementation);
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
+
+    /// @notice The address of the LiquidityDeployer.
+    function liquidityDeployer() external view returns (address);
+
+    /// @notice The address of the StakingRewards implementation.
+    function stakingRewardsImplementation() external view returns (address);
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ----------------------------=|+ NON-CONSTANT FUNCTIONS +|=---------------------------- //
 
     /**

@@ -23,7 +23,7 @@ library Errors {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
-    // #region --------------------------------=|+ ERC20-DONATABLE-UPGRADEABLE +|=--------------------------------- //
+    // #region -------------------------=|+ ERC20-DONATABLE-UPGRADEABLE +|=-------------------------- //
 
     /// @notice Thrown when donation logic has already been executed.
     error ERC20DonatableUpgradeable_AlreadyExecuted();
@@ -185,6 +185,13 @@ library Errors {
      * @param maxSupply The maximum supply of the token.
      */
     error RushLauncher_LowMaxSupply(uint256 maxSupply);
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -------------------------------=|+ RUSH-SMART-LOCK +|=-------------------------------- //
+
+    /// @notice Thrown when the zero address is provided.
+    error RushSmartLock__ZeroAddress();
 
     // #endregion ----------------------------------------------------------------------------------- //
 
