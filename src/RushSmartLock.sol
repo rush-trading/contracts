@@ -42,7 +42,7 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
     // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc IRushSmartLock
-    function setLiquidityDeployer(address newLiquidityDeployer) external {
+    function setLiquidityDeployer(address newLiquidityDeployer) external onlyAdminRole {
         // Checks: `newLiquidityDeployer` must not be the zero address.
         if (newLiquidityDeployer == address(0)) {
             revert Errors.RushSmartLock__ZeroAddress();
@@ -56,7 +56,7 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
     }
 
     /// @inheritdoc IRushSmartLock
-    function setStakingRewardsImpl(address newStakingRewardsImpl) external {
+    function setStakingRewardsImpl(address newStakingRewardsImpl) external onlyAdminRole {
         // Checks: `newStakingRewardsImpl` must not be the zero address.
         if (newStakingRewardsImpl == address(0)) {
             revert Errors.RushSmartLock__ZeroAddress();
