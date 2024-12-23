@@ -1,19 +1,33 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.26;
 
+import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 import { ACLRoles } from "src/abstracts/ACLRoles.sol";
+import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { IRushSmartLock } from "src/interfaces/IRushSmartLock.sol";
+import { IStakingRewards } from "src/interfaces/IStakingRewards.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { IRushERC20Factory } from "src/RushERC20Factory.sol";
-import { RL } from "src/types/DataTypes.sol";
+import { LD } from "src/types/DataTypes.sol";
 
 /**
  * @title RushSmartLock
  * @notice See the documentation in {IRushSmartLock}.
  */
 contract RushSmartLock is IRushSmartLock, ACLRoles {
+    using Clones for address;
+
+    // #region ----------------------------------=|+ IMMUTABLES +|=---------------------------------- //
+
+    /// @inheritdoc IRushSmartLock
+    address public immutable override UNISWAP_V2_FACTORY;
+
+    /// @inheritdoc IRushSmartLock
+    address public immutable override WETH;
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
     /// @inheritdoc IRushSmartLock
@@ -31,10 +45,20 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
      * @param aclManager_ The address of the ACLManager contract.
      * @param liquidityDeployer_ The address of the LiquidityDeployer contract.
      * @param stakingRewardsImpl_ The address of the StakingRewards implementation.
+     * @param uniswapV2Factory_ The address of the Uniswap V2 factory contract.
      */
-    constructor(address aclManager_, address liquidityDeployer_, address stakingRewardsImpl_) ACLRoles(aclManager_) {
+    constructor(
+        address aclManager_,
+        address liquidityDeployer_,
+        address stakingRewardsImpl_,
+        address uniswapV2Factory_
+    )
+        ACLRoles(aclManager_)
+    {
         liquidityDeployer = liquidityDeployer_;
         stakingRewardsImpl = stakingRewardsImpl_;
+        UNISWAP_V2_FACTORY = uniswapV2Factory_;
+        WETH = ILiquidityDeployer(liquidityDeployer_).WETH();
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -75,7 +99,31 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
 
     /// @inheritdoc IRushSmartLock
     function launchStaking(address rushERC20) external {
-        // TODO: Implement this function.
+        // Checks: `rushERC20` must not be the zero address.
+        if (rushERC20 == address(0)) {
+            revert Errors.RushSmartLock__ZeroAddress();
+        }
+
+        // Get the UniV2 pair address.
+        address uniV2Pair = IUniswapV2Factory(UNISWAP_V2_FACTORY).getPair({ tokenA: rushERC20, tokenB: WETH });
+
+        // Get the liquidity deployment data.
+        LD.LiquidityDeployment memory liquidityDeployment =
+            ILiquidityDeployer(liquidityDeployer).getLiquidityDeployment({ uniV2Pair: uniV2Pair });
+
+        // Checks: `rushERC20` must be a successful deployment.
+        if (!liquidityDeployment.isUnwindThresholdMet) {
+            revert Errors.RushSmartLock__NotSuccessfulDeployment(rushERC20);
+        }
+
+        // Interactions: Launch staking rewards for the given RushERC20 token.
+        address stakingRewards = stakingRewardsImpl.clone();
+
+        // Interactions: Transfer total RushERC20 balance to the staking rewards contract.
+        IRushERC20(rushERC20).transfer({ to: stakingRewards, value: IRushERC20(rushERC20).balanceOf(address(this)) });
+
+        // Interactions: Initialize the staking rewards contract.
+        IStakingRewards(stakingRewards).initialize(rushERC20);
 
         // Emit an event.
         emit LaunchStaking(rushERC20);

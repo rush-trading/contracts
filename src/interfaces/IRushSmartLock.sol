@@ -39,6 +39,12 @@ interface IRushSmartLock is IACLRoles {
     /// @notice The address of the StakingRewards implementation.
     function stakingRewardsImpl() external view returns (address);
 
+    /// @notice The address of the Uniswap V2 factory.
+    function UNISWAP_V2_FACTORY() external view returns (address);
+
+    /// @notice The WETH contract address.
+    function WETH() external view returns (address);
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ----------------------------=|+ NON-CONSTANT FUNCTIONS +|=---------------------------- //
@@ -71,7 +77,6 @@ interface IRushSmartLock is IACLRoles {
      * Requirements:
      * - Can only be called by the default admin role.
      * - New implementation address must not be the zero address.
-     * - New implementation must support the required interface.
      *
      * @param newStakingRewardsImpl The address of the new StakingRewards implementation.
      */

@@ -133,8 +133,9 @@ interface IStakingRewards {
     /**
      * @notice Initializes the staking rewards contract.
      * @dev Handles the one-time setup of staking rewards, and assumes reward tokens are already sent to the contract.
+     * @param token_ The address of the token to stake and earn rewards.
      */
-    function initialize() external;
+    function initialize(address token_) external;
 
     /**
      * @notice Stake tokens to earn rewards.

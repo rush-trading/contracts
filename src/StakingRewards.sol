@@ -93,8 +93,9 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable {
     // #region ----------------------------=|+ NON-CONSTANT FUNCTIONS +|=---------------------------- //
 
     /// @inheritdoc IStakingRewards
-    function initialize() external override initializer {
+    function initialize(address token_) external override initializer {
         __ReentrancyGuard_init();
+        token = IERC20(token_);
         uint256 reward = token.balanceOf(address(this));
         rewardRate = reward / rewardsDuration;
         lastUpdateTime = block.timestamp;
