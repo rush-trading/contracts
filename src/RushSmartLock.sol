@@ -18,17 +18,11 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
     address public override liquidityDeployer;
 
     /// @inheritdoc IRushSmartLock
-    address public override stakingRewardsImplementation;
+    address public override stakingRewardsImpl;
 
-    constructor(
-        address aclManager_,
-        address liquidityDeployer_,
-        address stakingRewardsImplementation_
-    )
-        ACLRoles(aclManager_)
-    {
+    constructor(address aclManager_, address liquidityDeployer_, address stakingRewardsImpl_) ACLRoles(aclManager_) {
         liquidityDeployer = liquidityDeployer_;
-        stakingRewardsImplementation = stakingRewardsImplementation_;
+        stakingRewardsImpl = stakingRewardsImpl_;
     }
 
     /// @inheritdoc IRushSmartLock
@@ -54,16 +48,16 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
     }
 
     /// @inheritdoc IRushSmartLock
-    function setStakingRewardsImplementation(address newStakingRewardsImplementation) external {
-        // Checks: `newStakingRewardsImplementation` must not be the zero address.
-        if (newStakingRewardsImplementation == address(0)) {
+    function setStakingRewardsImpl(address newStakingRewardsImpl) external {
+        // Checks: `newStakingRewardsImpl` must not be the zero address.
+        if (newStakingRewardsImpl == address(0)) {
             revert Errors.RushSmartLock__ZeroAddress();
         }
 
         // Effects: Set the new StakingRewards implementation address.
-        stakingRewardsImplementation = newStakingRewardsImplementation;
+        stakingRewardsImpl = newStakingRewardsImpl;
 
         // Emit an event.
-        emit SetStakingRewardsImplementation(newStakingRewardsImplementation);
+        emit SetStakingRewardsImpl(newStakingRewardsImpl);
     }
 }

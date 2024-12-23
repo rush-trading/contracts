@@ -5,7 +5,8 @@ import { IACLRoles } from "src/interfaces/IACLRoles.sol";
 
 /**
  * @title IRushSmartLock
- * @notice Serves as a lock address for unwound RushERC20 tokens and enables the launch of staking rewards for successful deployments.
+ * @notice Serves as a lock address for unwound RushERC20 tokens and enables the launch of staking rewards for
+ * successful deployments.
  */
 interface IRushSmartLock is IACLRoles {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
@@ -24,9 +25,9 @@ interface IRushSmartLock is IACLRoles {
 
     /**
      * @notice Emitted when the StakingRewards implementation address is set.
-     * @param newStakingRewardsImplementation Address of the new StakingRewards implementation.
+     * @param newStakingRewardsImpl Address of the new StakingRewards implementation.
      */
-    event SetStakingRewardsImplementation(address indexed newStakingRewardsImplementation);
+    event SetStakingRewardsImpl(address indexed newStakingRewardsImpl);
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -36,7 +37,7 @@ interface IRushSmartLock is IACLRoles {
     function liquidityDeployer() external view returns (address);
 
     /// @notice The address of the StakingRewards implementation.
-    function stakingRewardsImplementation() external view returns (address);
+    function stakingRewardsImpl() external view returns (address);
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -72,9 +73,9 @@ interface IRushSmartLock is IACLRoles {
      * - New implementation address must not be the zero address.
      * - New implementation must support the required interface.
      *
-     * @param newStakingRewardsImplementation The address of the new StakingRewards implementation.
+     * @param newStakingRewardsImpl The address of the new StakingRewards implementation.
      */
-    function setStakingRewardsImplementation(address newStakingRewardsImplementation) external;
+    function setStakingRewardsImpl(address newStakingRewardsImpl) external;
 
     // #endregion ----------------------------------------------------------------------------------- //
 }
