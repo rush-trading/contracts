@@ -14,24 +14,32 @@ import { RL } from "src/types/DataTypes.sol";
  * @notice See the documentation in {IRushSmartLock}.
  */
 contract RushSmartLock is IRushSmartLock, ACLRoles {
+    // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
+
     /// @inheritdoc IRushSmartLock
     address public override liquidityDeployer;
 
     /// @inheritdoc IRushSmartLock
     address public override stakingRewardsImpl;
 
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ---------------------------------=|+ CONSTRUCTOR +|=---------------------------------- //
+
+    /**
+     * @dev Constructor
+     * @param aclManager_ The address of the ACLManager contract.
+     * @param liquidityDeployer_ The address of the LiquidityDeployer contract.
+     * @param stakingRewardsImpl_ The address of the StakingRewards implementation.
+     */
     constructor(address aclManager_, address liquidityDeployer_, address stakingRewardsImpl_) ACLRoles(aclManager_) {
         liquidityDeployer = liquidityDeployer_;
         stakingRewardsImpl = stakingRewardsImpl_;
     }
 
-    /// @inheritdoc IRushSmartLock
-    function launchStaking(address rushERC20) external {
-        // TODO: Implement this function.
+    // #endregion ----------------------------------------------------------------------------------- //
 
-        // Emit an event.
-        emit LaunchStaking(rushERC20);
-    }
+    // #region ---------------------=|+ PERMISSIONED NON-CONSTANT FUNCTIONS +|=---------------------- //
 
     /// @inheritdoc IRushSmartLock
     function setLiquidityDeployer(address newLiquidityDeployer) external {
@@ -60,4 +68,18 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
         // Emit an event.
         emit SetStakingRewardsImpl(newStakingRewardsImpl);
     }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region ----------------------=|+ USER-FACING NON-CONSTANT FUNCTIONS +|=---------------------- //
+
+    /// @inheritdoc IRushSmartLock
+    function launchStaking(address rushERC20) external {
+        // TODO: Implement this function.
+
+        // Emit an event.
+        emit LaunchStaking(rushERC20);
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
 }
