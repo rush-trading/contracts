@@ -5,7 +5,7 @@ import { IACLRoles } from "src/interfaces/IACLRoles.sol";
 
 /**
  * @title IRushSmartLock
- * @notice Contains RushERC20 tokens after unwinding and launches staking rewards for successful unwinds.
+ * @notice Serves as a lock address for unwound RushERC20 tokens and enables the launch of staking rewards for successful deployments.
  */
 interface IRushSmartLock is IACLRoles {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
@@ -17,7 +17,7 @@ interface IRushSmartLock is IACLRoles {
     event LaunchStaking(address indexed rushERC20);
 
     /**
-     * @notice Emitted when the LiquidityDeployer address is set.
+     * @notice Emitted when the LiquidityDeployer contract address is set.
      * @param newLiquidityDeployer Address of the new LiquidityDeployer contract.
      */
     event SetLiquidityDeployer(address indexed newLiquidityDeployer);
@@ -32,7 +32,7 @@ interface IRushSmartLock is IACLRoles {
 
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
-    /// @notice The address of the LiquidityDeployer.
+    /// @notice The address of the LiquidityDeployer contract.
     function liquidityDeployer() external view returns (address);
 
     /// @notice The address of the StakingRewards implementation.
@@ -43,10 +43,11 @@ interface IRushSmartLock is IACLRoles {
     // #region ----------------------------=|+ NON-CONSTANT FUNCTIONS +|=---------------------------- //
 
     /**
-     * @notice Launches the staking rewards contract for the RushERC20 token.
+     * @notice Launches staking rewards for a given RushERC20 token.
      *
      * Requirements:
-     * - Given RushERC20 must be a successfully unwound token.
+     * - Given RushERC20 must not be the zero address.
+     * - Given RushERC20 must be a successful deployment.
      *
      * @param rushERC20 The address of the RushERC20 token.
      */
@@ -68,7 +69,8 @@ interface IRushSmartLock is IACLRoles {
      *
      * Requirements:
      * - Can only be called by the default admin role.
-     * - The new implementation must support the required interface.
+     * - New implementation address must not be the zero address.
+     * - New implementation must support the required interface.
      *
      * @param newStakingRewardsImplementation The address of the new StakingRewards implementation.
      */
