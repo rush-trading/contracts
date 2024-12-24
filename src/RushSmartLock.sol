@@ -5,6 +5,7 @@ import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 import { ACLRoles } from "src/abstracts/ACLRoles.sol";
 import { IUniswapV2Factory } from "src/external/IUniswapV2Factory.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
+import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { IRushSmartLock } from "src/interfaces/IRushSmartLock.sol";
 import { IStakingRewards } from "src/interfaces/IStakingRewards.sol";
@@ -43,22 +44,21 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
     /**
      * @dev Constructor
      * @param aclManager_ The address of the ACLManager contract.
-     * @param liquidityDeployer_ The address of the LiquidityDeployer contract.
+     * @param liquidityPool_ The address of the LiquidityPool contract.
      * @param stakingRewardsImpl_ The address of the StakingRewards implementation.
      * @param uniswapV2Factory_ The address of the Uniswap V2 factory contract.
      */
     constructor(
         address aclManager_,
-        address liquidityDeployer_,
+        address liquidityPool_,
         address stakingRewardsImpl_,
         address uniswapV2Factory_
     )
         ACLRoles(aclManager_)
     {
-        liquidityDeployer = liquidityDeployer_;
         stakingRewardsImpl = stakingRewardsImpl_;
         UNISWAP_V2_FACTORY = uniswapV2Factory_;
-        WETH = ILiquidityDeployer(liquidityDeployer_).WETH();
+        WETH = ILiquidityPool(liquidityPool_).asset();
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

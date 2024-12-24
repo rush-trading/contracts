@@ -47,6 +47,7 @@ contract Constructor_LiquidityDeployer_Integration_Concrete_Test is Integration_
             minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
             reserve_: users.reserve,
             reserveFactor_: defaults.RESERVE_FACTOR(),
+            rushSmartLock_: users.burn,
             surplusFactor_: defaults.SURPLUS_FACTOR()
         });
 

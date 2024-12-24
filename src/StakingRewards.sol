@@ -61,6 +61,15 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region ---------------------------------=|+ CONSTRUCTOR +|=---------------------------------- //
+
+    constructor() {
+        // Prevent the implementation contract from being initialized.
+        _disableInitializers();
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
     /// @inheritdoc IStakingRewards

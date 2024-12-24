@@ -9,8 +9,10 @@ import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
 import { IRushLauncher } from "src/interfaces/IRushLauncher.sol";
 import { RushRouter } from "src/periphery/RushRouter.sol";
+import { RushSmartLock } from "src/RushSmartLock.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
+import { StakingRewards } from "src/StakingRewards.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployMaster is BaseScript {
@@ -102,7 +104,8 @@ contract DeployMaster is BaseScript {
             FeeCalculator feeCalculator,
             LiquidityDeployer liquidityDeployer,
             RushLauncher rushLauncher,
-            RushRouter rushRouter
+            RushRouter rushRouter,
+            RushSmartLock rushSmartLock
         )
     {
         // Deploy ACLManager
@@ -126,6 +129,14 @@ contract DeployMaster is BaseScript {
             rateSlope2: RATE_SLOPE_2
         });
 
+        // Deploy RushSmartLock
+        rushSmartLock = new RushSmartLock({
+            aclManager_: address(aclManager),
+            liquidityPool_: address(liquidityPool),
+            stakingRewardsImpl_: address(new StakingRewards()),
+            uniswapV2Factory_: UNISWAP_V2_FACTORY
+        });
+
         // Deploy LiquidityDeployer
         liquidityDeployer = new LiquidityDeployer({
             aclManager_: address(aclManager),
@@ -138,8 +149,12 @@ contract DeployMaster is BaseScript {
             minDuration_: MIN_DURATION,
             reserve_: RESERVE,
             reserveFactor_: RESERVE_FACTOR,
+            rushSmartLock_: address(rushSmartLock),
             surplusFactor_: SURPLUS_FACTOR
         });
+
+        // Set LiquidityDeployer address in RushSmartLock
+        rushSmartLock.setLiquidityDeployer(address(liquidityDeployer));
 
         // Deploy RushLauncher
         rushLauncher = new RushLauncher({

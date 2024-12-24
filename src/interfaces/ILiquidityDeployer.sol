@@ -86,6 +86,9 @@ interface ILiquidityDeployer is IACLRoles {
      */
     function RESERVE_FACTOR() external view returns (uint256);
 
+    /// @notice The address of the RushSmartLock contract.
+    function RUSH_SMART_LOCK() external view returns (address);
+
     /**
      * @notice The surplus factor for calculating WETH surplus tax.
      * @dev Represented in WAD precision (18 decimal format).

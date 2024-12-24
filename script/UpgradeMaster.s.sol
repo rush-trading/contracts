@@ -6,9 +6,21 @@ import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
 import { RushRouter } from "src/periphery/RushRouter.sol";
+import { IRushSmartLock } from "src/RushSmartLock.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract UpgradeMaster is BaseScript {
+    // #region -----------------------------------=|+ STRUCTS +|=------------------------------------ //
+
+    struct RunReturnType {
+        FeeCalculator feeCalculator;
+        LiquidityDeployer liquidityDeployer;
+        RushLauncher rushLauncher;
+        RushRouter rushRouter;
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ----------------------------=|+ CONFIGURABLE CONSTANTS +|=---------------------------- //
 
     // 100% annual base fee rate - looks good
@@ -80,6 +92,7 @@ contract UpgradeMaster is BaseScript {
         address aclManager,
         address liquidityPool,
         address rushERC20Factory,
+        address rushSmartLock,
         address oldLiquidityDeployer,
         address oldRushLauncher,
         address oldRushRouter
@@ -87,15 +100,10 @@ contract UpgradeMaster is BaseScript {
         public
         virtual
         broadcast
-        returns (
-            FeeCalculator feeCalculator,
-            LiquidityDeployer liquidityDeployer,
-            RushLauncher rushLauncher,
-            RushRouter rushRouter
-        )
+        returns (RunReturnType memory runReturnData)
     {
         // Deploy FeeCalculator
-        feeCalculator = new FeeCalculator({
+        runReturnData.feeCalculator = new FeeCalculator({
             baseFeeRate: BASE_FEE_RATE,
             optimalUtilizationRatio: OPTIMAL_UTILIZATION_RATIO,
             rateSlope1: RATE_SLOPE_1,
@@ -103,10 +111,10 @@ contract UpgradeMaster is BaseScript {
         });
 
         // Deploy LiquidityDeployer
-        liquidityDeployer = new LiquidityDeployer({
+        runReturnData.liquidityDeployer = new LiquidityDeployer({
             aclManager_: aclManager,
             earlyUnwindThreshold_: EARLY_UNWIND_THRESHOLD,
-            feeCalculator_: address(feeCalculator),
+            feeCalculator_: address(runReturnData.feeCalculator),
             liquidityPool_: liquidityPool,
             maxDeploymentAmount_: MAX_DEPLOYMENT_AMOUNT,
             maxDuration_: MAX_DURATION,
@@ -114,13 +122,17 @@ contract UpgradeMaster is BaseScript {
             minDuration_: MIN_DURATION,
             reserve_: RESERVE,
             reserveFactor_: RESERVE_FACTOR,
+            rushSmartLock_: rushSmartLock,
             surplusFactor_: SURPLUS_FACTOR
         });
 
+        // Set LiquidityDeployer address in RushSmartLock
+        IRushSmartLock(rushSmartLock).setLiquidityDeployer(address(runReturnData.liquidityDeployer));
+
         // Deploy RushLauncher
-        rushLauncher = new RushLauncher({
-            aclManager_: address(aclManager),
-            liquidityDeployer_: address(liquidityDeployer),
+        runReturnData.rushLauncher = new RushLauncher({
+            aclManager_: aclManager,
+            liquidityDeployer_: address(runReturnData.liquidityDeployer),
             maxSupplyLimit_: MAX_SUPPLY_LIMIT,
             minSupplyLimit_: MIN_SUPPLY_LIMIT,
             rushERC20Factory_: rushERC20Factory,
@@ -128,12 +140,12 @@ contract UpgradeMaster is BaseScript {
         });
 
         // Deploy RushRouter
-        rushRouter = new RushRouter({ rushLauncher_: rushLauncher });
+        runReturnData.rushRouter = new RushRouter({ rushLauncher_: runReturnData.rushLauncher });
 
         // Set ACLManager roles
-        ACLManager(aclManager).addAssetManager({ account: address(liquidityDeployer) });
-        ACLManager(aclManager).addLauncher({ account: address(rushLauncher) });
-        ACLManager(aclManager).addRouter({ account: address(rushRouter) });
+        ACLManager(aclManager).addAssetManager({ account: address(runReturnData.liquidityDeployer) });
+        ACLManager(aclManager).addLauncher({ account: address(runReturnData.rushLauncher) });
+        ACLManager(aclManager).addRouter({ account: address(runReturnData.rushRouter) });
 
         ACLManager(aclManager).removeAssetManager({ account: address(oldLiquidityDeployer) });
         ACLManager(aclManager).removeLauncher({ account: address(oldRushLauncher) });

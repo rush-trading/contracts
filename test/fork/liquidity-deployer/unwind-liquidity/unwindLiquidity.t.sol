@@ -247,12 +247,12 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
 
         // Unwind the liquidity.
         uint256 lpBalanceBefore = IERC20(uniV2Pair).balanceOf(address(rushERC20Mock));
-        uint256 tokenBalanceBefore = IERC20(rushERC20Mock).balanceOf(address(rushERC20Mock));
+        uint256 tokenBalanceBefore = IERC20(rushERC20Mock).balanceOf(users.burn);
         uint256 liquidityPoolWETHBalanceBefore = weth.balanceOf(address(liquidityPool));
         bool isUnwindThresholdMetBefore = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
         uint256 lpBalanceAfter = IERC20(uniV2Pair).balanceOf(address(rushERC20Mock));
-        uint256 tokenBalanceAfter = IERC20(rushERC20Mock).balanceOf(address(rushERC20Mock));
+        uint256 tokenBalanceAfter = IERC20(rushERC20Mock).balanceOf(users.burn);
         uint256 liquidityPoolWETHBalanceAfter = weth.balanceOf(address(liquidityPool));
         bool isUnwindThresholdMetAfter = liquidityDeployer.getLiquidityDeployment(uniV2Pair).isUnwindThresholdMet;
 

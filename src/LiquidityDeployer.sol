@@ -48,6 +48,9 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     uint256 public immutable override RESERVE_FACTOR;
 
     /// @inheritdoc ILiquidityDeployer
+    address public immutable RUSH_SMART_LOCK;
+
+    /// @inheritdoc ILiquidityDeployer
     uint256 public immutable override SURPLUS_FACTOR;
 
     /// @inheritdoc ILiquidityDeployer
@@ -83,6 +86,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
      * @param minDuration_ The minimum duration for liquidity deployment.
      * @param reserve_ The address of the reserve to which collected fees are sent.
      * @param reserveFactor_ The reserve factor for collected fees.
+     * @param rushSmartLock_ The address of the RushSmartLock contract.
      * @param surplusFactor_ The surplus factor for calculating WETH surplus tax.
      */
     constructor(
@@ -96,6 +100,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         uint256 minDuration_,
         address reserve_,
         uint256 reserveFactor_,
+        address rushSmartLock_,
         uint256 surplusFactor_
     )
         ACLRoles(aclManager_)
@@ -109,6 +114,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
         MIN_DURATION = minDuration_;
         RESERVE = reserve_;
         RESERVE_FACTOR = reserveFactor_;
+        RUSH_SMART_LOCK = rushSmartLock_;
         SURPLUS_FACTOR = surplusFactor_;
         WETH = ILiquidityPool(liquidityPool_).asset();
     }
@@ -457,8 +463,9 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
             vars.totalReserveFee = vars.wethBalance - deployment.amount;
         }
 
-        // Interactions: Burn entire remaining balance of the RushERC20 token by sending it to the token address itself.
-        IERC20(deployment.rushERC20).transfer(deployment.rushERC20, vars.rushERC20Balance - vars.rushERC20ToResupply);
+        // Interactions: Burn entire remaining balance of the RushERC20 token by sending it to the RushSmartLock
+        // contract.
+        IERC20(deployment.rushERC20).transfer(RUSH_SMART_LOCK, vars.rushERC20Balance - vars.rushERC20ToResupply);
         // Interactions: Transfer the total reserve fee to the reserve.
         IERC20(WETH).transfer(RESERVE, vars.totalReserveFee);
         // Interactions: Approve the LiquidityPool to transfer the liquidity deployment amount.

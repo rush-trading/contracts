@@ -8,6 +8,8 @@ struct Users {
     address payable alice;
     // Asset manager role assignee.
     address payable assetManager;
+    // Burn address.
+    address payable burn;
     // Regular user.
     address payable eve;
     // Launcher role assignee.
