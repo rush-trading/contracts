@@ -33,6 +33,14 @@ interface IRushSmartLock is IACLRoles {
 
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
+    /**
+     * @notice Returns the address of the StakingRewards contract for a given RushERC20 token.
+     *
+     * @param rushERC20 Address of the RushERC20 token.
+     * @return Address of the StakingRewards contract.
+     */
+    function getStakingRewards(address rushERC20) external view returns (address);
+
     /// @notice The address of the LiquidityDeployer contract.
     function liquidityDeployer() external view returns (address);
 
@@ -55,6 +63,7 @@ interface IRushSmartLock is IACLRoles {
      * Requirements:
      * - Given RushERC20 must not be the zero address.
      * - Given RushERC20 must be a successful deployment.
+     * - Staking rewards must not already be launched for the given RushERC20 token.
      *
      * @param rushERC20 The address of the RushERC20 token.
      */

@@ -191,10 +191,13 @@ library Errors {
     // #region -------------------------------=|+ RUSH-SMART-LOCK +|=-------------------------------- //
 
     /// @notice Thrown when the given RushERC20 token is not a successful deployment.
-    error RushSmartLock__NotSuccessfulDeployment(address rushERC20);
+    error RushSmartLock_NotSuccessfulDeployment(address rushERC20);
+
+    /// @notice Thrown when staking rewards are already launched for the given RushERC20 token.
+    error RushSmartLock_StakingRewardsAlreadyLaunched(address rushERC20);
 
     /// @notice Thrown when the zero address is provided.
-    error RushSmartLock__ZeroAddress();
+    error RushSmartLock_ZeroAddress();
 
     // #endregion ----------------------------------------------------------------------------------- //
 

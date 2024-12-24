@@ -32,6 +32,9 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
     // #region --------------------------------=|+ PUBLIC STORAGE +|=-------------------------------- //
 
     /// @inheritdoc IRushSmartLock
+    mapping(address rushERC20 => address stakingRewards) public override getStakingRewards;
+
+    /// @inheritdoc IRushSmartLock
     address public override liquidityDeployer;
 
     /// @inheritdoc IRushSmartLock
@@ -69,7 +72,7 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
     function setLiquidityDeployer(address newLiquidityDeployer) external onlyAdminRole {
         // Checks: `newLiquidityDeployer` must not be the zero address.
         if (newLiquidityDeployer == address(0)) {
-            revert Errors.RushSmartLock__ZeroAddress();
+            revert Errors.RushSmartLock_ZeroAddress();
         }
 
         // Effects: Set the new LiquidityDeployer address.
@@ -83,7 +86,7 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
     function setStakingRewardsImpl(address newStakingRewardsImpl) external onlyAdminRole {
         // Checks: `newStakingRewardsImpl` must not be the zero address.
         if (newStakingRewardsImpl == address(0)) {
-            revert Errors.RushSmartLock__ZeroAddress();
+            revert Errors.RushSmartLock_ZeroAddress();
         }
 
         // Effects: Set the new StakingRewards implementation address.
@@ -101,7 +104,7 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
     function launchStaking(address rushERC20) external {
         // Checks: `rushERC20` must not be the zero address.
         if (rushERC20 == address(0)) {
-            revert Errors.RushSmartLock__ZeroAddress();
+            revert Errors.RushSmartLock_ZeroAddress();
         }
 
         // Get the UniV2 pair address.
@@ -113,11 +116,19 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
 
         // Checks: `rushERC20` must be a successful deployment.
         if (!liquidityDeployment.isUnwindThresholdMet) {
-            revert Errors.RushSmartLock__NotSuccessfulDeployment(rushERC20);
+            revert Errors.RushSmartLock_NotSuccessfulDeployment(rushERC20);
         }
 
-        // Interactions: Launch staking rewards for the given RushERC20 token.
+        // Checks: Staking rewards must not already be launched for the given RushERC20 token.
+        if (getStakingRewards[rushERC20] != address(0)) {
+            revert Errors.RushSmartLock_StakingRewardsAlreadyLaunched(rushERC20);
+        }
+
+        // Effects: Clone the staking rewards implementation contract.
         address stakingRewards = stakingRewardsImpl.clone();
+
+        // Effects: Set the staking rewards contract address.
+        getStakingRewards[rushERC20] = stakingRewards;
 
         // Interactions: Transfer total RushERC20 balance to the staking rewards contract.
         IRushERC20(rushERC20).transfer({ to: stakingRewards, value: IRushERC20(rushERC20).balanceOf(address(this)) });
