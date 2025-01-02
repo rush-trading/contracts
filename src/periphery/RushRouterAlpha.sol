@@ -9,7 +9,8 @@ import { IWETH } from "src/external/IWETH.sol";
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { ILiquidityPool } from "src/interfaces/ILiquidityPool.sol";
 import { IRushLauncher } from "src/interfaces/IRushLauncher.sol";
-import { RL } from "src/types/DataTypes.sol";
+import { IFeeCalculator } from "src/interfaces/IFeeCalculator.sol";
+import { RL, FC } from "src/types/DataTypes.sol";
 
 /**
  * @title RushRouterAlpha
@@ -47,6 +48,12 @@ contract RushRouterAlpha is Nonces {
         Donatable
     }
 
+    /// @dev Enum of gas modes supported for launching ERC20 tokens.
+    enum GasMode {
+        Default,
+        Sponsored
+    }
+
     /// @dev The tax tier of a taxable ERC20 token.
     enum TaxTier {
         Small,
@@ -77,6 +84,9 @@ contract RushRouterAlpha is Nonces {
     /// @notice The address of the RushLauncher contract.
     IRushLauncher public immutable RUSH_LAUNCHER;
 
+    /// @notice The fee sponsor address.
+    address public immutable SPONSOR_ADDRESS;
+
     /// @notice The ECDSA verifier address.
     address public immutable VERIFIER_ADDRESS;
 
@@ -90,10 +100,12 @@ contract RushRouterAlpha is Nonces {
     /**
      * @dev Constructor
      * @param rushLauncher_ The address of the RushLauncher contract.
+     * @param sponsorAddress_ The fee sponsor address.
      * @param verifierAddress_ The ECDSA verifier address.
      */
-    constructor(IRushLauncher rushLauncher_, address verifierAddress_) {
+    constructor(IRushLauncher rushLauncher_, address sponsorAddress_, address verifierAddress_) {
         RUSH_LAUNCHER = rushLauncher_;
+        SPONSOR_ADDRESS = sponsorAddress_;
         VERIFIER_ADDRESS = verifierAddress_;
         LIQUIDITY_DEPLOYER = ILiquidityDeployer(rushLauncher_.LIQUIDITY_DEPLOYER());
         LIQUIDITY_POOL = ILiquidityPool(LIQUIDITY_DEPLOYER.LIQUIDITY_POOL());
@@ -133,28 +145,52 @@ contract RushRouterAlpha is Nonces {
         external
         payable
     {
-        // Check the ECDSA signature is valid.
-        _checkSignature({
-            message: abi.encodePacked(
-                msg.sender, _useNonce(msg.sender), address(this), liquidityAmount, liquidityDuration, ERC20Type.Basic
-            ),
+        // Launch the ERC20 token.
+        _launchERC20({
+            name: name,
+            symbol: symbol,
+            liquidityAmount: liquidityAmount,
+            liquidityDuration: liquidityDuration,
+            liquidityMsgValue: msg.value,
+            maxTotalFee: maxTotalFee,
+            gasMode: GasMode.Default,
             signature: signature
         });
+    }
 
-        // Launch the ERC20 token.
-        RUSH_LAUNCHER.launch{ value: msg.value }(
-            RL.LaunchParams({
-                originator: msg.sender,
-                kind: RUSH_ERC20_BASIC_KIND,
-                name: name,
-                symbol: symbol,
-                maxSupply: MAX_SUPPLY,
-                data: "",
-                liquidityAmount: liquidityAmount,
-                liquidityDuration: liquidityDuration,
-                maxTotalFee: maxTotalFee
-            })
-        );
+    /**
+     * @notice Launch an ERC20 token with a sponsored liquidity deployment and minimum deployment parameters.
+     * @param name The name of the launched ERC20 token.
+     * @param symbol The symbol of the launched ERC20 token.
+     * @param maxTotalFee The maximum total fee that can be collected for the liquidity deployment.
+     * @param signature The ECDSA signature of the launch parameters.
+     */
+    function launchERC20Sponsored(
+        string calldata name,
+        string calldata symbol,
+        uint256 maxTotalFee,
+        bytes calldata signature
+    )
+        external
+        payable
+    {
+        // Launch the ERC20 token with a sponsored liquidity deployment.
+        uint256 liquidityAmount = LIQUIDITY_DEPLOYER.MIN_DEPLOYMENT_AMOUNT();
+        uint256 liquidityDuration = LIQUIDITY_DEPLOYER.MIN_DURATION();
+        _launchERC20({
+            name: name,
+            symbol: symbol,
+            liquidityAmount: liquidityAmount,
+            liquidityDuration: liquidityDuration,
+            liquidityMsgValue: 
+            // Deployment fee is sourced from the sponsor.
+            _sponsorLiquidityFee({ liquidityAmount: liquidityAmount, liquidityDuration: liquidityDuration })
+            // Additional msg.value is swapped to RushERC20
+            + msg.value,
+            maxTotalFee: maxTotalFee,
+            gasMode: GasMode.Sponsored,
+            signature: signature
+        });
     }
 
     /**
@@ -359,6 +395,84 @@ contract RushRouterAlpha is Nonces {
         if (signedMessageHash.recover(signature) != VERIFIER_ADDRESS) {
             revert RushRouterAlpha_InvalidSignature();
         }
+    }
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
+    // #region -----------------------=|+ INTERNAL NON-CONSTANT FUNCTIONS +|=------------------------ //
+
+    /// @dev Launch an ERC20 token.
+    function _launchERC20(
+        string calldata name,
+        string calldata symbol,
+        uint256 liquidityAmount,
+        uint256 liquidityDuration,
+        uint256 liquidityMsgValue,
+        uint256 maxTotalFee,
+        GasMode gasMode,
+        bytes calldata signature
+    )
+        internal
+    {
+        // Check the ECDSA signature is valid.
+        _checkSignature({
+            message: abi.encodePacked(
+                msg.sender,
+                _useNonce(msg.sender),
+                address(this),
+                liquidityAmount,
+                liquidityDuration,
+                ERC20Type.Basic,
+                gasMode
+            ),
+            signature: signature
+        });
+
+        // Launch the ERC20 token.
+        RUSH_LAUNCHER.launch{ value: liquidityMsgValue }(
+            RL.LaunchParams({
+                originator: msg.sender,
+                kind: RUSH_ERC20_BASIC_KIND,
+                name: name,
+                symbol: symbol,
+                maxSupply: MAX_SUPPLY,
+                data: "",
+                liquidityAmount: liquidityAmount,
+                liquidityDuration: liquidityDuration,
+                maxTotalFee: maxTotalFee
+            })
+        );
+    }
+
+    /**
+     * @dev Sponsor the liquidity deployment fee.
+     *
+     * Requirements:
+     * - The sponsor address must have approved the contract to spend the fee amount.
+     *
+     * @param liquidityAmount The amount of WETH liquidity to deploy.
+     * @param liquidityDuration The duration of the liquidity deployment.
+     */
+    function _sponsorLiquidityFee(
+        uint256 liquidityAmount,
+        uint256 liquidityDuration
+    )
+        internal
+        returns (uint256 feeAmount)
+    {
+        (feeAmount,) = IFeeCalculator(LIQUIDITY_DEPLOYER.feeCalculator()).calculateFee(
+            FC.CalculateFeeParams({
+                duration: liquidityDuration,
+                newLiquidity: liquidityAmount,
+                outstandingLiquidity: LIQUIDITY_POOL.outstandingAssets(),
+                reserveFactor: LIQUIDITY_DEPLOYER.RESERVE_FACTOR(),
+                totalLiquidity: LIQUIDITY_POOL.lastSnapshotTotalAssets()
+            })
+        );
+        // Transfer the fee amount from the sponsor to this contract.
+        IERC20(WETH).transferFrom({ from: SPONSOR_ADDRESS, to: address(this), value: feeAmount });
+        // Convert the fee amount to ETH.
+        IWETH(WETH).withdraw(feeAmount);
     }
 
     // #endregion ----------------------------------------------------------------------------------- //

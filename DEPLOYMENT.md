@@ -242,17 +242,19 @@ export NETWORK="sepolia"
 export ACL_MANAGER="<ADDRESS>"
 export RUSH_LAUNCHER="<ADDRESS>"
 export OLD_RUSH_ROUTER="<ADDRESS>"
+export SPONSOR="<ADDRESS>"
 export VERIFIER="<ADDRESS>"
 
 # Run the script
 forge script script/UpgradeRushRouterAlpha.s.sol \
     --broadcast \
     --rpc-url ${NETWORK} \
-    --sig "run(address,address,address,address)" \
+    --sig "run(address,address,address,address,address)" \
     --verify \
     ${ACL_MANAGER} \
     ${RUSH_LAUNCHER} \
     ${OLD_RUSH_ROUTER} \
+    ${SPONSOR} \
     ${VERIFIER}
 ```
 
