@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title IStakingRewards
- * @notice A contract for staking RushERC20 tokens to earn rewards.
+ * @notice A Synthetix StakingRewards adaptation for staking RushERC20 tokens and earning rewards.
  */
 interface IStakingRewards {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
