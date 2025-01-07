@@ -67,6 +67,14 @@ abstract contract Events {
 
     // #endregion ----------------------------------------------------------------------------------- //
 
+    // #region -------------------------------=|+ RUSH-SMART-LOCK +|=-------------------------------- //
+
+    event SetLiquidityDeployer(address indexed newLiquidityDeployer);
+
+    event SetStakingRewardsImpl(address indexed newStakingRewardsImpl);
+
+    // #endregion ----------------------------------------------------------------------------------- //
+
     // #region ------------------------------=|+ LIQUIDITY-DEPLOYER +|=------------------------------ //
 
     event DeployLiquidity(
