@@ -190,6 +190,9 @@ library Errors {
 
     // #region -------------------------------=|+ RUSH-SMART-LOCK +|=-------------------------------- //
 
+    /// @notice Thrown when the balance is insufficient to withdraw the given amount.
+    error StakingRewards_InsufficientBalance(uint256 balance, uint256 amount);
+
     /// @notice Thrown when the given RushERC20 token is not a successful deployment.
     error RushSmartLock_NotSuccessfulDeployment(address rushERC20);
 

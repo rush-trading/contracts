@@ -161,10 +161,15 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable {
         if (amount == 0) {
             revert Errors.StakingRewards_CannotWithdrawZero();
         }
+        // Checks: Amount must be less than or equal to the balance of the sender.
+        uint256 m_balanceOf = balanceOf[msg.sender];
+        if (amount > m_balanceOf) {
+            revert Errors.StakingRewards_InsufficientBalance({ balance: m_balanceOf, amount: amount });
+        }
 
         // Effects: Update the total supply and the balance of the sender.
         totalSupply = totalSupply - amount;
-        balanceOf[msg.sender] = balanceOf[msg.sender] - amount;
+        balanceOf[msg.sender] = m_balanceOf - amount;
 
         // Interactions: Transfer the tokens from the contract to the sender.
         token.transfer(msg.sender, amount);
