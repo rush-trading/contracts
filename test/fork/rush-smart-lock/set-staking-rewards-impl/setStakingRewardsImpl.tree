@@ -1,0 +1,9 @@
+setStakingRewardsImpl.t.sol
+├── when caller does not have admin role
+│   └── it should revert
+└── when caller has admin role
+    ├── when new implementation is zero address
+    │   └── it should revert
+    └── when new implementation is not zero address
+        ├── it should set new implementation
+        └── it should emit a {SetStakingRewardsImpl} event
