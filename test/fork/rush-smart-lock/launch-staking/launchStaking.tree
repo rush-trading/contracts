@@ -1,0 +1,12 @@
+launchStaking.t.sol
+├── when rushERC20 is zero address
+│   └── it should revert
+└── when rushERC20 is not zero address
+    ├── when rushERC20 is not successful deployment
+    │   └── it should revert
+    └── when rushERC20 is successful deployment
+        ├── when staking already launched for rushERC20
+        │   └── it should revert
+        └── when staking not yet launched for rushERC20
+            ├── it should launch staking for rushERC20
+            └── it should emit a {LaunchStaking} event

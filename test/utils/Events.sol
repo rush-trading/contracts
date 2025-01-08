@@ -69,6 +69,8 @@ abstract contract Events {
 
     // #region -------------------------------=|+ RUSH-SMART-LOCK +|=-------------------------------- //
 
+    event LaunchStaking(address indexed rushERC20);
+
     event SetLiquidityDeployer(address indexed newLiquidityDeployer);
 
     event SetStakingRewardsImpl(address indexed newStakingRewardsImpl);

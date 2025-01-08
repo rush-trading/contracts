@@ -29,6 +29,7 @@ contract Defaults {
     uint256 public constant RUSH_ERC20_SUPPLY = 1_000_000e18; // 1m tokens
     uint96 public constant RUSH_ERC20_TAX_BPS = 500; // 5% tax basis points
     uint256 public constant RESERVE_FACTOR = 0.1e18; // 10%
+    uint256 public constant STAKING_AMOUNT = 100_000e18; // 100k tokens
     uint256 public constant SURPLUS_FACTOR = 0.05e18; // 5%
 
     // #endregion ----------------------------------------------------------------------------------- //
