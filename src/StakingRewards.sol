@@ -33,7 +33,7 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable {
     mapping(address account => uint256) public rewards;
 
     /// @inheritdoc IStakingRewards
-    uint256 public override rewardsDuration = 180 days;
+    uint256 public override rewardsDuration;
 
     /// @inheritdoc IStakingRewards
     IERC20 public override token;
@@ -106,6 +106,7 @@ contract StakingRewards is IStakingRewards, ReentrancyGuardUpgradeable {
         __ReentrancyGuard_init();
         token = IERC20(token_);
         uint256 reward = token.balanceOf(address(this));
+        rewardsDuration = 180 days;
         rewardRate = reward / rewardsDuration;
         lastUpdateTime = block.timestamp;
         periodFinish = block.timestamp + rewardsDuration;
