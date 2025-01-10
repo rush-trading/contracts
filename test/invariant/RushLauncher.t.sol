@@ -87,6 +87,7 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
             minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
             reserve_: users.reserve,
             reserveFactor_: defaults.RESERVE_FACTOR(),
+            rewardFactor_: defaults.REWARD_FACTOR(),
             surplusFactor_: defaults.SURPLUS_FACTOR()
         });
         vm.label({ account: address(liquidityDeployer), newLabel: "LiquidityDeployer" });

@@ -48,6 +48,9 @@ contract UpgradeMaster is BaseScript {
     // 10% reserve factor - suggest 15-20%, in line with Compound/Aave
     uint256 internal constant RESERVE_FACTOR = 0.2e18;
 
+    // 0.5% reward factor for originator rewards
+    uint256 internal constant REWARD_FACTOR = 0.005e18;
+
     // 5% surplus factor
     uint256 internal constant SURPLUS_FACTOR = 0.05e18;
 
@@ -114,6 +117,7 @@ contract UpgradeMaster is BaseScript {
             minDuration_: MIN_DURATION,
             reserve_: RESERVE,
             reserveFactor_: RESERVE_FACTOR,
+            rewardFactor_: REWARD_FACTOR,
             surplusFactor_: SURPLUS_FACTOR
         });
 
