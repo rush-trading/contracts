@@ -2,6 +2,7 @@
 pragma solidity >=0.8.26 <0.9.0;
 
 import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
+import { LD } from "src/types/DataTypes.sol";
 import { Integration_Test } from "test/integration/Integration.t.sol";
 
 struct Vars {
@@ -38,21 +39,23 @@ contract Constructor_LiquidityDeployer_Integration_Concrete_Test is Integration_
         resetPrank({ msgSender: users.sender });
 
         // Construct the contract.
-        LiquidityDeployer constructedLiquidityDeployer = new LiquidityDeployer({
-            aclManager_: address(aclManager),
-            earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
-            feeCalculator_: address(feeCalculator),
-            liquidityPool_: address(liquidityPool),
-            maxDeploymentAmount_: defaults.MAX_LIQUIDITY_AMOUNT(),
-            maxDuration_: defaults.MAX_LIQUIDITY_DURATION(),
-            minDeploymentAmount_: defaults.MIN_LIQUIDITY_AMOUNT(),
-            minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
-            reserve_: users.reserve,
-            reserveFactor_: defaults.RESERVE_FACTOR(),
-            rewardFactor_: defaults.REWARD_FACTOR(),
-            rushSmartLock_: users.burn,
-            surplusFactor_: defaults.SURPLUS_FACTOR()
-        });
+        LiquidityDeployer constructedLiquidityDeployer = new LiquidityDeployer(
+            LD.ConstructorParam({
+                aclManager_: address(aclManager),
+                earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
+                feeCalculator_: address(feeCalculator),
+                liquidityPool_: address(liquidityPool),
+                maxDeploymentAmount_: defaults.MAX_LIQUIDITY_AMOUNT(),
+                maxDuration_: defaults.MAX_LIQUIDITY_DURATION(),
+                minDeploymentAmount_: defaults.MIN_LIQUIDITY_AMOUNT(),
+                minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
+                reserve_: users.reserve,
+                reserveFactor_: defaults.RESERVE_FACTOR(),
+                rewardFactor_: defaults.REWARD_FACTOR(),
+                rushSmartLock_: users.burn,
+                surplusFactor_: defaults.SURPLUS_FACTOR()
+            })
+        );
 
         // Assert that the values were set correctly.
         vars.actualACLManager = constructedLiquidityDeployer.ACL_MANAGER();

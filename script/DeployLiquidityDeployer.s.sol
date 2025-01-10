@@ -3,43 +3,16 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { ILiquidityDeployer } from "src/interfaces/ILiquidityDeployer.sol";
 import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
+import { LD } from "src/types/DataTypes.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployLiquidityDeployer is BaseScript {
-    function run(
-        address aclManager,
-        uint256 earlyUnwindThreshold,
-        address feeCalculator,
-        address liquidityPool,
-        uint256 maxDeploymentAmount,
-        uint256 maxDuration,
-        uint256 minDeploymentAmount,
-        uint256 minDuration,
-        address reserve,
-        uint256 reserveFactor,
-        uint256 rewardFactor,
-        address rushSmartLock,
-        uint256 surplusFactor
-    )
+    function run(LD.ConstructorParam calldata params)
         public
         virtual
         broadcast
         returns (ILiquidityDeployer liquidityDeployer)
     {
-        liquidityDeployer = new LiquidityDeployer({
-            aclManager_: aclManager,
-            earlyUnwindThreshold_: earlyUnwindThreshold,
-            feeCalculator_: feeCalculator,
-            liquidityPool_: liquidityPool,
-            maxDeploymentAmount_: maxDeploymentAmount,
-            maxDuration_: maxDuration,
-            minDeploymentAmount_: minDeploymentAmount,
-            minDuration_: minDuration,
-            reserve_: reserve,
-            reserveFactor_: reserveFactor,
-            rewardFactor_: rewardFactor,
-            rushSmartLock_: rushSmartLock,
-            surplusFactor_: surplusFactor
-        });
+        liquidityDeployer = new LiquidityDeployer(params);
     }
 }

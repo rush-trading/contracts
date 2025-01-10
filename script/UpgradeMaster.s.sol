@@ -7,6 +7,7 @@ import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
 import { RushRouter } from "src/periphery/RushRouter.sol";
 import { IRushSmartLock } from "src/RushSmartLock.sol";
+import { LD } from "src/types/DataTypes.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract UpgradeMaster is BaseScript {
@@ -114,21 +115,23 @@ contract UpgradeMaster is BaseScript {
         });
 
         // Deploy LiquidityDeployer
-        runReturnData.liquidityDeployer = new LiquidityDeployer({
-            aclManager_: aclManager,
-            earlyUnwindThreshold_: EARLY_UNWIND_THRESHOLD,
-            feeCalculator_: address(runReturnData.feeCalculator),
-            liquidityPool_: liquidityPool,
-            maxDeploymentAmount_: MAX_DEPLOYMENT_AMOUNT,
-            maxDuration_: MAX_DURATION,
-            minDeploymentAmount_: MIN_DEPLOYMENT_AMOUNT,
-            minDuration_: MIN_DURATION,
-            reserve_: RESERVE,
-            reserveFactor_: RESERVE_FACTOR,
-            rewardFactor_: REWARD_FACTOR,
-            rushSmartLock_: rushSmartLock,
-            surplusFactor_: SURPLUS_FACTOR
-        });
+        runReturnData.liquidityDeployer = new LiquidityDeployer(
+            LD.ConstructorParam({
+                aclManager_: aclManager,
+                earlyUnwindThreshold_: EARLY_UNWIND_THRESHOLD,
+                feeCalculator_: address(runReturnData.feeCalculator),
+                liquidityPool_: liquidityPool,
+                maxDeploymentAmount_: MAX_DEPLOYMENT_AMOUNT,
+                maxDuration_: MAX_DURATION,
+                minDeploymentAmount_: MIN_DEPLOYMENT_AMOUNT,
+                minDuration_: MIN_DURATION,
+                reserve_: RESERVE,
+                reserveFactor_: RESERVE_FACTOR,
+                rewardFactor_: REWARD_FACTOR,
+                rushSmartLock_: rushSmartLock,
+                surplusFactor_: SURPLUS_FACTOR
+            })
+        );
 
         // Set LiquidityDeployer address in RushSmartLock
         IRushSmartLock(rushSmartLock).setLiquidityDeployer(address(runReturnData.liquidityDeployer));

@@ -28,6 +28,38 @@ library FC {
 
 /// @notice Namespace for the structs used in {LiquidityDeployer}.
 library LD {
+    /**
+     * @dev The parameters for constructing a new LiquidityDeployer.
+     * @param aclManager_ The address of the ACLManager contract.
+     * @param earlyUnwindThreshold_ The level of asset liquidity in pair at which early unwinding is allowed.
+     * @param feeCalculator_ The address of the FeeCalculator contract.
+     * @param liquidityPool_ The address of the LiquidityPool contract.
+     * @param maxDeploymentAmount_ The maximum amount that can be deployed as liquidity.
+     * @param maxDuration_ The maximum duration for liquidity deployment.
+     * @param minDeploymentAmount_ The minimum amount that can be deployed as liquidity.
+     * @param minDuration_ The minimum duration for liquidity deployment.
+     * @param reserve_ The address of the reserve to which collected fees are sent.
+     * @param reserveFactor_ The reserve factor for collected fees.
+     * @param rewardFactor_ The reward factor for successful liquidity deployments.
+     * @param rushSmartLock_ The address of the RushSmartLock contract.
+     * @param surplusFactor_ The surplus factor for calculating WETH surplus tax.
+     */
+    struct ConstructorParam {
+        address aclManager_;
+        uint256 earlyUnwindThreshold_;
+        address feeCalculator_;
+        address liquidityPool_;
+        uint256 maxDeploymentAmount_;
+        uint256 maxDuration_;
+        uint256 minDeploymentAmount_;
+        uint256 minDuration_;
+        address reserve_;
+        uint256 reserveFactor_;
+        uint256 rewardFactor_;
+        address rushSmartLock_;
+        uint256 surplusFactor_;
+    }
+
     /// @dev The local variables used in `deployLiquidity`.
     struct DeployLiquidityLocalVars {
         uint256 rushERC20BalanceOfPair;

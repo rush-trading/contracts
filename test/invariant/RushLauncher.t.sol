@@ -76,21 +76,23 @@ contract RushLauncher_Invariant_Test is Invariant_Test {
         });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
 
-        liquidityDeployer = new LiquidityDeployer({
-            aclManager_: address(aclManager),
-            earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
-            feeCalculator_: address(feeCalculator),
-            liquidityPool_: address(liquidityPool),
-            maxDeploymentAmount_: defaults.MAX_LIQUIDITY_AMOUNT(),
-            maxDuration_: defaults.MAX_LIQUIDITY_DURATION(),
-            minDeploymentAmount_: defaults.MIN_LIQUIDITY_AMOUNT(),
-            minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
-            reserve_: users.reserve,
-            reserveFactor_: defaults.RESERVE_FACTOR(),
-            rewardFactor_: defaults.REWARD_FACTOR(),
-            rushSmartLock_: users.burn,
-            surplusFactor_: defaults.SURPLUS_FACTOR()
-        });
+        liquidityDeployer = new LiquidityDeployer(
+            LD.ConstructorParam({
+                aclManager_: address(aclManager),
+                earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
+                feeCalculator_: address(feeCalculator),
+                liquidityPool_: address(liquidityPool),
+                maxDeploymentAmount_: defaults.MAX_LIQUIDITY_AMOUNT(),
+                maxDuration_: defaults.MAX_LIQUIDITY_DURATION(),
+                minDeploymentAmount_: defaults.MIN_LIQUIDITY_AMOUNT(),
+                minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
+                reserve_: users.reserve,
+                reserveFactor_: defaults.RESERVE_FACTOR(),
+                rewardFactor_: defaults.REWARD_FACTOR(),
+                rushSmartLock_: users.burn,
+                surplusFactor_: defaults.SURPLUS_FACTOR()
+            })
+        );
         vm.label({ account: address(liquidityDeployer), newLabel: "LiquidityDeployer" });
 
         rushERC20Factory = new RushERC20Factory({ aclManager_: address(aclManager) });

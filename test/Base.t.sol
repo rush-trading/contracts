@@ -14,6 +14,7 @@ import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";
 import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { LiquidityPool } from "src/LiquidityPool.sol";
 import { RushERC20Factory } from "src/RushERC20Factory.sol";
+import { LD } from "src/types/DataTypes.sol";
 import { WETHMock } from "test/mocks/WETHMock.sol";
 import { Calculations } from "./utils/Calculations.sol";
 import { Constants } from "./utils/Constants.sol";
@@ -126,21 +127,23 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
             maxTotalDeposits_: defaults.MAX_TOTAL_DEPOSITS()
         });
         vm.label({ account: address(liquidityPool), newLabel: "LiquidityPool" });
-        liquidityDeployer = new LiquidityDeployer({
-            aclManager_: address(aclManager),
-            earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
-            feeCalculator_: address(feeCalculator),
-            liquidityPool_: address(liquidityPool),
-            maxDeploymentAmount_: defaults.MAX_LIQUIDITY_AMOUNT(),
-            maxDuration_: defaults.MAX_LIQUIDITY_DURATION(),
-            minDeploymentAmount_: defaults.MIN_LIQUIDITY_AMOUNT(),
-            minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
-            reserve_: users.reserve,
-            reserveFactor_: defaults.RESERVE_FACTOR(),
-            rewardFactor_: defaults.REWARD_FACTOR(),
-            rushSmartLock_: users.burn,
-            surplusFactor_: defaults.SURPLUS_FACTOR()
-        });
+        liquidityDeployer = new LiquidityDeployer(
+            LD.ConstructorParam({
+                aclManager_: address(aclManager),
+                earlyUnwindThreshold_: defaults.EARLY_UNWIND_THRESHOLD(),
+                feeCalculator_: address(feeCalculator),
+                liquidityPool_: address(liquidityPool),
+                maxDeploymentAmount_: defaults.MAX_LIQUIDITY_AMOUNT(),
+                maxDuration_: defaults.MAX_LIQUIDITY_DURATION(),
+                minDeploymentAmount_: defaults.MIN_LIQUIDITY_AMOUNT(),
+                minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
+                reserve_: users.reserve,
+                reserveFactor_: defaults.RESERVE_FACTOR(),
+                rewardFactor_: defaults.REWARD_FACTOR(),
+                rushSmartLock_: users.burn,
+                surplusFactor_: defaults.SURPLUS_FACTOR()
+            })
+        );
         vm.label({ account: address(liquidityDeployer), newLabel: "LiquidityDeployer" });
     }
 
