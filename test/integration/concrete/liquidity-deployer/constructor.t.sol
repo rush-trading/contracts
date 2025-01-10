@@ -25,6 +25,8 @@ struct Vars {
     address expectedReserve;
     uint256 actualReserveFactor;
     uint256 expectedReserveFactor;
+    uint256 actualRewardFactor;
+    uint256 expectedRewardFactor;
     uint256 actualSurplusFactor;
     uint256 expectedSurplusFactor;
 }
@@ -47,6 +49,7 @@ contract Constructor_LiquidityDeployer_Integration_Concrete_Test is Integration_
             minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
             reserve_: users.reserve,
             reserveFactor_: defaults.RESERVE_FACTOR(),
+            rewardFactor_: defaults.REWARD_FACTOR(),
             rushSmartLock_: users.burn,
             surplusFactor_: defaults.SURPLUS_FACTOR()
         });
@@ -91,6 +94,10 @@ contract Constructor_LiquidityDeployer_Integration_Concrete_Test is Integration_
         vars.actualReserveFactor = constructedLiquidityDeployer.RESERVE_FACTOR();
         vars.expectedReserveFactor = defaults.RESERVE_FACTOR();
         assertEq(vars.actualReserveFactor, vars.expectedReserveFactor, "RESERVE_FACTOR");
+
+        vars.actualRewardFactor = constructedLiquidityDeployer.REWARD_FACTOR();
+        vars.expectedRewardFactor = defaults.REWARD_FACTOR();
+        assertEq(vars.actualRewardFactor, vars.expectedRewardFactor, "REWARD_FACTOR");
 
         vars.actualSurplusFactor = constructedLiquidityDeployer.SURPLUS_FACTOR();
         vars.expectedSurplusFactor = defaults.SURPLUS_FACTOR();

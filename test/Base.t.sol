@@ -137,6 +137,7 @@ abstract contract Base_Test is Test, Utils, Calculations, Constants, Events, Pre
             minDuration_: defaults.MIN_LIQUIDITY_DURATION(),
             reserve_: users.reserve,
             reserveFactor_: defaults.RESERVE_FACTOR(),
+            rewardFactor_: defaults.REWARD_FACTOR(),
             rushSmartLock_: users.burn,
             surplusFactor_: defaults.SURPLUS_FACTOR()
         });
