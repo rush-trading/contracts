@@ -136,6 +136,26 @@ forge script script/DeployFeeCalculator.s.sol \
     ${RATE_SLOPE_2}
 ```
 
+### Deploy `RushSmartLock`
+
+```shell
+# Set the deployment variables
+export NETWORK="sepolia"
+export ACL_MANAGER="<ADDRESS>"
+export LIQUIDITY_POOL="<ADDRESS>"
+export UNISWAP_V2_FACTORY="<ADDRESS>"
+
+# Run the script
+forge script script/DeployRushSmartLock.s.sol \
+    --broadcast \
+    --rpc-url ${NETWORK} \
+    --sig "run(address,address,address)" \
+    --verify \
+    ${ACL_MANAGER} \
+    ${LIQUIDITY_POOL} \
+    ${UNISWAP_V2_FACTORY}
+```
+
 ### Deploy `LiquidityDeployer`
 
 ```shell
@@ -151,25 +171,29 @@ export MIN_DEPLOYMENT_AMOUNT="<WAD>"
 export MIN_DURATION="<SECONDS>"
 export RESERVE="<ADDRESS>"
 export RESERVE_FACTOR="<WAD>"
+export REWARD_FACTOR="<WAD>"
+export RUSH_SMART_LOCK="<ADDRESS>"
 export SURPLUS_FACTOR="<WAD>"
 
 # Run the script
 forge script script/DeployLiquidityDeployer.s.sol \
     --broadcast \
     --rpc-url ${NETWORK} \
-    --sig "run(address,uint256,address,address,uint256,uint256,uint256,uint256,address,uint256,uint256)" \
+    --sig "run((address,uint256,address,address,uint256,uint256,uint256,uint256,address,uint256,uint256,address,uint256))" \
     --verify \
-    ${ACL_MANAGER} \
-    ${EARLY_UNWIND_THRESHOLD} \
-    ${FEE_CALCULATOR} \
-    ${LIQUIDITY_POOL} \
-    ${MAX_DEPLOYMENT_AMOUNT} \
-    ${MAX_DURATION} \
-    ${MIN_DEPLOYMENT_AMOUNT} \
-    ${MIN_DURATION} \
-    ${RESERVE} \
-    ${RESERVE_FACTOR} \
-    ${SURPLUS_FACTOR}
+    "(${ACL_MANAGER}, \
+    ${EARLY_UNWIND_THRESHOLD}, \
+    ${FEE_CALCULATOR}, \
+    ${LIQUIDITY_POOL}, \
+    ${MAX_DEPLOYMENT_AMOUNT}, \
+    ${MAX_DURATION}, \
+    ${MIN_DEPLOYMENT_AMOUNT}, \
+    ${MIN_DURATION}, \
+    ${RESERVE}, \
+    ${RESERVE_FACTOR}, \
+    ${REWARD_FACTOR}, \
+    ${RUSH_SMART_LOCK}, \
+    ${SURPLUS_FACTOR})"
 ```
 
 ### Deploy `RushLauncher`
