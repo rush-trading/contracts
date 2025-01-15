@@ -35,5 +35,11 @@ contract StakingRewards_Unit_Concrete_Test is Base_Test {
         vm.label({ account: address(stakingRewards), newLabel: "StakingRewards" });
     }
 
+    /// @dev Initializes the contract.
+    function initialize() internal {
+        rushERC20Mock.mint({ account: address(stakingRewards), amount: defaults.RUSH_ERC20_SUPPLY() });
+        stakingRewards.initialize({ token_: address(rushERC20Mock) });
+    }
+
     // #endregion ----------------------------------------------------------------------------------- //
 }

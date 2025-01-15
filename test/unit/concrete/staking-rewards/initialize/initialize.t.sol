@@ -4,7 +4,7 @@ pragma solidity >=0.8.26 <0.9.0;
 import { Errors } from "src/libraries/Errors.sol";
 import { StakingRewards_Unit_Concrete_Test } from "test/unit/concrete/staking-rewards/StakingRewards.t.sol";
 
-contract Initialize_Integration_Concrete_Test is StakingRewards_Unit_Concrete_Test {
+contract Initialize_Unit_Concrete_Test is StakingRewards_Unit_Concrete_Test {
     function test_RevertGiven_AlreadyInitialized() external {
         // Initialize the contract.
         stakingRewards.initialize({ token_: address(rushERC20Mock) });
@@ -16,11 +16,11 @@ contract Initialize_Integration_Concrete_Test is StakingRewards_Unit_Concrete_Te
 
     function test_GivenNotInitialized() external {
         // Mint some tokens to the contract as rewards.
-        rushERC20Mock.mint({ account: address(stakingRewards), amount: defaults.STAKING_AMOUNT() });
+        rushERC20Mock.mint({ account: address(stakingRewards), amount: defaults.RUSH_ERC20_SUPPLY() });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(stakingRewards) });
-        emit Initialize({ reward: defaults.STAKING_AMOUNT() });
+        emit Initialize({ reward: defaults.RUSH_ERC20_SUPPLY() });
 
         // Initialize the contract.
         stakingRewards.initialize({ token_: address(rushERC20Mock) });
@@ -35,7 +35,7 @@ contract Initialize_Integration_Concrete_Test is StakingRewards_Unit_Concrete_Te
         assertEq(actualRewardsDuration, expectedRewardsDuration, "rewardsDuration");
 
         uint256 actualRewardRate = stakingRewards.rewardRate();
-        uint256 expectedRewardRate = defaults.STAKING_AMOUNT() / stakingRewards.rewardsDuration();
+        uint256 expectedRewardRate = defaults.RUSH_ERC20_SUPPLY() / stakingRewards.rewardsDuration();
         assertEq(actualRewardRate, expectedRewardRate, "rewardRate");
 
         uint256 actualLastUpdateTime = stakingRewards.lastUpdateTime();

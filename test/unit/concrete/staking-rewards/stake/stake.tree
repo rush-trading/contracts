@@ -1,0 +1,6 @@
+stake.t.sol
+├── when amount is zero
+│   └── it should revert
+└── when amount is not zero
+    ├── it should stake the tokens
+    └── it should emit a {Staked} event
