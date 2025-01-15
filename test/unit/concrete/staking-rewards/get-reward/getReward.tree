@@ -1,0 +1,6 @@
+getReward.t.sol
+├── when reward is zero
+│   └── it should do nothing
+└── when reward is greater than zero
+    ├── it should award reward to staker
+    └── it should emit a {RewardPaid} event

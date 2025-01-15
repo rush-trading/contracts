@@ -81,6 +81,8 @@ abstract contract Events {
 
     event Initialize(uint256 reward);
 
+    event RewardPaid(address indexed user, uint256 reward);
+
     event Staked(address indexed user, uint256 amount);
 
     // #endregion ----------------------------------------------------------------------------------- //
