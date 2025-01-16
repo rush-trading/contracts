@@ -37,7 +37,7 @@ contract StakingRewards_Unit_Concrete_Test is Base_Test {
 
     /// @dev Initializes the contract.
     function initialize() internal {
-        rushERC20Mock.mint({ account: address(stakingRewards), amount: defaults.RUSH_ERC20_SUPPLY() });
+        rushERC20Mock.mint({ account: address(stakingRewards), amount: defaults.REWARDS_AMOUNT() });
         stakingRewards.initialize({ token_: address(rushERC20Mock) });
     }
 

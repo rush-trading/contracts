@@ -35,7 +35,9 @@ contract GetReward_Unit_Concrete_Test is StakingRewards_Unit_Concrete_Test {
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(stakingRewards) });
-        uint256 reward = 5555.5555555555554e18;
+        uint256 rewardForDuration = stakingRewards.rewardRate() * 1 days;
+        uint256 totalSupply = stakingRewards.totalSupply();
+        uint256 reward = Math.mulDiv(amount, Math.mulDiv(rewardForDuration, 1e18, totalSupply), 1e18);
         emit RewardPaid({ user: users.alice, reward: reward });
 
         // Get the reward.

@@ -1,0 +1,9 @@
+withdraw.t.sol
+├── when amount is zero
+│   └── it should revert
+└── when amount is not zero
+    ├── when amount is greater than balance
+    │   └── it should revert
+    └── when amount is less than or equal to balance
+        ├── it should withdraw the staked tokens
+        └── it should emit a {Withdrawn} event

@@ -85,6 +85,8 @@ abstract contract Events {
 
     event Staked(address indexed user, uint256 amount);
 
+    event Withdrawn(address indexed user, uint256 amount);
+
     // #endregion ----------------------------------------------------------------------------------- //
 
     // #region ------------------------------=|+ LIQUIDITY-DEPLOYER +|=------------------------------ //
