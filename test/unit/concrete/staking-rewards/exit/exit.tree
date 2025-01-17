@@ -1,0 +1,7 @@
+exit.t.sol
+├── when balance is zero
+│   └── it should revert
+└── when balance is not zero
+    ├── it should exit the staking rewards
+    ├── it should emit a {Withdrawn} event
+    └── it should emit a {RewardPaid} event

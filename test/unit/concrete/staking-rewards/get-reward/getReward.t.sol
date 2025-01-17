@@ -44,9 +44,9 @@ contract GetReward_Unit_Concrete_Test is StakingRewards_Unit_Concrete_Test {
         stakingRewards.getReward();
 
         // Assert the contract state.
-        uint256 expectedReward = reward;
-        uint256 actualReward = rushERC20Mock.balanceOf({ account: users.alice });
-        assertEq(actualReward, expectedReward, "reward");
+        uint256 expectedTokenBalance = reward;
+        uint256 actualTokenBalance = rushERC20Mock.balanceOf({ account: users.alice });
+        assertEq(actualTokenBalance, expectedTokenBalance, "balanceOf");
         assertEq(stakingRewards.rewards(users.alice), 0, "rewards");
     }
 }
