@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.26 <0.9.0;
 
 import { IRushERC20Factory } from "src/interfaces/IRushERC20Factory.sol";

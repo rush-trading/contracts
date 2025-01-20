@@ -2,7 +2,7 @@
 
 ![Foundry CI](https://github.com/rush-trading/contracts/actions/workflows/ci.yml/badge.svg)
 [![Foundry][foundry-badge]][foundry]
-[![License: UNLICENSED](https://img.shields.io/badge/License-UNLICENSED-blue.svg)](https://github.com/rush-trading/contracts/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/rush-trading/contracts/blob/main/LICENSE)
 
 [foundry]: https://getfoundry.sh/
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg

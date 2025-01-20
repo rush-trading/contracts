@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.26;
 
 /// @notice Abstract contract containing all the events emitted by the protocol.

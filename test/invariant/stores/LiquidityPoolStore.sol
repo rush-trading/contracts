@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.26 <0.9.0;
 
 /// @dev Storage variables needed by the LiquidityPool handler.

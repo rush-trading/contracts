@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.26 <0.9.0;
 
 import { StakingRewards_Unit_Shared_Test } from "test/unit/shared/StakingRewards.t.sol";
