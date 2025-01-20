@@ -1,0 +1,2 @@
+getRewardForDuration.t.sol
+└── it should return correct reward for duration
