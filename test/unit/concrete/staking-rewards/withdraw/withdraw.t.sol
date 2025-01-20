@@ -3,11 +3,11 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { StakingRewards_Unit_Concrete_Test } from "test/unit/concrete/staking-rewards/StakingRewards.t.sol";
+import { StakingRewards_Unit_Shared_Test } from "test/unit/shared/StakingRewards.t.sol";
 
-contract Withdraw_Unit_Concrete_Test is StakingRewards_Unit_Concrete_Test {
+contract Withdraw_Unit_Concrete_Test is StakingRewards_Unit_Shared_Test {
     function setUp() public virtual override {
-        StakingRewards_Unit_Concrete_Test.setUp();
+        StakingRewards_Unit_Shared_Test.setUp();
         initialize();
         // Set Alice as the caller.
         resetPrank({ msgSender: users.alice });

@@ -6,7 +6,7 @@ import { Base_Test } from "test/Base.t.sol";
 import { GoodRushERC20Mock } from "test/mocks/GoodRushERC20Mock.sol";
 import { StakingRewards } from "src/StakingRewards.sol";
 
-contract StakingRewards_Unit_Concrete_Test is Base_Test {
+contract StakingRewards_Unit_Shared_Test is Base_Test {
     using Clones for address;
 
     // #region --------------------------------=|+ TEST CONTRACTS +|=-------------------------------- //
