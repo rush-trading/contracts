@@ -1,14 +1,15 @@
 {
   "name": "@rush-trading/contracts",
   "description": "Smart contracts of rush.trading",
+  "license": "MIT",
   "version": "1.0.0",
   "author": {
     "name": "rush-trading",
     "url": "https://github.com/rush-trading"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.1",
-    "@openzeppelin/contracts-upgradeable": "^5.0.2"
+    "@openzeppelin/contracts": "^5.2.0",
+    "@openzeppelin/contracts-upgradeable": "^5.2.0"
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std#v1.8.1",
