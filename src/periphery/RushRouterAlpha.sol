@@ -48,8 +48,8 @@ contract RushRouterAlpha is Nonces {
         Donatable
     }
 
-    /// @dev Enum of gas modes supported for launching ERC20 tokens.
-    enum GasMode {
+    /// @dev Enum of protocol fee modes.
+    enum FeeMode {
         Default,
         Sponsored
     }
@@ -149,11 +149,11 @@ contract RushRouterAlpha is Nonces {
         _launchERC20({
             name: name,
             symbol: symbol,
+            feeMode: FeeMode.Default,
             liquidityAmount: liquidityAmount,
             liquidityDuration: liquidityDuration,
             liquidityMsgValue: msg.value,
             maxTotalFee: maxTotalFee,
-            gasMode: GasMode.Default,
             signature: signature
         });
     }
@@ -180,6 +180,7 @@ contract RushRouterAlpha is Nonces {
         _launchERC20({
             name: name,
             symbol: symbol,
+            feeMode: FeeMode.Sponsored,
             liquidityAmount: liquidityAmount,
             liquidityDuration: liquidityDuration,
             liquidityMsgValue: 
@@ -188,7 +189,6 @@ contract RushRouterAlpha is Nonces {
             // Additional msg.value is swapped to RushERC20
             + msg.value,
             maxTotalFee: maxTotalFee,
-            gasMode: GasMode.Sponsored,
             signature: signature
         });
     }
@@ -413,11 +413,11 @@ contract RushRouterAlpha is Nonces {
     function _launchERC20(
         string calldata name,
         string calldata symbol,
+        FeeMode feeMode,
         uint256 liquidityAmount,
         uint256 liquidityDuration,
         uint256 liquidityMsgValue,
         uint256 maxTotalFee,
-        GasMode gasMode,
         bytes calldata signature
     )
         internal
@@ -431,7 +431,7 @@ contract RushRouterAlpha is Nonces {
                 liquidityAmount,
                 liquidityDuration,
                 ERC20Type.Basic,
-                gasMode
+                feeMode
             ),
             signature: signature
         });
