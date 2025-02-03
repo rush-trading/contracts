@@ -25,8 +25,8 @@ forge script script/DeployMaster.s.sol \
     --verify
 ```
 
-Protocol contracts (i.e., `LiquidityDeployer`, `RushLauncher`, and `RushRouterAlpha`) can also be upgraded in a single step
-by running the following script:
+Protocol contracts (i.e., `LiquidityDeployer`, `RushLauncher`, and `RushRouterAlpha`) can also be upgraded in a single
+step by running the following script:
 
 ````shell
 # Set the deployment variables
@@ -312,8 +312,8 @@ aclManager.addLauncher({
 
 ### ROUTER_ROLE
 
-It is assigned to the `RushRouterAlpha` contract to allow it to call the `launch` function on the `RushLauncher` contract.
-The necessary role is assigned by calling the `addRouter` function on the `ACLManager` contract.
+It is assigned to the `RushRouterAlpha` contract to allow it to call the `launch` function on the `RushLauncher`
+contract. The necessary role is assigned by calling the `addRouter` function on the `ACLManager` contract.
 
 ```solidity
 aclManager.addRouter({
