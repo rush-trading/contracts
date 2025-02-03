@@ -68,8 +68,8 @@ contract RushRouterAlpha is Nonces {
     /// @dev Thrown when the signature is invalid.
     error RushRouterAlpha_InvalidSignature();
 
-    /// @dev Thrown when the minimum shares out is not met.
-    error RushRouterAlpha_MinSharesError();
+    /// @dev Thrown when the shares minted or redeemed are outside acceptable bounds.
+    error RushRouterAlpha_SharesError();
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -308,6 +308,7 @@ contract RushRouterAlpha is Nonces {
     /**
      * @notice Lend WETH to the LiquidityPool.
      * @param amount The amount of WETH to lend.
+     * @param minSharesOut The minimum amount of shares to mint.
      */
     function lend(uint256 amount, uint256 minSharesOut) external returns (uint256 sharesOut) {
         // Transfer the amount of WETH to this contract.
@@ -318,12 +319,13 @@ contract RushRouterAlpha is Nonces {
 
         // Deposit the WETH into the LiquidityPool and mint the corresponding amount of shares to the sender.
         if ((sharesOut = LIQUIDITY_POOL.deposit({ assets: amount, receiver: msg.sender })) < minSharesOut) {
-            revert RushRouterAlpha_MinSharesError();
+            revert RushRouterAlpha_SharesError();
         }
     }
 
     /**
      * @notice Lend ETH to the LiquidityPool.
+     * @param minSharesOut The minimum amount of shares to mint.
      */
     function lendETH(uint256 minSharesOut) external payable returns (uint256 sharesOut) {
         // Deposit the ETH into WETH.
@@ -334,40 +336,46 @@ contract RushRouterAlpha is Nonces {
 
         // Deposit the WETH into the LiquidityPool and mint the corresponding amount of shares to the sender.
         if ((sharesOut = LIQUIDITY_POOL.deposit({ assets: msg.value, receiver: msg.sender })) < minSharesOut) {
-            revert RushRouterAlpha_MinSharesError();
+            revert RushRouterAlpha_SharesError();
         }
     }
 
     /**
      * @notice Withdraw lent WETH from the LiquidityPool.
      * @param amount The amount of WETH to withdraw.
+     * @param maxSharesIn The maximum amount of shares to redeem.
      */
-    function withdraw(uint256 amount) external {
+    function withdraw(uint256 amount, uint256 maxSharesIn) external returns (uint256 sharesIn) {
         // Calculate the amount of shares to redeem.
-        uint256 shares = LIQUIDITY_POOL.previewWithdraw(amount);
+        if ((sharesIn = LIQUIDITY_POOL.previewWithdraw(amount)) > maxSharesIn) {
+            revert RushRouterAlpha_SharesError();
+        }
 
         // Transfer the amount of shares to this contract.
-        IERC20(LIQUIDITY_POOL).transferFrom({ from: msg.sender, to: address(this), value: shares });
+        IERC20(LIQUIDITY_POOL).transferFrom({ from: msg.sender, to: address(this), value: sharesIn });
 
         // Redeem the amount of shares from the LiquidityPool and transfer the corresponding amount of WETH to the
         // sender.
-        LIQUIDITY_POOL.redeem({ shares: shares, receiver: msg.sender, owner: address(this) });
+        LIQUIDITY_POOL.redeem({ shares: sharesIn, receiver: msg.sender, owner: address(this) });
     }
 
     /**
      * @notice Withdraw lent ETH from the LiquidityPool.
      * @param amount The amount of ETH to withdraw.
+     * @param maxSharesIn The maximum amount of shares to redeem.
      */
-    function withdrawETH(uint256 amount) external {
+    function withdrawETH(uint256 amount, uint256 maxSharesIn) external returns (uint256 sharesIn) {
         // Calculate the amount of shares to redeem.
-        uint256 shares = LIQUIDITY_POOL.previewWithdraw(amount);
+        if ((sharesIn = LIQUIDITY_POOL.previewWithdraw(amount)) > maxSharesIn) {
+            revert RushRouterAlpha_SharesError();
+        }
 
         // Transfer the amount of shares to this contract.
-        IERC20(LIQUIDITY_POOL).transferFrom({ from: msg.sender, to: address(this), value: shares });
+        IERC20(LIQUIDITY_POOL).transferFrom({ from: msg.sender, to: address(this), value: sharesIn });
 
         // Redeem the amount of shares from the LiquidityPool and transfer the corresponding amount of WETH to this
         // contract.
-        uint256 received = LIQUIDITY_POOL.redeem({ shares: shares, receiver: address(this), owner: address(this) });
+        uint256 received = LIQUIDITY_POOL.redeem({ shares: sharesIn, receiver: address(this), owner: address(this) });
 
         // Withdraw the received WETH to ETH.
         IWETH(WETH).withdraw(received);
