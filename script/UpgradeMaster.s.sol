@@ -5,7 +5,7 @@ import { ACLManager } from "src/ACLManager.sol";
 import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
-import { RushRouter } from "src/periphery/RushRouter.sol";
+import { RushRouterAlpha } from "src/periphery/RushRouterAlpha.sol";
 import { IRushSmartLock } from "src/RushSmartLock.sol";
 import { LD } from "src/types/DataTypes.sol";
 import { BaseScript } from "./Base.s.sol";
@@ -17,7 +17,7 @@ contract UpgradeMaster is BaseScript {
         FeeCalculator feeCalculator;
         LiquidityDeployer liquidityDeployer;
         RushLauncher rushLauncher;
-        RushRouter rushRouter;
+        RushRouterAlpha rushRouterAlpha;
     }
 
     // #endregion ----------------------------------------------------------------------------------- //
@@ -64,8 +64,14 @@ contract UpgradeMaster is BaseScript {
     // 0.5% reward factor for originator rewards
     uint256 internal constant REWARD_FACTOR = 0.005e18;
 
+    // Fee sponsor address
+    address internal constant SPONSOR_ADDRESS = 0x04394453Eee246181B6c8858239d9855Be90bE8f;
+
     // 5% surplus factor
     uint256 internal constant SURPLUS_FACTOR = 0.05e18;
+
+    // ECDSA verifier address
+    address internal constant VERIFIER_ADDRESS = 0x86Cc1bE24CD93bDE2141027129247a0BEEF086ce;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -99,7 +105,7 @@ contract UpgradeMaster is BaseScript {
         address rushSmartLock,
         address oldLiquidityDeployer,
         address oldRushLauncher,
-        address oldRushRouter
+        address oldRushRouterAlpha
     )
         public
         virtual
@@ -146,16 +152,20 @@ contract UpgradeMaster is BaseScript {
             uniswapV2Factory_: UNISWAP_V2_FACTORY
         });
 
-        // Deploy RushRouter
-        runReturnData.rushRouter = new RushRouter({ rushLauncher_: runReturnData.rushLauncher });
+        // Deploy RushRouterAlpha
+        runReturnData.rushRouterAlpha = new RushRouterAlpha({
+            rushLauncher_: runReturnData.rushLauncher,
+            sponsorAddress_: SPONSOR_ADDRESS,
+            verifierAddress_: VERIFIER_ADDRESS
+        });
 
         // Set ACLManager roles
         ACLManager(aclManager).addAssetManager({ account: address(runReturnData.liquidityDeployer) });
         ACLManager(aclManager).addLauncher({ account: address(runReturnData.rushLauncher) });
-        ACLManager(aclManager).addRouter({ account: address(runReturnData.rushRouter) });
+        ACLManager(aclManager).addRouter({ account: address(runReturnData.rushRouterAlpha) });
 
         ACLManager(aclManager).removeAssetManager({ account: address(oldLiquidityDeployer) });
         ACLManager(aclManager).removeLauncher({ account: address(oldRushLauncher) });
-        ACLManager(aclManager).removeRouter({ account: address(oldRushRouter) });
+        ACLManager(aclManager).removeRouter({ account: address(oldRushRouterAlpha) });
     }
 }

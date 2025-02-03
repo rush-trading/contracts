@@ -8,7 +8,7 @@ import { FeeCalculator } from "src/FeeCalculator.sol";
 import { LiquidityDeployer } from "src/LiquidityDeployer.sol";
 import { RushLauncher } from "src/RushLauncher.sol";
 import { IRushLauncher } from "src/interfaces/IRushLauncher.sol";
-import { RushRouter } from "src/periphery/RushRouter.sol";
+import { RushRouterAlpha } from "src/periphery/RushRouterAlpha.sol";
 import { RushSmartLock } from "src/RushSmartLock.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { RushERC20Taxable } from "src/tokens/RushERC20Taxable.sol";
@@ -62,8 +62,14 @@ contract DeployMaster is BaseScript {
     // 0.5% reward factor for originator rewards
     uint256 internal constant REWARD_FACTOR = 0.005e18;
 
+    // Fee sponsor address
+    address internal constant SPONSOR_ADDRESS = 0x04394453Eee246181B6c8858239d9855Be90bE8f;
+
     // 5% surplus factor
     uint256 internal constant SURPLUS_FACTOR = 0.05e18;
+
+    // ECDSA verifier address
+    address internal constant VERIFIER_ADDRESS = 0x86Cc1bE24CD93bDE2141027129247a0BEEF086ce;
 
     // #endregion ----------------------------------------------------------------------------------- //
 
@@ -108,7 +114,7 @@ contract DeployMaster is BaseScript {
             FeeCalculator feeCalculator,
             LiquidityDeployer liquidityDeployer,
             RushLauncher rushLauncher,
-            RushRouter rushRouter,
+            RushRouterAlpha rushRouterAlpha,
             RushSmartLock rushSmartLock
         )
     {
@@ -173,13 +179,17 @@ contract DeployMaster is BaseScript {
             uniswapV2Factory_: UNISWAP_V2_FACTORY
         });
 
-        // Deploy RushRouter
-        rushRouter = new RushRouter({ rushLauncher_: IRushLauncher(rushLauncher) });
+        // Deploy RushRouterAlpha
+        rushRouterAlpha = new RushRouterAlpha({
+            rushLauncher_: IRushLauncher(rushLauncher),
+            sponsorAddress_: SPONSOR_ADDRESS,
+            verifierAddress_: VERIFIER_ADDRESS
+        });
 
         // Set ACLManager roles
         aclManager.addAssetManager({ account: address(liquidityDeployer) });
         aclManager.addLauncher({ account: address(rushLauncher) });
-        aclManager.addRouter({ account: address(rushRouter) });
+        aclManager.addRouter({ account: address(rushRouterAlpha) });
 
         // Set RushERC20Factory templates
         RushERC20Basic rushERC20Basic = new RushERC20Basic();
