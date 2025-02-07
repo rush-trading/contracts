@@ -94,10 +94,12 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         givenPairHasNotBeenUnwound
     {
         // Set WETH reserve to be at the early unwind threshold.
+        LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
         deal({
             token: address(weth),
             to: uniV2Pair,
-            give: defaults.LIQUIDITY_AMOUNT() + liquidityDeployer.EARLY_UNWIND_THRESHOLD()
+            give: liquidityDeployment.amount + liquidityDeployment.subsidyAmount
+                + liquidityDeployer.EARLY_UNWIND_THRESHOLD()
         });
         IUniswapV2Pair(uniV2Pair).sync();
 
@@ -242,7 +244,8 @@ contract UnwindLiquidity_Fork_Test is LiquidityDeployer_Fork_Test {
         deal({
             token: address(weth),
             to: uniV2Pair,
-            give: defaults.LIQUIDITY_AMOUNT() + liquidityDeployer.EARLY_UNWIND_THRESHOLD()
+            give: liquidityDeployment.amount + liquidityDeployment.subsidyAmount
+                + liquidityDeployer.EARLY_UNWIND_THRESHOLD()
         });
         IUniswapV2Pair(uniV2Pair).sync();
 

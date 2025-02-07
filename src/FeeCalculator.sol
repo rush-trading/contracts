@@ -62,7 +62,7 @@ contract FeeCalculator is IFeeCalculator {
 
         vars.feeRate = BASE_FEE_RATE;
         vars.utilizationRatio =
-            Math.mulDiv(params.outstandingLiquidity + params.newLiquidity, 1e18, params.totalLiquidity);
+            Math.min(Math.mulDiv(params.outstandingLiquidity + params.newLiquidity, 1e18, params.totalLiquidity), 1e18);
 
         if (vars.utilizationRatio > OPTIMAL_UTILIZATION_RATIO) {
             // If U > U_optimal, formula is:

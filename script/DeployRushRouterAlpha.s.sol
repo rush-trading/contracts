@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.26 <0.9.0;
 
-import { IACLManager } from "src/interfaces/IACLManager.sol";
 import { IRushLauncher } from "src/interfaces/IRushLauncher.sol";
 import { RushRouterAlpha } from "src/periphery/RushRouterAlpha.sol";
 import { BaseScript } from "./Base.s.sol";
 
-contract UpgradeRushRouterAlpha is BaseScript {
+contract DeployRushRouterAlpha is BaseScript {
     function run(
-        IACLManager aclManager,
         IRushLauncher rushLauncher,
-        address oldRushRouterAlpha,
         address sponsorAddress,
         address verifierAddress
     )
@@ -20,11 +17,9 @@ contract UpgradeRushRouterAlpha is BaseScript {
         returns (RushRouterAlpha rushRouterAlpha)
     {
         rushRouterAlpha = new RushRouterAlpha({
+            rushLauncher_: rushLauncher,
             sponsorAddress_: sponsorAddress,
-            verifierAddress_: verifierAddress,
-            rushLauncher_: rushLauncher
+            verifierAddress_: verifierAddress
         });
-        aclManager.addRouter({ account: address(rushRouterAlpha) });
-        aclManager.removeRouter({ account: oldRushRouterAlpha });
     }
 }

@@ -6,7 +6,7 @@ import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { RushSmartLock } from "src/RushSmartLock.sol";
 import { StakingRewards } from "src/StakingRewards.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
-import { FC, RL } from "src/types/DataTypes.sol";
+import { FC, LD, RL } from "src/types/DataTypes.sol";
 import { RushLauncher_Test } from "../rush-launcher/RushLauncher.t.sol";
 
 contract RushSmartLock_Test is RushLauncher_Test {
@@ -74,8 +74,13 @@ contract RushSmartLock_Test is RushLauncher_Test {
                 maxTotalFee: type(uint256).max
             })
         );
+        LD.LiquidityDeployment memory liquidityDeployment = liquidityDeployer.getLiquidityDeployment(uniV2Pair);
         deal({ token: rushERC20, to: address(rushSmartLock), give: defaults.STAKING_AMOUNT() });
-        deal({ token: address(weth), to: uniV2Pair, give: liquidityAmount + defaults.EARLY_UNWIND_THRESHOLD() });
+        deal({
+            token: address(weth),
+            to: uniV2Pair,
+            give: liquidityDeployment.amount + liquidityDeployment.subsidyAmount + defaults.EARLY_UNWIND_THRESHOLD()
+        });
         IUniswapV2Pair(uniV2Pair).sync();
         liquidityDeployer.unwindLiquidity({ uniV2Pair: uniV2Pair });
         resetPrank({ msgSender: caller });

@@ -25,8 +25,8 @@ forge script script/DeployMaster.s.sol \
     --verify
 ```
 
-Protocol contracts (i.e., `LiquidityDeployer`, `RushLauncher`, and `RushRouter`) can also be upgraded in a single step
-by running the following script:
+Protocol contracts (i.e., `LiquidityDeployer`, `RushLauncher`, and `RushRouterAlpha`) can also be upgraded in a single
+step by running the following script:
 
 ````shell
 # Set the deployment variables
@@ -222,40 +222,24 @@ forge script script/DeployRushLauncher.s.sol \
     ${UNISWAP_V2_FACTORY}
 ```
 
-### Deploy `RushRouter`
+### Deploy `RushRouterAlpha`
 
 ```shell
 # Set the deployment variables
 export NETWORK="sepolia"
 export RUSH_LAUNCHER="<ADDRESS>"
+export SPONSOR="<ADDRESS>"
+export VERIFIER="<ADDRESS>"
 
 # Run the script
-forge script script/DeployRushRouter.s.sol \
+forge script script/DeployRushRouterAlpha.s.sol \
     --broadcast \
     --rpc-url ${NETWORK} \
     --sig "run(address)" \
     --verify \
-    ${RUSH_LAUNCHER}
-```
-
-### Upgrade `RushRouter`
-
-```shell
-# Set the deployment variables
-export NETWORK="sepolia"
-export ACL_MANAGER="<ADDRESS>"
-export RUSH_LAUNCHER="<ADDRESS>"
-export OLD_RUSH_ROUTER="<ADDRESS>"
-
-# Run the script
-forge script script/UpgradeRushRouter.s.sol \
-    --broadcast \
-    --rpc-url ${NETWORK} \
-    --sig "run(address,address,address)" \
-    --verify \
-    ${ACL_MANAGER} \
     ${RUSH_LAUNCHER} \
-    ${OLD_RUSH_ROUTER}
+    ${SPONSOR} \
+    ${VERIFIER}
 ```
 
 ### Upgrade `RushRouterAlpha`
@@ -328,12 +312,12 @@ aclManager.addLauncher({
 
 ### ROUTER_ROLE
 
-It is assigned to the `RushRouter` contract to allow it to call the `launch` function on the `RushLauncher` contract.
-The necessary role is assigned by calling the `addRouter` function on the `ACLManager` contract.
+It is assigned to the `RushRouterAlpha` contract to allow it to call the `launch` function on the `RushLauncher`
+contract. The necessary role is assigned by calling the `addRouter` function on the `ACLManager` contract.
 
 ```solidity
 aclManager.addRouter({
-    account: address(rushRouter)
+    account: address(rushRouterAlpha)
 });
 ```
 

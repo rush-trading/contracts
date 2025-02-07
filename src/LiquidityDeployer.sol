@@ -276,7 +276,7 @@ contract LiquidityDeployer is ILiquidityDeployer, Pausable, ACLRoles {
     function _getIsUnwindThresholdMet(address uniV2Pair) internal view returns (bool isUnwindThresholdMet) {
         LD.LiquidityDeployment storage deployment = _liquidityDeployments[uniV2Pair];
         (uint256 currentReserve,,) = _getOrderedReserves(uniV2Pair);
-        uint256 targetReserve = deployment.amount + EARLY_UNWIND_THRESHOLD;
+        uint256 targetReserve = deployment.amount + deployment.subsidyAmount + EARLY_UNWIND_THRESHOLD;
         isUnwindThresholdMet = currentReserve >= targetReserve;
     }
 
