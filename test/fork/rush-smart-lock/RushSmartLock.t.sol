@@ -25,7 +25,6 @@ contract RushSmartLock_Test is RushLauncher_Test {
         rushSmartLock = new RushSmartLock({
             aclManager_: address(aclManager),
             liquidityPool_: address(liquidityPool),
-            stakingRewardsImpl_: address(0),
             uniswapV2Factory_: address(uniswapV2Factory)
         });
         setLiquidityDeployer();

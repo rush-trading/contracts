@@ -143,9 +143,11 @@ contract DeployMaster is BaseScript {
         rushSmartLock = new RushSmartLock({
             aclManager_: address(aclManager),
             liquidityPool_: address(liquidityPool),
-            stakingRewardsImpl_: address(new StakingRewards()),
             uniswapV2Factory_: UNISWAP_V2_FACTORY
         });
+
+        // Set StakeRewards implementation address in RushSmartLock
+        rushSmartLock.setStakingRewardsImpl(address(new StakingRewards()));
 
         // Deploy LiquidityDeployer
         liquidityDeployer = new LiquidityDeployer(
