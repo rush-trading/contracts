@@ -61,6 +61,7 @@ interface IRushSmartLock is IACLRoles {
      * @notice Launches staking rewards for a given RushERC20 token.
      *
      * Requirements:
+     * - Staking rewards implementation must be set.
      * - Given RushERC20 must not be the zero address.
      * - Given RushERC20 must be a successful deployment.
      * - Staking rewards must not already be launched for the given RushERC20 token.

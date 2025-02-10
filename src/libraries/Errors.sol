@@ -199,6 +199,9 @@ library Errors {
     /// @notice Thrown when staking rewards are already launched for the given RushERC20 token.
     error RushSmartLock_StakingRewardsAlreadyLaunched(address rushERC20);
 
+    /// @notice Thrown when the staking rewards implementation is not set.
+    error RushSmartLock_StakingRewardsImplNotSet();
+
     /// @notice Thrown when the zero address is provided.
     error RushSmartLock_ZeroAddress();
 

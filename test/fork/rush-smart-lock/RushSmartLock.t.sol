@@ -4,7 +4,6 @@ pragma solidity >=0.8.26 <0.9.0;
 import { IUniswapV2Pair } from "src/external/IUniswapV2Pair.sol";
 import { IRushERC20 } from "src/interfaces/IRushERC20.sol";
 import { RushSmartLock } from "src/RushSmartLock.sol";
-import { StakingRewards } from "src/StakingRewards.sol";
 import { RushERC20Basic } from "src/tokens/RushERC20Basic.sol";
 import { FC, LD, RL } from "src/types/DataTypes.sol";
 import { RushLauncher_Test } from "../rush-launcher/RushLauncher.t.sol";
@@ -26,7 +25,7 @@ contract RushSmartLock_Test is RushLauncher_Test {
         rushSmartLock = new RushSmartLock({
             aclManager_: address(aclManager),
             liquidityPool_: address(liquidityPool),
-            stakingRewardsImpl_: address(new StakingRewards()),
+            stakingRewardsImpl_: address(0),
             uniswapV2Factory_: address(uniswapV2Factory)
         });
         setLiquidityDeployer();

@@ -102,6 +102,10 @@ contract RushSmartLock is IRushSmartLock, ACLRoles {
 
     /// @inheritdoc IRushSmartLock
     function launchStaking(address rushERC20) external {
+        // Checks: `stakingRewardsImpl` must not be the zero address.
+        if (stakingRewardsImpl == address(0)) {
+            revert Errors.RushSmartLock_StakingRewardsImplNotSet();
+        }
         // Checks: `rushERC20` must not be the zero address.
         if (rushERC20 == address(0)) {
             revert Errors.RushSmartLock_ZeroAddress();

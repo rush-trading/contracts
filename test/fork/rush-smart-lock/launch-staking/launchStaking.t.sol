@@ -3,10 +3,25 @@ pragma solidity >=0.8.26 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Errors } from "src/libraries/Errors.sol";
+import { StakingRewards } from "src/StakingRewards.sol";
 import { RushSmartLock_Test } from "../RushSmartLock.t.sol";
 
 contract LaunchStaking_Fork_Test is RushSmartLock_Test {
-    function test_RevertWhen_RushErc20IsZeroAddress() external {
+    function test_RevertGiven_StakingRewardsImplementationIsNotSet() external {
+        // Run the test.
+        vm.expectRevert(abi.encodeWithSelector(Errors.RushSmartLock_StakingRewardsImplNotSet.selector));
+        rushSmartLock.launchStaking(address(1));
+    }
+
+    modifier givenStakingRewardsImplementationIsSet() {
+        (, address caller,) = vm.readCallers();
+        resetPrank({ msgSender: users.admin });
+        rushSmartLock.setStakingRewardsImpl(address(new StakingRewards()));
+        resetPrank({ msgSender: caller });
+        _;
+    }
+
+    function test_RevertWhen_RushErc20IsZeroAddress() external givenStakingRewardsImplementationIsSet {
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.RushSmartLock_ZeroAddress.selector));
         rushSmartLock.launchStaking(address(0));
@@ -16,7 +31,11 @@ contract LaunchStaking_Fork_Test is RushSmartLock_Test {
         _;
     }
 
-    function test_RevertWhen_RushErc20IsNotSuccessfulDeployment() external whenRushErc20IsNotZeroAddress {
+    function test_RevertWhen_RushErc20IsNotSuccessfulDeployment()
+        external
+        givenStakingRewardsImplementationIsSet
+        whenRushErc20IsNotZeroAddress
+    {
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.RushSmartLock_NotSuccessfulDeployment.selector, address(1)));
         rushSmartLock.launchStaking(address(1));
@@ -28,6 +47,7 @@ contract LaunchStaking_Fork_Test is RushSmartLock_Test {
 
     function test_RevertWhen_StakingAlreadyLaunchedForRushErc20()
         external
+        givenStakingRewardsImplementationIsSet
         whenRushErc20IsNotZeroAddress
         whenRushErc20IsSuccessfulDeployment
     {
@@ -42,6 +62,7 @@ contract LaunchStaking_Fork_Test is RushSmartLock_Test {
 
     function test_WhenStakingNotYetLaunchedForRushErc20()
         external
+        givenStakingRewardsImplementationIsSet
         whenRushErc20IsNotZeroAddress
         whenRushErc20IsSuccessfulDeployment
     {
