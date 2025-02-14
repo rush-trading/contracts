@@ -34,6 +34,7 @@ export NETWORK="sepolia"
 export ACL_MANAGER="<ADDRESS>"
 export LIQUIDITY_POOL="<ADDRESS>"
 export RUSH_ERC20_FACTORY="<ADDRESS>"
+export RUSH_SMART_LOCK="<ADDRESS>"
 export OLD_LIQUIDITY_DEPLOYER="<ADDRESS>"
 export OLD_RUSH_LAUNCHER="<ADDRESS>"
 export OLD_RUSH_ROUTER="<ADDRESS>"
@@ -42,11 +43,12 @@ export OLD_RUSH_ROUTER="<ADDRESS>"
 forge script script/UpgradeMaster.s.sol \
     --broadcast \
     --rpc-url ${NETWORK} \
-    --sig "run(address,address,address,address,address,address)" \
+    --sig "run(address,address,address,address,address,address,address)" \
     --verify \
     ${ACL_MANAGER} \
     ${LIQUIDITY_POOL} \
     ${RUSH_ERC20_FACTORY} \
+    ${RUSH_SMART_LOCK} \
     ${OLD_LIQUIDITY_DEPLOYER} \
     ${OLD_RUSH_LAUNCHER} \
     ${OLD_RUSH_ROUTER}
