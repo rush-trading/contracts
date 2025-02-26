@@ -38,7 +38,11 @@ interface IRushERC20Factory is IACLRoles {
 
     // #region ------------------------------=|+ CONSTANT FUNCTIONS +|=------------------------------ //
 
-    /// @notice Retrieves the template entity.
+    /**
+     * @notice Retrieves the template implementation for a given kind.
+     * @dev kind = keccak256(abi.encodePacked(description))
+     * @param kind The kind of token template.
+     */
     function getTemplate(bytes32 kind) external view returns (address template);
 
     // #endregion ----------------------------------------------------------------------------------- //

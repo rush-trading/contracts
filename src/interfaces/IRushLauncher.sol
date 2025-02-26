@@ -6,7 +6,7 @@ import { RL } from "src/types/DataTypes.sol";
 
 /**
  * @title IRushLauncher
- * @notice A permission-less contract for launching ERC20 token markets.
+ * @notice A permissioned contract for launching ERC20 token markets.
  */
 interface IRushLauncher is IACLRoles {
     // #region ------------------------------------=|+ EVENTS +|=------------------------------------ //
