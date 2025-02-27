@@ -1,4 +1,4 @@
-# Rush Contracts
+# Rush Trading
 
 ![Foundry CI](https://github.com/rush-trading/contracts/actions/workflows/ci.yml/badge.svg)
 [![Foundry][foundry-badge]][foundry]
